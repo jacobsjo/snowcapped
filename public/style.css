@@ -1,0 +1,108 @@
+body {
+    margin: 0;
+    height: 100%;
+}
+
+.tooltip{
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: rgb(27, 27, 27);
+    padding: 5pt;
+    border: 2pt solid lightgray;
+    border-radius: 5pt;
+}
+
+.tooltip .name{
+    color: yellow;
+    font-size: 15pt;
+}
+
+.tooltip .instructions{
+    color: lightgray;
+    font-size: 10pt;
+}
+
+
+.hidden{
+    display: none;
+}
+
+#editor {
+    width: 60%;
+    height: 100%;
+    background-color: rgb(61, 61, 61);
+    float: left;
+}
+
+#sidebar {
+    float: left;
+    width: 200pt;
+    height: 100%;
+    background-color: rgb(43, 42, 42);
+}
+
+#sidebar .layout{
+    width: 180pt;
+    height: 40pt;
+    background-color: rgb(68, 67, 67);
+    margin: 5pt;
+    padding: 5pt;
+    user-select: none;
+    cursor: pointer;
+}
+
+#sidebar .layout .grid{
+    height: 40pt;
+}
+
+#sidebar .layout .name{
+    display: inline-block;
+    position: absolute;
+    height: 40pt;
+    width: 140pt;
+    line-height: 40pt;
+    text-align: left;
+    margin-left: 5pt;
+    vertical-align: middle;
+    color: white
+}
+
+
+#sliceEditor {
+    float: left;
+}
+
+
+#visualization {
+    width: 40%;
+    height: 100%;
+    background-color: rgb(36, 36, 36);
+    float: left;
+}
+
+.selectionElement {
+    width: 30pt;
+    height: 30pt;
+    padding: 0pt 0pt 0pt 0pt;
+    user-select: none;
+    cursor: pointer;
+}
+
+.sliceTable {
+    align-self: center;
+    margin: 10pt;
+    padding: 10pt;
+    background-color: rgb(94, 94, 94);
+}
+
+.sliceTable .TopHeader {
+    color: lightblue;
+    text-align: center;
+}
+
+.sliceTable .SideHeader {
+    color: lightblue;
+    text-align: right;
+}
