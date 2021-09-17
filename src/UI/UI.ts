@@ -1,5 +1,6 @@
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { LayoutEditor } from "./LayoutEditor";
+import { MenuManager } from "./MenuManager";
 import { SidebarManager } from "./SidebarManager";
 
 
@@ -29,12 +30,15 @@ export class UI{
         UI.instance = this
 
         this.openElement = openElement
+        this.builder = builder
 
         this.layoutEditor = new LayoutEditor(builder)
         this.layoutEditor.refresh()
 
         this.sidebarManager = new SidebarManager(builder)
         this.sidebarManager.refresh()
+
+        MenuManager.createClickHandlers()
     }
 
     refresh(){

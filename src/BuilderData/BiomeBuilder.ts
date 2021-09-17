@@ -1,4 +1,5 @@
 import { Climate } from "deepslate"
+import { VanillaBiomes } from "../Vanilla/VanillaBiomes"
 import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
 import { Layout } from "./Layout"
@@ -35,6 +36,36 @@ export class BiomeBuilder{
         this.biomes = new Map<string, Biome>();
 
         this.layoutElementDummy = LayoutElementDummy.create(this)
+    }
+
+    loadJSON(json: any){
+
+        this.continentalnesses = json.continentalnesses
+        this.erosions = json.erosions
+        this.weirdnesses = json.weirdnesses
+        this.temperatures = json.temperatures
+        this.humidities = json.humidities
+
+        this.layoutElements.clear()
+        this.layouts.clear()
+        this.biomes.clear()
+
+        VanillaBiomes.registerVanillaBiomes(this)
+
+        json.layouts?.forEach((layout : any) => {
+            Layout.fromJSON(this, layout)
+        });
+    }
+
+    toJSON(){
+        return {
+            continentalnesses: this.continentalnesses,
+            erosions: this.erosions,
+            weirdnesses: this.weirdnesses,
+            temperatures: this.temperatures,
+            humidities: this.humidities,
+            layouts: Array.from(this.layouts.values())
+        }
     }
     
     public getSlice(name: string){

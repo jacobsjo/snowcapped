@@ -1,24 +1,30 @@
 <head>
     <title>Minecraft Biome Builder</title>
     <link rel="stylesheet" href="style.css">
-    <script defer src="bundle.js"></script>    
+    <script defer src="bundle.js"></script>
 </head>
 
 <body>
-    <div id="editor">
-        <span id="sidebar"></span>
-        <span id="menu"></span>
-        <div id="layoutEditor">
-            <input type="text" id="layoutName"/>
-            <canvas id="layoutEditorCanvas" width="500" height="500">
+    <div id="main">
+        <div id="menu">
+            <div class="button" id="openButton">Open</div>
+            <div class="button" id="saveButton">Save</div>
+            <div class="button" id="exportButton">Export</div>
         </div>
-        </canvas>
-        <div class="tooltip hidden" id="layoutEditorTooltip">
-            <div class="name">minecraft:extreme_hills</div>
-            <div class="instructions">
-                <div class="change">Left click to change</div>
-                <div class="add_alt">Ctrl+Left click to add alternate</div>
-                <div class="open">Right click to open</div>
+        <div id="editor">
+            <div id="sidebar"></div>
+            <div id="layoutEditor">
+                <input type="text" id="layoutName" />
+                <canvas id="layoutEditorCanvas" width="500" height="500">
+                </canvas>
+            </div>
+            <div class="tooltip hidden" id="layoutEditorTooltip">
+                <div class="name">minecraft:extreme_hills</div>
+                <div class="instructions">
+                    <div class="change">Left click to change</div>
+                    <div class="add_alt">Ctrl+Left click to add alternate</div>
+                    <div class="open">Right click to open</div>
+                </div>
             </div>
         </div>
     </div>
