@@ -5,7 +5,6 @@ body {
     padding: 0;
     border: 0;
     margin: 0pt;
-    margin-left: 5pt;
     position: absolute;
 }
 
@@ -93,6 +92,14 @@ body {
     cursor: pointer;
 }
 
+#sidebar .sidebar_entry.assign_slices_button{
+    height: 40pt;
+    color: white;
+    line-height: 40pt;
+    text-align: center;
+
+}
+
 #sidebar .sidebar_entry.selected{
     background-color: rgb(138, 132, 124);
 }
@@ -113,6 +120,9 @@ body {
     height: 25pt;
 }
 
+
+
+
 #sidebar .sidebar_entry.add_layout_button{
     height: 25pt;
     color: rgb(189, 189, 189);
@@ -129,7 +139,6 @@ body {
     margin: 5pt;
     padding: 5pt;
     user-select: none;
-    cursor: pointer;
 }
 
 #sidebar .search_bar{
@@ -184,6 +193,52 @@ body {
     width: 197pt;
 } 
 
+/* Assign Slices */
+#assignSlices{
+    margin: auto;
+}
+
+#assignSlices table{
+    border-spacing: 0 5pt;
+    cursor: default;    
+    user-select: none;
+    margin: auto;
+}
+
+#assignSlices table tr .weirdness_name{
+    text-align: right;
+    color: white;
+    padding-right: 10pt;
+    width: 10pt;
+    overflow: visible;
+    white-space: nowrap;
+}
+
+
+#assignSlices table tr .slice_icon{
+    background-color: rgb(34, 34, 34);
+    padding: 10pt;
+}
+
+#assignSlices table tr .slice_icon canvas{
+    height: 70pt;
+}
+
+#assignSlices table tr .slice_name{
+    background-color: rgb(34, 34, 34);
+    color: white;
+    width: 250pt;
+}
+
+#assignSlices table tr .slice_mode_select{
+    background-color: rgb(34, 34, 34);
+    padding-right: 10pt;
+}
+
+#assignSlices table tr .slice_mode_select img{
+    height: 25pt;
+}
+
 /* Editor */
 
 #layoutEditor{
@@ -191,6 +246,8 @@ body {
     height: 100%;
     min-width: 300pt;
     text-align: center;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #layoutEditor #layoutName{
@@ -213,6 +270,7 @@ body {
     width: calc(100% - 10pt);
     max-width: 700px;
     max-height: 700px;
+    outline: 0;
 }
 
 

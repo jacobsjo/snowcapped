@@ -1,5 +1,7 @@
 import { ABElement } from "../../BuilderData/ABBiome";
 import { Biome } from "../../BuilderData/Biome";
+import { Layout } from "../../BuilderData/Layout";
+import { LayoutElementUnassigned } from "../../BuilderData/LayoutElementUnassigned";
 
 
 export interface ElementRenderer{
@@ -19,6 +21,20 @@ export class BiomeRenderer implements ElementRenderer{
     }
 }
 
+export class UnassignedRenderer implements ElementRenderer{
+    public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
+        ctx.fillStyle = "gray"
+        ctx.fillRect(minX, minY, sizeX, sizeY)
+
+        ctx.fillStyle = "white"
+        ctx.font = (sizeX*0.75) + 'px serif'
+        ctx.textAlign = "center"
+        ctx.textBaseline = "middle"
+        ctx.fillText("?", minX + sizeX * 0.5, minY + sizeY * 0.55)
+    }
+}
+
+
 export class ABBiomeRenderer implements ElementRenderer{
     ab_biome: ABElement
 
@@ -27,15 +43,29 @@ export class ABBiomeRenderer implements ElementRenderer{
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
-        const isARecursive = !(this.ab_biome.elementA instanceof Biome)
-        const isBRecursive = !(this.ab_biome.elementB instanceof Biome)
+        const isARecursive = this.ab_biome.elementA instanceof Layout
+        const isBRecursive = this.ab_biome.elementB instanceof Layout
 
-        ctx.fillStyle = (this.ab_biome.lookupRecursive(t_idx, h_idx, "A") as Biome).color()
+        const elementA = this.ab_biome.lookupRecursive(t_idx, h_idx, "A")
+
+        if (elementA instanceof Biome)
+            ctx.fillStyle = (elementA as Biome).color()
+        else if (elementA instanceof LayoutElementUnassigned)
+            ctx.fillStyle = "gray"
+
         ctx.beginPath()
         ctx.moveTo(minX, minY)
         ctx.lineTo(minX + sizeX, minY)
         ctx.lineTo(minX, minY + sizeY)
         ctx.fill()
+
+        if (elementA instanceof LayoutElementUnassigned){
+            ctx.fillStyle = "white"
+            ctx.font = (sizeX*0.5) + 'px serif'
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
+            ctx.fillText("?", minX + sizeX * 0.3, minY + sizeY * 0.4)
+        }
 
         if (indicateRecursive && isARecursive){
             ctx.fillStyle = "rgb(255,255,255,0.8)"
@@ -54,12 +84,25 @@ export class ABBiomeRenderer implements ElementRenderer{
             }
         }
 
-        ctx.fillStyle = (this.ab_biome.lookupRecursive(t_idx, h_idx, "B") as Biome).color()
+        const elementB = this.ab_biome.lookupRecursive(t_idx, h_idx, "B")
+
+        if (elementB instanceof Biome)
+            ctx.fillStyle = (elementB as Biome).color()
+        else if (elementB instanceof LayoutElementUnassigned)
+            ctx.fillStyle = "gray"
         ctx.beginPath()
         ctx.moveTo(minX + sizeX, minY)
         ctx.lineTo(minX + sizeX, minY + sizeY)
         ctx.lineTo(minX, minY + sizeY)
         ctx.fill()
+
+        if (elementB instanceof LayoutElementUnassigned){
+            ctx.fillStyle = "white"
+            ctx.font = (sizeX*0.5) + 'px serif'
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
+            ctx.fillText("?", minX + sizeX * 0.72, minY + sizeY * 0.75)
+        }
 
         if (indicateRecursive && isBRecursive){
             ctx.fillStyle = "rgb(255,255,255,0.8)"

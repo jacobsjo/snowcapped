@@ -19,7 +19,7 @@ export class Layout implements LayoutElement {
     private constructor(builder: BiomeBuilder, name: string, array?: string[][], key?: string){
         this.name = name;
         this.builder = builder
-        this.array = array ?? new Array(builder.getNumTemperatures()).fill(0).map(() => new Array(builder.getNumHumidities()).fill("minecraft:plains"))
+        this.array = array ?? new Array(builder.getNumTemperatures()).fill(0).map(() => new Array(builder.getNumHumidities()).fill("unassigned"))
 
         this.key = key ?? uniqid('layout_')
     }

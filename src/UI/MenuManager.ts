@@ -4,14 +4,24 @@ import { UI } from "./UI"
 
 
 export class MenuManager {
+    private static loadVanillaButton: HTMLElement
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
     private static exportButton: HTMLElement
 
     static createClickHandlers() {
+        this.loadVanillaButton = document.getElementById('loadVanillaButton')
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
         this.exportButton = document.getElementById('exportButton')
+
+        this.loadVanillaButton.onclick = (evt: Event) => {
+            fetch('vanilla_overworld_biome_builder.json').then( r => r.text()).then(jsonString => {
+                UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
+                UI.getInstance().openElement = "assign_slices"
+                UI.getInstance().refresh()
+            })
+        }
 
         this.openButton.onclick = (evt: Event) => {
             const input = document.createElement('input') as HTMLInputElement
@@ -26,7 +36,7 @@ export class MenuManager {
                 reader.onload = (evt: ProgressEvent<FileReader>) => {
                     const jsonString = evt.target.result as string
                     UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
-                    UI.getInstance().openElement = UI.getInstance().builder.layouts.keys().next().value
+                    UI.getInstance().openElement = "assign_slices"
                     UI.getInstance().refresh()
                 }
 

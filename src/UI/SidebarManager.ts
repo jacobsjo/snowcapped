@@ -26,6 +26,28 @@ export class SidebarManager {
         this.layout_divs = []
         this.biome_divs = []
 
+        // Add Add Button
+        const assignSplicesButton = document.createElement("div")
+        assignSplicesButton.classList.add("sidebar_entry")
+        assignSplicesButton.classList.add("assign_slices_button")
+        if (UI.getInstance().openElement === "assign_slices"){
+            assignSplicesButton.classList.add("open")
+        }
+        assignSplicesButton.innerHTML = "Assign Slices"
+        assignSplicesButton.onclick = (evt: Event) => {
+            UI.getInstance().selectedElement = ""
+            UI.getInstance().openElement = "assign_slices"
+            UI.getInstance().refresh()
+            evt.preventDefault()
+        }
+        assignSplicesButton.oncontextmenu = assignSplicesButton.onclick
+        this.sidebar.appendChild(assignSplicesButton)
+
+        // Add spacer
+        const spacer0 = document.createElement("div")
+        spacer0.classList.add("spacer")
+        this.sidebar.appendChild(spacer0)
+
         // Add Slices
         this.builder.slices.forEach(slice => {
             this.layout_divs.push(this.createElementDiv(slice, "slice"))
@@ -37,7 +59,7 @@ export class SidebarManager {
         addSlicesButton.classList.add("add_layout_button")
         addSlicesButton.innerHTML = "+ Add Slice"
         addSlicesButton.onclick = (evt: Event) => {
-            const slice = Slice.create(this.builder, "New Slice", "minecraft:river")
+            const slice = Slice.create(this.builder, "New Slice", "unassigned")
             UI.getInstance().openElement = slice.getKey()
             UI.getInstance().refresh()
         }
@@ -122,6 +144,10 @@ export class SidebarManager {
 
         if (element instanceof Layout || element instanceof Slice) {
             layout_div.oncontextmenu = (evt) => {
+                if (UI.getInstance().openElement === "assign_slices"){
+                    UI.getInstance().selectedElement = ""
+                }
+
                 UI.getInstance().openElement = element.getKey()
 
                 if (UI.getInstance().selectedElement === element.getKey()){
@@ -136,8 +162,10 @@ export class SidebarManager {
             layout_div.ondblclick = layout_div.oncontextmenu            
         }
 
-        if (!(element instanceof Slice))
         layout_div.onclick = (evt) => {
+            if ((UI.getInstance().openElement === "assign_slices") !== (element instanceof Slice))
+                return
+
             UI.getInstance().selectedElement = element.getKey()
 
             this.layout_divs.forEach(div => {

@@ -9,6 +9,7 @@ import { SidebarManager } from './UI/SidebarManager';
 import { LayoutEditor } from './UI/LayoutEditor';
 import { UI } from './UI/UI';
 import { Slice } from './BuilderData/Slice';
+import { LayoutElementUnassigned } from './BuilderData/LayoutElementUnassigned';
 
 
 const continentalnesses: [string, Climate.Param][] = [
@@ -48,56 +49,27 @@ const weirdnesses: [string, Climate.Param][] = [
 ]
 
 const temperatures: [string, Climate.Param][] = [
-    ['0', new Climate.Param(-1.0, -0.45)],
-    ['1', new Climate.Param(-0.45, -0.15)],
-    ['2', new Climate.Param(-0.15, 0.2)],
-    ['3', new Climate.Param(0.2, 0.55)],
-    ['4', new Climate.Param(0.55, 1.0)],
+    ['forzen', new Climate.Param(-1.0, -0.45)],
+    ['cold', new Climate.Param(-0.45, -0.15)],
+    ['normal', new Climate.Param(-0.15, 0.2)],
+    ['warm', new Climate.Param(0.2, 0.55)],
+    ['hot', new Climate.Param(0.55, 1.0)],
 ]
 
 const humidities: [string, Climate.Param][] = [
-    ['0', new Climate.Param(-1.0, -0.3)],
-    ['1', new Climate.Param(-0.3, -0.1)],
-    ['2', new Climate.Param(-0.1, 0.1)],
-    ['3', new Climate.Param(0.1, 0.3)],
-    ['4', new Climate.Param(0.3, 1.0)],
+    ['very dry', new Climate.Param(-1.0, -0.3)],
+    ['dry', new Climate.Param(-0.3, -0.1)],
+    ['normal', new Climate.Param(-0.1, 0.1)],
+    ['humid', new Climate.Param(0.1, 0.3)],
+    ['very humid', new Climate.Param(0.3, 1.0)],
 ]
 
 const builder = new BiomeBuilder(continentalnesses, erosions, weirdnesses, temperatures, humidities)
 
 VanillaBiomes.registerVanillaBiomes(builder)
+LayoutElementUnassigned.create(builder)
 
-const middle = Layout.create(builder, "Middle", [
-    ["minecraft:snowy_tundra/minecraft:ice_spikes", "minecraft:snowy_tundra", "minecraft:snowy_tundra/minecraft:snowy_taiga", "minecraft:snowy_taiga", "minecraft:snowy_taiga"],
-    ["minecraft:plains", "minecraft:plains", "minecraft:forest", "minecraft:taiga", "minecraft:giant_spruce_taiga/minecraft:giant_tree_taiga"],
-    ["minecraft:plains", "minecraft:plains/minecraft:sunflower_plains", "minecraft:forest/minecraft:flower_forest", "minecraft:birch_forest/minecraft:tall_birch_forest", "minecraft:dark_forest"],
-    ["minecraft:savanna", "minecraft:savanna", "minecraft:forest/minecraft:plains", "minecraft:jungle/minecraft:plains", "minecraft:jungle"],
-    ["minecraft:desert", "minecraft:desert", "minecraft:desert", "minecraft:jungle_edge", "minecraft:jungle"]
-])
-
-Layout.create(builder, "Beach", [
-    ["minecraft:snowy_beach", "minecraft:snowy_beach", "minecraft:snowy_beach", "minecraft:snowy_beach", "minecraft:snowy_beach"],
-    ["minecraft:beach", "minecraft:beach", "minecraft:beach", "minecraft:beach", "minecraft:beach"],
-    ["minecraft:beach", "minecraft:beach", "minecraft:beach", "minecraft:beach", "minecraft:beach"],
-    ["minecraft:beach", "minecraft:beach", "minecraft:beach", "minecraft:beach", "minecraft:beach"],
-    ["minecraft:desert", "minecraft:desert", "minecraft:desert", "minecraft:beach", "minecraft:beach"],
-])
-
-const middle_key = middle.getKey()
-
-Layout.create(builder, "Extreme Hills", [
-    ["minecraft:gravelly_hills", "minecraft:gravelly_hills", "minecraft:extreme_hills", "minecraft:wooded_mountains", "minecraft:wooded_mountains"],
-    ["minecraft:gravelly_hills", "minecraft:gravelly_hills", "minecraft:extreme_hills", "minecraft:wooded_mountains", "minecraft:wooded_mountains"],
-    ["minecraft:extreme_hills", "minecraft:extreme_hills", "minecraft:extreme_hills", "minecraft:wooded_mountains", "minecraft:wooded_mountains"],
-    [middle_key, middle_key, middle_key, middle_key, middle_key],
-    [middle_key, middle_key, "minecraft:swamp/" + middle_key, middle_key, middle_key]
-])
-
-console.log(Slice.create(builder, "Low Slice", middle_key))
-
-
-
-UI.create(builder, middle_key)
+UI.create(builder)
 
 //const valley_slice = Slice.create(builder, "Valley", 6)
 //valley_slice.set(3, 2, "River")

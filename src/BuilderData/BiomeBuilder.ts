@@ -1,17 +1,19 @@
 import { Climate } from "deepslate"
+import { UnassignedRenderer } from "../UI/Renderer/ElementRenderer"
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes"
 import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
 import { Layout } from "./Layout"
 import { LayoutElement } from "./LayoutElement"
 import { LayoutElementDummy } from "./LayoutElementDummy"
+import { LayoutElementUnassigned } from "./LayoutElementUnassigned"
 
 import { Slice } from "./Slice"
 
 export class BiomeBuilder{
     continentalnesses: [string, Climate.Param][]
     erosions: [string,Climate.Param][]
-    weirdnesses: [string,Climate.Param][]
+    weirdnesses: [string,Climate.Param, string, "A"|"B"][]
     temperatures: [string,Climate.Param][]
     humidities: [string,Climate.Param][]
 
@@ -26,7 +28,7 @@ export class BiomeBuilder{
     constructor(continentalnesses: [string, Climate.Param][], erosions: [string,Climate.Param][], weirdnesses: [string,Climate.Param][], temperatures: [string,Climate.Param][], humidities: [string,Climate.Param][]){
         this.continentalnesses = continentalnesses
         this.erosions = erosions
-        this.weirdnesses = weirdnesses
+        this.weirdnesses = weirdnesses.map(w => [w[0], w[1], "unassigned", "A"])
         this.temperatures = temperatures
         this.humidities = humidities
 
@@ -54,6 +56,7 @@ export class BiomeBuilder{
         this.slices.clear()
 
         VanillaBiomes.registerVanillaBiomes(this)
+        LayoutElementUnassigned.create(this)
 
         json.slices?.forEach((slice : any) => {
             Slice.fromJSON(this, slice)
