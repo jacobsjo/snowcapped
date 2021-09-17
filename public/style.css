@@ -24,13 +24,31 @@ body {
     font-size: 10pt;
 }
 
+#layoutEditor{
+    width: 100%;
+    height: 100%;
+}
+
+#layoutEditor #layoutName{
+    display: block;
+    width: 500pt;
+    padding: 10pt;
+    margin: 5pt;
+    background-color: rgb(36, 36, 36, 0);
+    color: rgb(255, 184, 102);
+    border: 0pt;
+    outline: 0pt;
+    font-size: 20pt;
+    text-align: center;
+}
+
 
 .hidden{
     display: none;
 }
 
 #editor {
-    width: 60%;
+    width: 100%;
     height: 100%;
     background-color: rgb(61, 61, 61);
     float: left;
@@ -38,14 +56,15 @@ body {
 
 #sidebar {
     float: left;
-    width: 200pt;
+    width: 250pt;
     height: 100%;
     background-color: rgb(43, 42, 42);
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
-#sidebar .layout{
-    width: 180pt;
-    height: 40pt;
+#sidebar .sidebar_entry{
+    width: 222pt;
     background-color: rgb(68, 67, 67);
     margin: 5pt;
     padding: 5pt;
@@ -53,13 +72,64 @@ body {
     cursor: pointer;
 }
 
-#sidebar .layout .grid{
+#sidebar .sidebar_entry.selected{
+    background-color: rgb(138, 132, 124);
+}
+
+#sidebar .sidebar_entry.open{
+    background-color: #6d6933;
+}
+
+
+#sidebar .sidebar_entry.layout{
     height: 40pt;
 }
 
-#sidebar .layout .name{
+#sidebar .sidebar_entry.biome{
+    height: 25pt;
+}
+
+#sidebar .sidebar_entry.add_layout_button{
+    height: 25pt;
+    color: rgb(189, 189, 189);
+    background-color: rgb(55, 55, 55);
+    line-height: 25pt;
+    text-align: center;
+
+}
+
+
+#sidebar .spacer{
+    width: 222pt;
+    height: 5pt;
+    margin: 5pt;
+    padding: 5pt;
+    user-select: none;
+    cursor: pointer;
+}
+
+#sidebar .search_bar{
+    width: 233pt;
+    padding: 5pt;
+    margin: 5pt;
+    background-color: rgb(36, 36, 36);
+    color: rgb(199, 199, 199);
+    border: 2pt solid black;
+    outline: 0pt;
+}
+
+
+#sidebar .sidebar_entry.layout .grid{
+    height: 40pt;
+}
+
+#sidebar .sidebar_entry.biome .grid{
+    height: 20pt;
+}
+
+#sidebar .sidebar_entry .name{
     display: inline-block;
-    position: absolute;
+    position: relative;
     height: 40pt;
     width: 140pt;
     line-height: 40pt;
@@ -69,9 +139,18 @@ body {
     color: white
 }
 
+#sidebar .sidebar_entry.layout .name{
+    top: -15pt;
+} 
+
+#sidebar .sidebar_entry.biome .name{
+    top: -10pt;
+} 
+
 
 #sliceEditor {
     float: left;
+    width: 520pt;
 }
 
 

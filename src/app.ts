@@ -7,6 +7,7 @@ import { Layout } from './BuilderData/Layout';
 import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { SidebarManager } from './UI/SidebarManager';
 import { LayoutEditor } from './UI/LayoutEditor';
+import { UI } from './UI/UI';
 
 
 const continentalnesses: [string, Climate.Param][] = [
@@ -65,7 +66,7 @@ const builder = new BiomeBuilder(continentalnesses, erosions, weirdnesses, tempe
 
 VanillaBiomes.registerVanillaBiomes(builder)
 
-Layout.create(builder, "Middle", [
+const middle = Layout.create(builder, "Middle", [
     ["minecraft:snowy_tundra/minecraft:ice_spikes", "minecraft:snowy_tundra", "minecraft:snowy_tundra/minecraft:snowy_taiga", "minecraft:snowy_taiga", "minecraft:snowy_taiga"],
     ["minecraft:plains", "minecraft:plains", "minecraft:forest", "minecraft:taiga", "minecraft:giant_spruce_taiga/minecraft:giant_tree_taiga"],
     ["minecraft:plains", "minecraft:plains/minecraft:sunflower_plains", "minecraft:forest/minecraft:flower_forest", "minecraft:birch_forest/minecraft:tall_birch_forest", "minecraft:dark_forest"],
@@ -81,26 +82,23 @@ Layout.create(builder, "Beach", [
     ["minecraft:desert", "minecraft:desert", "minecraft:desert", "minecraft:beach", "minecraft:beach"],
 ])
 
+const middle_key = middle.getKey()
+
 Layout.create(builder, "Extreme Hills", [
     ["minecraft:gravelly_hills", "minecraft:gravelly_hills", "minecraft:extreme_hills", "minecraft:wooded_mountains", "minecraft:wooded_mountains"],
     ["minecraft:gravelly_hills", "minecraft:gravelly_hills", "minecraft:extreme_hills", "minecraft:wooded_mountains", "minecraft:wooded_mountains"],
     ["minecraft:extreme_hills", "minecraft:extreme_hills", "minecraft:extreme_hills", "minecraft:wooded_mountains", "minecraft:wooded_mountains"],
-    ["Middle", "Middle", "Middle", "Middle", "Middle"],
-    ["Middle", "Middle", "minecraft:swamp/Middle", "Middle", "Middle"]
+    [middle_key, middle_key, middle_key, middle_key, middle_key],
+    [middle_key, middle_key, "minecraft:swamp/" + middle_key, middle_key, middle_key]
 ])
 
 
+UI.create(builder, middle_key)
 
 //const valley_slice = Slice.create(builder, "Valley", 6)
 //valley_slice.set(3, 2, "River")
 //valley_slice.set(3, 3, "Middle")
 
-const layoutEditor = new LayoutEditor(builder)
-layoutEditor.setLayout("Beach")
-layoutEditor.refresh()
-
-const sidebarManager = new SidebarManager(builder, layoutEditor)
-sidebarManager.refresh()
 
 
 //const slice_grid = SliceGrid.createSliceGridHTML(builder, valley_slice)

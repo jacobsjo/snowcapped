@@ -30,7 +30,7 @@ export class ABBiomeRenderer implements ElementRenderer{
         const isARecursive = !(this.ab_biome.elementA instanceof Biome)
         const isBRecursive = !(this.ab_biome.elementB instanceof Biome)
 
-        ctx.fillStyle = (this.ab_biome.getRecursive(t_idx, h_idx, "A") as Biome).color()
+        ctx.fillStyle = (this.ab_biome.lookupRecursive(t_idx, h_idx, "A") as Biome).color()
         ctx.beginPath()
         ctx.moveTo(minX, minY)
         ctx.lineTo(minX + sizeX, minY)
@@ -54,7 +54,7 @@ export class ABBiomeRenderer implements ElementRenderer{
             }
         }
 
-        ctx.fillStyle = (this.ab_biome.getRecursive(t_idx, h_idx, "B") as Biome).color()
+        ctx.fillStyle = (this.ab_biome.lookupRecursive(t_idx, h_idx, "B") as Biome).color()
         ctx.beginPath()
         ctx.moveTo(minX + sizeX, minY)
         ctx.lineTo(minX + sizeX, minY + sizeY)

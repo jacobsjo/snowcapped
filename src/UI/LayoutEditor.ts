@@ -3,19 +3,22 @@ import { Biome } from "../BuilderData/Biome";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { Layout } from "../BuilderData/Layout";
 import { LayoutGridRenderer } from "./Renderer/LayoutGridRenderer";
+import { UI } from "./UI";
 
 
 export class LayoutEditor {
     private builder: BiomeBuilder
+    private title: HTMLInputElement
     private canvas: HTMLCanvasElement
 
     layout: Layout
 
-    private selectedElement: string = "minecraft:river"
 
     constructor(builder: BiomeBuilder) {
         this.builder = builder
-        this.canvas = document.getElementById("layoutEditor") as HTMLCanvasElement
+
+        this.title = document.getElementById("layoutName") as HTMLInputElement
+        this.canvas = document.getElementById("layoutEditorCanvas") as HTMLCanvasElement
 
         const tooltip = document.getElementById("layoutEditorTooltip")
         const tooltip_name = tooltip.getElementsByClassName("name")[0] as HTMLElement
@@ -24,6 +27,11 @@ export class LayoutEditor {
         const tooltip_instruction_add_alt = tooltip_instructions.getElementsByClassName("add_alt")[0] as HTMLElement
         const tooltip_instruction_remove_alt = tooltip_instructions.getElementsByClassName("remove_alt")[0] as HTMLElement
         const tooltip_instruction_open = tooltip_instructions.getElementsByClassName("open")[0] as HTMLElement
+
+        this.title.onchange = (evt: Event) => {
+            this.layout.name = this.title.value
+            UI.getInstance().refresh()
+        }
 
         this.canvas.onmousemove = (evt: MouseEvent) => {
 
@@ -38,7 +46,7 @@ export class LayoutEditor {
             tooltip.style.top = (evt.pageY + 15) + "px"
             tooltip.classList.remove("hidden")
 
-            let element = this.layout.get(ids.t_idx, ids.h_idx)
+            let element = this.layout.lookup(ids.t_idx, ids.h_idx)
 
             if (element instanceof ABElement) {
                 if (ids.mode === "A") {
@@ -70,7 +78,7 @@ export class LayoutEditor {
             if (ids === undefined) {
                 return
             }
-            const element = this.layout.get(ids.t_idx, ids.h_idx)
+            const element = this.layout.lookup(ids.t_idx, ids.h_idx)
 
             let exact_element = element
             if (exact_element instanceof ABElement) {
@@ -81,44 +89,59 @@ export class LayoutEditor {
                 }
             }
 
-            if (evt.button === 0) {
+            const selectedElement = UI.getInstance().selectedElement;
+
+            if (evt.button === 0 && selectedElement !== "") {
                 // Left mouse button
-                if (evt.ctrlKey && !(element instanceof ABElement)) {
-                    // add alternate
-                    if (ids.mode === "A") {
-                        this.layout.set(ids.t_idx, ids.h_idx, this.selectedElement + "/" + element.name)
-                    } else {
-                        this.layout.set(ids.t_idx, ids.h_idx, element.name + "/" + this.selectedElement)
-                    }
-                    this.refresh()
-                } else if (evt.altKey) {
-                    this.selectedElement = exact_element.name
+                if (evt.altKey) {
+                    UI.getInstance().selectedElement = exact_element.getKey()
+                    UI.getInstance().refresh()
                 } else {
-                    if (element instanceof ABElement) {
+                    //Cycle Check
+                    if (builder.layouts.has(selectedElement)) {
+                        const se = builder.layouts.get(selectedElement)
+                        this.layout.set(ids.t_idx, ids.h_idx, builder.layoutElementDummy.getKey())
+                        if (se.lookupRecursive(ids.t_idx, ids.h_idx, "A") === builder.layoutElementDummy || se.lookupRecursive(ids.t_idx, ids.h_idx, "B") === builder.layoutElementDummy) {
+                            //Cycle found
+                            this.layout.set(ids.t_idx, ids.h_idx, element.getKey())
+                            return
+                        }
+                    }
+
+                    if (evt.ctrlKey && !(element instanceof ABElement)) {
+                        // add alternate
                         if (ids.mode === "A") {
-                            if (this.selectedElement === element.elementB.name) {
-                                this.layout.set(ids.t_idx, ids.h_idx, this.selectedElement)
-                            } else {
-                                this.layout.set(ids.t_idx, ids.h_idx, this.selectedElement + "/" + element.elementB.name)
-                            }
+                            this.layout.set(ids.t_idx, ids.h_idx, selectedElement + "/" + element.getKey())
                         } else {
-                            if (this.selectedElement === element.elementA.name) {
-                                this.layout.set(ids.t_idx, ids.h_idx, this.selectedElement)
-                            } else {
-                                this.layout.set(ids.t_idx, ids.h_idx, element.elementA.name + "/" + this.selectedElement)
-                            }
+                            this.layout.set(ids.t_idx, ids.h_idx, element.getKey() + "/" + selectedElement)
                         }
                     } else {
-                        this.layout.set(ids.t_idx, ids.h_idx, this.selectedElement)
+                        if (element instanceof ABElement) {
+                            if (ids.mode === "A") {
+                                if (selectedElement === element.elementB.getKey()) {
+                                    this.layout.set(ids.t_idx, ids.h_idx, selectedElement)
+                                } else {
+                                    this.layout.set(ids.t_idx, ids.h_idx, selectedElement + "/" + element.elementB.getKey())
+                                }
+                            } else {
+                                if (selectedElement === element.elementA.getKey()) {
+                                    this.layout.set(ids.t_idx, ids.h_idx, selectedElement)
+                                } else {
+                                    this.layout.set(ids.t_idx, ids.h_idx, element.elementA.getKey() + "/" + selectedElement)
+                                }
+                            }
+                        } else {
+                            this.layout.set(ids.t_idx, ids.h_idx, selectedElement)
+                        }
                     }
-                    this.refresh()
+                    UI.getInstance().refresh()
                 }
             } else if (evt.button === 2) {
                 // Right mouse button
                 // open
 
                 if (exact_element instanceof Layout) {
-                    this.setLayout(element.name)
+                    UI.getInstance().openElement = exact_element.getKey()
                     this.refresh()
                 }
 
@@ -140,11 +163,9 @@ export class LayoutEditor {
         return { mouse_x: canvasMouseX, mouse_y: canvasMouseY }
     }
 
-    setLayout(key: string) {
-        this.layout = this.builder.getLayoutElement(key) as Layout
-    }
-
     refresh() {
+        this.layout = this.builder.getLayoutElement(UI.getInstance().openElement) as Layout
+        this.title.value = this.layout.name
         this.layout.getRenderer().draw(this.canvas.getContext('2d'), 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
     }
 }

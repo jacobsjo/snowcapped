@@ -24,12 +24,12 @@ export class LayoutGridRenderer implements ElementRenderer{
 
         for (var t_idx = 0 ; t_idx < size[0] ; t_idx++){
             for (var h_idx = 0 ; h_idx < size[1] ; h_idx++){
-                var element = this.layout.get(t_idx, h_idx)
+                var element = this.layout.lookup(t_idx, h_idx)
                 if (element === undefined)
                     console.log("undefined at: " + t_idx + ", " + h_idx)
                 var isRecursive = false;
                 if (element instanceof Layout){
-                    element = element.getRecursive(t_idx, h_idx, "Any")
+                    element = element.lookupRecursive(t_idx, h_idx, "Any")
                     isRecursive = true;
                 }
 

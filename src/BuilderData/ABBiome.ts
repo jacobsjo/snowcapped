@@ -4,17 +4,15 @@ import { BiomeBuilder } from './BiomeBuilder'
 import {LayoutElement, Mode} from './LayoutElement'
 
 export class ABElement implements LayoutElement{
-    readonly name: string
-
     readonly elementA: LayoutElement
     readonly elementB: LayoutElement
 
     private renderer: ABBiomeRenderer
+    readonly name: string
 
     private constructor(elementA: Biome, elementB: Biome){
         this.elementA = elementA
         this.elementB = elementB
-        this.name = elementA.name + " / " + elementB.name
     }
 
     static create(builder: BiomeBuilder, elementA: Biome, elementB: Biome): ABElement{
@@ -23,21 +21,21 @@ export class ABElement implements LayoutElement{
         return ab_biome
     }
 
-    getKey(temperatureIndex: number, humidityIndex: number): string{
-        return this.name
+    lookupKey(temperatureIndex: number, humidityIndex: number): string{
+        return this.getKey()
     }
 
-    get(temperatureIndex: number, humidityIndex: number): ABElement {
+    lookup(temperatureIndex: number, humidityIndex: number): ABElement {
         return this
     }
 
-    getRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): ABElement | Biome {
+    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): LayoutElement {
         if (mode === "Any"){
             return this
         } else if (mode === "A"){
-            return this.elementA.getRecursive(temperatureIndex, humidityIndex, mode)
+            return this.elementA.lookupRecursive(temperatureIndex, humidityIndex, mode)
         } else {
-            return this.elementB.getRecursive(temperatureIndex, humidityIndex, mode)
+            return this.elementB.lookupRecursive(temperatureIndex, humidityIndex, mode)
         }
     }
 
@@ -47,5 +45,9 @@ export class ABElement implements LayoutElement{
             this.renderer = new ABBiomeRenderer(this)
 
         return this.renderer
+    }
+
+    getKey(){
+        return this.elementA.getKey() + "/" + this.elementB.getKey()
     }
 }

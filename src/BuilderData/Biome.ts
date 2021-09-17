@@ -19,15 +19,15 @@ export class Biome implements LayoutElement{
         return layout
     }
 
-    getKey(temperatureIndex: number, humidityIndex: number): string{
-        return this.name
+    lookupKey(temperatureIndex: number, humidityIndex: number): string{
+        return this.getKey()
     }
 
-    get(temperatureIndex: number, humidityIndex: number): Biome {
+    lookup(temperatureIndex: number, humidityIndex: number): Biome {
         return this
     }
 
-    getRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): Biome {
+    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): Biome {
         return this
     }
 
@@ -40,6 +40,10 @@ export class Biome implements LayoutElement{
             this.renderer = new BiomeRenderer(this)
 
         return this.renderer
+    }
+
+    getKey(){
+        return this.name
     }
 }
 
