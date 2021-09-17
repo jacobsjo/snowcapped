@@ -8,6 +8,7 @@ import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { SidebarManager } from './UI/SidebarManager';
 import { LayoutEditor } from './UI/LayoutEditor';
 import { UI } from './UI/UI';
+import { Slice } from './BuilderData/Slice';
 
 
 const continentalnesses: [string, Climate.Param][] = [
@@ -91,6 +92,9 @@ Layout.create(builder, "Extreme Hills", [
     [middle_key, middle_key, middle_key, middle_key, middle_key],
     [middle_key, middle_key, "minecraft:swamp/" + middle_key, middle_key, middle_key]
 ])
+
+console.log(Slice.create(builder, "Low Slice", middle_key))
+
 
 
 UI.create(builder, middle_key)

@@ -101,6 +101,9 @@ body {
     background-color: #6d6933;
 }
 
+#sidebar .sidebar_entry.slice{
+    height: 60pt;
+}
 
 #sidebar .sidebar_entry.layout{
     height: 40pt;
@@ -140,6 +143,10 @@ body {
 }
 
 
+#sidebar .sidebar_entry.slice .grid{
+    height: 60pt;
+}
+
 #sidebar .sidebar_entry.layout .grid{
     height: 40pt;
 }
@@ -161,6 +168,11 @@ body {
     white-space: nowrap;
     overflow: hidden;
 }
+
+#sidebar .sidebar_entry.slice .name{
+    top: -25pt;
+    width: 150pt;
+} 
 
 #sidebar .sidebar_entry.layout .name{
     top: -15pt;

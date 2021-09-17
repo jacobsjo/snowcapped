@@ -1,35 +1,55 @@
+import { isString } from 'lodash';
+import * as uniqid from 'uniqid';
+import { SliceGridRenderer } from '../UI/Renderer/SliceGridRenderer';
 import { BiomeBuilder } from './BiomeBuilder';
 import { LayoutElement } from './LayoutElement';
 
 export class Slice{
-    private weirdnessIndex: number;
-
     readonly name: string;
     private array: string[][]
     private builder: BiomeBuilder
+    private renderer: SliceGridRenderer
+    private key: string
     
-    private constructor(builder: BiomeBuilder, name: string, weirdnessIndex: number){
+    private constructor(builder: BiomeBuilder, name: string, array: string[][], key?: string){
         this.name = name;
         this.builder = builder;
-        this.array = new Array(builder.getNumContinentalnesses()).fill(0).map(() => new Array(builder.getNumErosions()).fill(undefined))
+
+        this.array = array;
+        this.key = key ?? uniqid('slice_')
     }
 
-    static create(builder: BiomeBuilder, name: string, weirdnessIndex: number): Slice{
-        const slice = new Slice(builder, name, weirdnessIndex);
+    static create(builder: BiomeBuilder, name: string, fill: string): Slice{
+        const slice = new Slice(builder, name, new Array(builder.getNumContinentalnesses()).fill(0).map(() => new Array(builder.getNumErosions()).fill(fill)));
         builder.registerSlice(slice);
         return slice
+    }
+
+    getSize(): [number, number]{
+        return [this.builder.getNumContinentalnesses(), this.builder.getNumErosions()]
     }
 
     set(continentalnessIndex: number, erosionIndex: number, element: string){
         this.array[continentalnessIndex][erosionIndex] = element
     }
 
-    getKey(continentalnessIndex: number, erosionIndex: number): string{
+    lookupKey(continentalnessIndex: number, erosionIndex: number): string{
         return this.array[continentalnessIndex][erosionIndex]
     }
 
-    get(continentalnessIndex: number, erosionIndex: number): LayoutElement{
-        const key = this.getKey(continentalnessIndex, erosionIndex)
+    lookup(continentalnessIndex: number, erosionIndex: number): LayoutElement{
+        const key = this.lookupKey(continentalnessIndex, erosionIndex)
         return this.builder.getLayoutElement(key)
+    }
+
+    getRenderer(): SliceGridRenderer {
+        if (this.renderer === undefined)
+            this.renderer = new SliceGridRenderer(this)
+
+        return this.renderer
+    }
+
+    getKey(){
+        return this.key
     }
 }

@@ -98,7 +98,7 @@ export class LayoutEditor {
                     UI.getInstance().refresh()
                 } else {
                     //Cycle Check
-                    if (builder.layouts.has(selectedElement)) {
+                    if (builder.layouts.has(selectedElement) && this.layout instanceof Layout) {
                         const se = builder.layouts.get(selectedElement)
                         this.layout.set(ids.t_idx, ids.h_idx, builder.layoutElementDummy.getKey())
                         if (se.lookupRecursive(ids.t_idx, ids.h_idx, "A") === builder.layoutElementDummy || se.lookupRecursive(ids.t_idx, ids.h_idx, "B") === builder.layoutElementDummy) {
@@ -164,7 +164,7 @@ export class LayoutEditor {
     }
 
     refresh() {
-        this.layout = this.builder.getLayoutElement(UI.getInstance().openElement) as Layout
+        this.layout = this.builder.getRenderedElement(UI.getInstance().openElement) as Layout
         this.title.value = this.layout.name
         this.layout.getRenderer().draw(this.canvas.getContext('2d'), 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
     }

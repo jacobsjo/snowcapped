@@ -15,6 +15,7 @@ export class BiomeBuilder{
     temperatures: [string,Climate.Param][]
     humidities: [string,Climate.Param][]
 
+    renderedElements: Map<string, LayoutElement | Slice>
     slices: Map<string, Slice>
     layoutElements: Map<string, LayoutElement>
     layouts: Map<string, Layout>
@@ -31,6 +32,7 @@ export class BiomeBuilder{
 
 
         this.slices = new Map<string, Slice>();
+        this.renderedElements = new Map<string, LayoutElement | Slice>();
         this.layoutElements = new Map<string, LayoutElement>();
         this.layouts = new Map<string, Layout>();
         this.biomes = new Map<string, Biome>();
@@ -72,6 +74,10 @@ export class BiomeBuilder{
         return this.slices.get(name);
     }
 
+    public getRenderedElement(name: string): LayoutElement | Slice {
+        return this.renderedElements.get(name)
+    }
+
     public getLayoutElement(name: string): LayoutElement{
         const element = this.layoutElements.get(name)
         if (element === undefined){
@@ -92,11 +98,13 @@ export class BiomeBuilder{
     }
 
     public registerSlice(slice: Slice){
-        this.slices.set(slice.name, slice);
+        this.slices.set(slice.getKey(), slice);
+        this.renderedElements.set(slice.getKey(), slice)
     }
 
     public registerLayoutElement(element: LayoutElement){
         this.layoutElements.set(element.getKey(), element);
+        this.renderedElements.set(element.getKey(), element)
         if (element instanceof Layout){
             this.layouts.set(element.getKey(), element)
         }
