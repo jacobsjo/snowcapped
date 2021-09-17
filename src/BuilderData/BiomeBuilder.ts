@@ -51,8 +51,13 @@ export class BiomeBuilder{
         this.layoutElements.clear()
         this.layouts.clear()
         this.biomes.clear()
+        this.slices.clear()
 
         VanillaBiomes.registerVanillaBiomes(this)
+
+        json.slices?.forEach((slice : any) => {
+            Slice.fromJSON(this, slice)
+        });
 
         json.layouts?.forEach((layout : any) => {
             Layout.fromJSON(this, layout)
@@ -66,7 +71,8 @@ export class BiomeBuilder{
             weirdnesses: this.weirdnesses,
             temperatures: this.temperatures,
             humidities: this.humidities,
-            layouts: Array.from(this.layouts.values())
+            layouts: Array.from(this.layouts.values()),
+            slices: Array.from(this.slices.values())
         }
     }
     

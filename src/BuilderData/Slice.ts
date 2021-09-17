@@ -25,6 +25,20 @@ export class Slice{
         return slice
     }
 
+    static fromJSON(builder: BiomeBuilder, json: any){
+        const slice = new Slice(builder, json.name, json.array, json.key)
+        builder.registerSlice(slice);
+        return slice
+    }
+
+    toJSON(){
+        return {
+            key: this.key,
+            name: this.name,
+            array: this.array
+        }
+    }
+
     getSize(): [number, number]{
         return [this.builder.getNumContinentalnesses(), this.builder.getNumErosions()]
     }

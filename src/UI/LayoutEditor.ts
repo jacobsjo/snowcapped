@@ -48,15 +48,19 @@ export class LayoutEditor {
 
             let element = this.layout.lookup(ids.t_idx, ids.h_idx)
 
-            if (element instanceof ABElement) {
-                if (ids.mode === "A") {
-                    element = element.elementA
+            if (this.layout instanceof Layout){
+                if (element instanceof ABElement) {
+                    if (ids.mode === "A") {
+                        element = element.elementA
+                    } else {
+                        element = element.elementB
+                    }
+                    tooltip_instruction_add_alt.classList.add("hidden")
                 } else {
-                    element = element.elementB
+                    tooltip_instruction_add_alt.classList.remove("hidden")
                 }
-                tooltip_instruction_add_alt.classList.add("hidden")
             } else {
-                tooltip_instruction_add_alt.classList.remove("hidden")
+                tooltip_instruction_add_alt.classList.add("hidden")
             }
 
             if (element instanceof Biome) {
@@ -108,7 +112,7 @@ export class LayoutEditor {
                         }
                     }
 
-                    if (evt.ctrlKey && !(element instanceof ABElement)) {
+                    if (evt.ctrlKey && !(element instanceof ABElement) && this.layout instanceof Layout) {
                         // add alternate
                         if (ids.mode === "A") {
                             this.layout.set(ids.t_idx, ids.h_idx, selectedElement + "/" + element.getKey())
