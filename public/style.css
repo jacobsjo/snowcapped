@@ -152,20 +152,24 @@ body {
     display: inline-block;
     position: relative;
     height: 40pt;
-    width: 140pt;
     line-height: 40pt;
     text-align: left;
     margin-left: 5pt;
     vertical-align: middle;
-    color: white
+    color: white;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 #sidebar .sidebar_entry.layout .name{
     top: -15pt;
+    width: 177pt;
 } 
 
 #sidebar .sidebar_entry.biome .name{
     top: -10pt;
+    width: 197pt;
 } 
 
 /* Editor */

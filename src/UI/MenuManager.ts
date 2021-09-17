@@ -30,8 +30,6 @@ export class MenuManager {
                     UI.getInstance().refresh()
                 }
 
-
-
                 console.log(file)
             }
 
