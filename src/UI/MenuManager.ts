@@ -1,4 +1,5 @@
 import { read } from "deepslate"
+import { Exporter } from "../BuilderData/Exporter"
 import { UI } from "./UI"
 
 
@@ -57,7 +58,13 @@ export class MenuManager {
         }
 
         this.exportButton.onclick = (evt: Event) => {
-
+            const exporter = new Exporter(UI.getInstance().builder)
+            const jsonString = exporter.export()
+            const bb = new Blob([jsonString], {type: 'text/plain'})
+            const a = document.createElement('a')
+            a.download = 'dimension.json'
+            a.href = window.URL.createObjectURL(bb)
+            a.click()
         }
 
     }
