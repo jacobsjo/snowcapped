@@ -46,8 +46,6 @@ export class UI{
     refresh(){
         this.sidebarManager.refresh()
 
-        console.log(this.openElement)
-
         if (this.openElement === "assign_slices"){
             this.layoutEditor.hide()
             this.assignSlicesEditor.refresh()
