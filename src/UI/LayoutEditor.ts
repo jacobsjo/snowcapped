@@ -105,7 +105,7 @@ export class LayoutEditor {
             }
 
             this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "open" )
-            evt.preventDefault
+            evt.preventDefault()
         }
 
         this.canvas.onkeyup = (evt: KeyboardEvent) => {
