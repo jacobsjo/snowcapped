@@ -38,7 +38,7 @@ export class Layout implements LayoutElement {
         return {
             key: this.key,
             name: this.name,
-            array: this.array
+            array: this.array.map(row => row.map(e => this.builder.getLayoutElement(e).getKey()))
         }
     }
 

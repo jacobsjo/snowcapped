@@ -24,6 +24,7 @@ export class BiomeBuilder{
     biomes: Map<string, Biome>
 
     layoutElementDummy: LayoutElementDummy
+    layoutElementUnassigned: LayoutElementUnassigned
 
     constructor(continentalnesses: [string, Climate.Param][], erosions: [string,Climate.Param][], weirdnesses: [string,Climate.Param][], temperatures: [string,Climate.Param][], humidities: [string,Climate.Param][]){
         this.continentalnesses = continentalnesses
@@ -40,6 +41,7 @@ export class BiomeBuilder{
         this.biomes = new Map<string, Biome>();
 
         this.layoutElementDummy = LayoutElementDummy.create(this)
+        this.layoutElementUnassigned = LayoutElementUnassigned.create(this)
     }
 
     loadJSON(json: any){
@@ -71,7 +73,10 @@ export class BiomeBuilder{
         return {
             continentalnesses: this.continentalnesses,
             erosions: this.erosions,
-            weirdnesses: this.weirdnesses,
+            weirdnesses: this.weirdnesses.map(weirdness => {
+                weirdness[2] = this.getSlice(weirdness[2]).getKey()
+                return weirdness
+            }),
             temperatures: this.temperatures,
             humidities: this.humidities,
             layouts: Array.from(this.layouts.values()),
@@ -80,11 +85,11 @@ export class BiomeBuilder{
     }
     
     public getSlice(name: string){
-        return this.slices.get(name);
+        return this.slices.get(name) ?? this.layoutElementUnassigned;
     }
 
     public getRenderedElement(name: string): LayoutElement | Slice {
-        return this.renderedElements.get(name)
+        return this.renderedElements.get(name) ?? this.layoutElementUnassigned
     }
 
     public getLayoutElement(name: string): LayoutElement{
@@ -92,8 +97,7 @@ export class BiomeBuilder{
         if (element === undefined){
             const biomeKeys = name.split('/')
             if (biomeKeys.length !== 2){
-                throw EvalError("No element found for key " + name)
-                return undefined
+                return this.layoutElementUnassigned
             }
             
             const biomeA : Biome = this.getLayoutElement(biomeKeys[0]) as Biome

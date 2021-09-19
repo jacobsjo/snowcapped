@@ -67,7 +67,6 @@ const humidities: [string, Climate.Param][] = [
 const builder = new BiomeBuilder(continentalnesses, erosions, weirdnesses, temperatures, humidities)
 
 VanillaBiomes.registerVanillaBiomes(builder)
-LayoutElementUnassigned.create(builder)
 
 UI.create(builder)
 

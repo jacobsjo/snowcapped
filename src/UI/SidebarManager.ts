@@ -13,6 +13,8 @@ export class SidebarManager {
 
     private layout_divs: HTMLElement[]
     private biome_divs: HTMLElement[]
+    private bottom_spacer: HTMLElement
+    private search_bar: HTMLInputElement
 
     constructor(builder: BiomeBuilder) {
         this.sidebar = document.getElementById("sidebar")
@@ -94,24 +96,54 @@ export class SidebarManager {
 
 
         // Add seachBar
-        const searchBar = document.createElement("input") as HTMLInputElement
-        searchBar.type = "text"
-        searchBar.placeholder = "Seach..."
-        searchBar.value = lastSearch
-        searchBar.classList.add("search_bar")
-        searchBar.oninput = (evt: Event) => {
-            this.biome_divs.forEach(div => {
-                div.classList.toggle("hidden", !div.getAttribute("key").includes(searchBar.value))
-            })
+        this.search_bar = document.createElement("input") as HTMLInputElement
+        this.search_bar.type = "text"
+        this.search_bar.placeholder = "Seach..."
+        this.search_bar.value = lastSearch
+        this.search_bar.classList.add("search_bar")
+        this.search_bar.oninput = (evt: Event) => {
+            this.updateBiomeSearch()
         }
-        this.sidebar.appendChild(searchBar)
+        this.sidebar.appendChild(this.search_bar)
 
         // Biomes
         this.builder.biomes.forEach(element => {
             const div = this.createElementDiv(element, "biome")
-            div.classList.toggle("hidden", !div.getAttribute("key").includes(searchBar.value))
             this.biome_divs.push(div)
         });
+
+        // Add bottom spacer
+        this.bottom_spacer = document.createElement("div")
+        this.bottom_spacer.classList.add("spacer")
+        this.sidebar.appendChild(this.bottom_spacer)
+
+        this.sidebar.onscroll = (evt: Event) => {
+            const bottom_spacer_pos = this.bottom_spacer.getBoundingClientRect().top - this.sidebar.getBoundingClientRect().top
+            const bottom_spacer_height = Math.max((this.sidebar.clientHeight - bottom_spacer_pos - 20), 0)
+            this.bottom_spacer.style.height = bottom_spacer_height + "px"
+        }
+
+        this.updateBiomeSearch()
+    }
+
+    private updateBiomeSearch(){
+        const search_bar_height = this.search_bar.offsetTop
+        const scroll = this.search_bar.scrollTop
+
+        this.bottom_spacer.style.height = "10000pt"
+
+        this.biome_divs.forEach(div => {
+            if (div.getAttribute("key").includes(this.search_bar.value)){
+                div.classList.remove("hidden")
+            } else {
+                div.classList.add("hidden")
+            }
+        })
+
+        const bottom_spacer_pos = this.bottom_spacer.getBoundingClientRect().top - this.sidebar.getBoundingClientRect().top
+        const bottom_spacer_height = Math.max((this.sidebar.clientHeight - bottom_spacer_pos - 20), 0)
+        this.bottom_spacer.style.height = bottom_spacer_height + "px"
+
     }
 
     private createElementDiv(element: LayoutElement | Slice, c: string): HTMLElement {

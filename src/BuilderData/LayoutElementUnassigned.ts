@@ -15,6 +15,7 @@ export class LayoutElementUnassigned implements LayoutElement{
     static create(builder: BiomeBuilder){
         const element = new LayoutElementUnassigned()
         builder.registerLayoutElement(element)
+        return element
     }
 
     lookupKey(temperatureIndex: number, humidityIndex: number): string {
