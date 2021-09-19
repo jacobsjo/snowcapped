@@ -4,19 +4,19 @@ import { BiomeBuilder } from './BiomeBuilder'
 import {LayoutElement, Mode} from './LayoutElement'
 
 export class Biome implements LayoutElement{
-    readonly name: string
-    readonly allowDeletion: boolean = true
+    name: string
+    readonly allowEdit: boolean = true
 
-    private biome_color: string
+    public color: string
     private renderer: BiomeRenderer
 
     private key: string
 
     private constructor(name: string, color: string, key?: string, isVanilla: boolean = false){
         this.name = name
-        this.biome_color = color
+        this.color = color
         this.key = key ?? isVanilla ? name : uniqid('biome_')
-        this.allowDeletion = !isVanilla
+        this.allowEdit = !isVanilla
     }
 
     static create(builder: BiomeBuilder, name: string, color: string, key?: string, isVanilla: boolean = false): Biome{
@@ -35,10 +35,6 @@ export class Biome implements LayoutElement{
 
     lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): Biome {
         return this
-    }
-
-    color(){
-        return this.biome_color;
     }
 
     getRenderer(): ElementRenderer {

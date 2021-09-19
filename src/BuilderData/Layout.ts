@@ -8,7 +8,7 @@ import { LayoutElement, Mode} from "./LayoutElement";
 import * as uniqid from 'uniqid';
 
 export class Layout implements LayoutElement {
-    allowDeletion: boolean = true
+    allowEdit: boolean = true
     name: string;
 
     private array: string[][]

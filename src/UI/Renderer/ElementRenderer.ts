@@ -16,8 +16,12 @@ export class BiomeRenderer implements ElementRenderer{
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
-        ctx.fillStyle = this.biome.color()
+        ctx.fillStyle = this.biome.color
         ctx.fillRect(minX, minY, sizeX, sizeY)
+    }
+
+    public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, mode: "A"|"B"} | undefined{
+        return {t_idx: -1, h_idx: -1, mode:"A"}
     }
 }
 
@@ -49,7 +53,7 @@ export class ABBiomeRenderer implements ElementRenderer{
         const elementA = this.ab_biome.lookupRecursive(t_idx, h_idx, "A")
 
         if (elementA instanceof Biome)
-            ctx.fillStyle = (elementA as Biome).color()
+            ctx.fillStyle = (elementA as Biome).color
         else if (elementA instanceof LayoutElementUnassigned)
             ctx.fillStyle = "gray"
 
@@ -87,7 +91,7 @@ export class ABBiomeRenderer implements ElementRenderer{
         const elementB = this.ab_biome.lookupRecursive(t_idx, h_idx, "B")
 
         if (elementB instanceof Biome)
-            ctx.fillStyle = (elementB as Biome).color()
+            ctx.fillStyle = (elementB as Biome).color
         else if (elementB instanceof LayoutElementUnassigned)
             ctx.fillStyle = "gray"
         ctx.beginPath()

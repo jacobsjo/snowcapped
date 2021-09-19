@@ -4,7 +4,7 @@ import { BiomeBuilder } from './BiomeBuilder'
 import {LayoutElement, Mode} from './LayoutElement'
 
 export class ABElement implements LayoutElement{
-    readonly allowDeletion: boolean = false
+    readonly allowEdit: boolean = false
     readonly elementA: LayoutElement
     readonly elementB: LayoutElement
 

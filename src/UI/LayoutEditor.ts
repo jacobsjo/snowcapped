@@ -44,6 +44,7 @@ export class LayoutEditor {
                 tooltip.classList.add("hidden")
                 return
             }
+
             this.canvas.focus()
 
             tooltip.style.left = (evt.pageX + 20) + "px"
@@ -158,7 +159,7 @@ export class LayoutEditor {
             UI.getInstance().refresh()
         } else if ((action === "add" || action === "add_alt") && selectedElement !== "") {
             //Cycle Check
-            if (this.builder.layouts.has(selectedElement) && this.layout instanceof Layout) {
+            if (this.builder.layoutElements.get(selectedElement) instanceof Layout && this.layout instanceof Layout) {
                 const se = this.builder.layouts.get(selectedElement)
                 this.layout.set(t_idx, h_idx, this.builder.layoutElementDummy.getKey())
                 if (se.lookupRecursive(t_idx, h_idx, "A") === this.builder.layoutElementDummy || se.lookupRecursive(t_idx, h_idx, "B") === this.builder.layoutElementDummy) {

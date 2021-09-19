@@ -5,8 +5,8 @@ import { Biome } from "./Biome";
 export type Mode = "A" | "B" | "Any"
 
 export interface LayoutElement{
-    readonly name: string
-    readonly allowDeletion: boolean
+    name: string
+    readonly allowEdit: boolean
     lookupKey(temperatureIndex: number, humidityIndex: number): string
     lookup(temperatureIndex: number, humidityIndex: number): LayoutElement
     lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): LayoutElement

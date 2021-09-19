@@ -8,9 +8,6 @@ body {
     position: absolute;
 }
 
-.hidden{
-    display: none;
-}
 
 #main{
     display: flex;
@@ -83,7 +80,7 @@ body {
     overflow-x: hidden;
 }
 
-#sidebar .sidebar_entry{
+#sidebar .sidebar_entry:not(.hidden){
     width: 222pt;
     background-color: rgb(68, 67, 67);
     margin: 5pt;
@@ -112,8 +109,13 @@ body {
     height: 40pt;
 }
 
-#sidebar .sidebar_entry.biome .grid{
+#sidebar .sidebar_entry.biome .color_selector{
     height: 25pt;
+    width: 25pt;
+    min-width: 25pt;
+    border: 0;
+    margin: 0;
+    padding: 0;
 }
 
 #sidebar .sidebar_entry.add_layout_button{
@@ -145,27 +147,36 @@ body {
     margin-left: 5pt;
     vertical-align: middle;
     color: white;
+    background-color: rgba(0,0,0,0);
+    border: 0;
+    font-size: 12pt;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     flex-grow: 1;
 }
 
-#sidebar .sidebar_entry .delete_button{
+
+#sidebar .sidebar_entry .button{
     width: 10pt;
     min-width: 10pt;
     background-color: rgb(32, 32, 32);
     padding: 5pt;
+    margin-left: 5pt;
     border-radius: 5pt;
     display: none;
 }
 
-#sidebar .sidebar_entry:hover .delete_button{
+#sidebar .sidebar_entry:hover .button{
     display: block;
 }
 
-#sidebar .sidebar_entry .delete_button:hover{
+#sidebar .sidebar_entry .button.delete:hover{
     background-color: rgb(88, 56, 56);
+}
+
+#sidebar .sidebar_entry .button.edit:hover{
+    background-color: rgb(56, 67, 88);
 }
 
 
@@ -307,4 +318,9 @@ body {
 .sliceTable .SideHeader {
     color: lightblue;
     text-align: right;
+}
+
+
+.hidden{
+    display: none;
 }

@@ -1,3 +1,4 @@
+import { Biome } from "../BuilderData/Biome"
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
 import { Layout } from "../BuilderData/Layout"
 import { LayoutElement } from "../BuilderData/LayoutElement"
@@ -112,6 +113,17 @@ export class SidebarManager {
             this.biome_divs.push(div)
         });
 
+        // Add Add Button
+        const addBiomeButton = document.createElement("div")
+        addBiomeButton.classList.add("sidebar_entry")
+        addBiomeButton.classList.add("add_layout_button")
+        addBiomeButton.innerHTML = "+ Add Biome"
+        addBiomeButton.onclick = (evt: Event) => {
+            const biome = Biome.create(this.builder, "new:biome", "#888888")
+            UI.getInstance().refresh()
+        }
+        this.sidebar.appendChild(addBiomeButton)
+
         // Add bottom spacer
         this.bottom_spacer = document.createElement("div")
         this.bottom_spacer.classList.add("spacer")
@@ -127,9 +139,6 @@ export class SidebarManager {
     }
 
     private updateBiomeSearch(){
-        const search_bar_height = this.search_bar.offsetTop
-        const scroll = this.search_bar.scrollTop
-
         this.bottom_spacer.style.height = "10000pt"
 
         this.biome_divs.forEach(div => {
@@ -160,25 +169,54 @@ export class SidebarManager {
         }
 
 
-        element_div.setAttribute("key", element.getKey())
+        element_div.setAttribute("key", element.name)
 
-        const layout_canvas = document.createElement("canvas") as HTMLCanvasElement
-        layout_canvas.classList.add("grid")
-        layout_canvas.width = 100
-        layout_canvas.height = 100
-        element.getRenderer().draw(layout_canvas.getContext("2d"), 0, 0, 100, 100, -1, -1, false, true)
-        element_div.appendChild(layout_canvas)
+        if (element instanceof Biome){
+            const color_input = document.createElement("input") as HTMLInputElement
+            color_input.classList.add("color_selector")
+            color_input.type = "color"
+            color_input.value = element.color
+            //color_input.disabled = !element.allowEdit
+            
+            color_input.onchange = (evt: Event) => {
+                element.color = color_input.value
+                UI.getInstance().refresh()
+            }
+            element_div.appendChild(color_input)
+        } else {
+            const layout_canvas = document.createElement("canvas") as HTMLCanvasElement
+            layout_canvas.classList.add("grid")
+            layout_canvas.width = 100
+            layout_canvas.height = 100
+            element.getRenderer().draw(layout_canvas.getContext("2d"), 0, 0, 100, 100, -1, -1, false, true)
+            element_div.appendChild(layout_canvas)
+        }
 
         const layout_name = document.createElement("span")
-        layout_name.classList.add("name")
         layout_name.innerHTML = element.name
+        layout_name.classList.add("name")
         element_div.appendChild(layout_name)
 
-        if (element.allowDeletion){
-            const delete_button_img = document.createElement("img") as HTMLImageElement
-            delete_button_img.classList.add("delete_button")
-            delete_button_img.src = "trash-bin.svg"
-            delete_button_img.onclick = (evt) => {
+        if (element.allowEdit){
+            
+            const edit_name_button = document.createElement("img") as HTMLImageElement
+            edit_name_button.classList.add("button", "edit")
+            edit_name_button.src = "edit-pen.svg"
+            edit_name_button.onclick = (evt) => {
+
+                const new_name = prompt("Edit name of " + element.constructor.name, element.name)
+                if (new_name === null) return
+                element.name = new_name;
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            }
+            element_div.appendChild(edit_name_button)
+
+            
+            const db = document.createElement("img") as HTMLImageElement
+            db.classList.add("button", "delete")
+            db.src = "trash-bin.svg"
+            db.onclick = (evt) => {
                 if (!confirm("Deleting " + element.constructor.name + " \"" + element.name + "\""))
                     return
                 if (element instanceof Slice){
@@ -189,7 +227,8 @@ export class SidebarManager {
                 UI.getInstance().refresh()
                 evt.stopPropagation()
             }
-            element_div.appendChild(delete_button_img)
+            element_div.appendChild(db)
+
         }
 
         if (element instanceof Layout || element instanceof Slice) {
@@ -210,6 +249,8 @@ export class SidebarManager {
             }
 
             element_div.ondblclick = element_div.oncontextmenu            
+        } else if (element instanceof Biome && element.allowEdit){
+
         }
 
         element_div.onclick = (evt) => {

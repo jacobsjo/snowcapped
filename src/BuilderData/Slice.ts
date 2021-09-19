@@ -5,8 +5,8 @@ import { BiomeBuilder } from './BiomeBuilder';
 import { LayoutElement } from './LayoutElement';
 
 export class Slice{
-    allowDeletion: boolean = true
-    readonly name: string;
+    allowEdit: boolean = true
+    name: string;
     private array: string[][]
     private builder: BiomeBuilder
     private renderer: SliceGridRenderer
