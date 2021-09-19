@@ -5,6 +5,7 @@ import { LayoutElement, Mode } from "./LayoutElement";
 
 
 export class LayoutElementUnassigned implements LayoutElement{
+    allowDeletion: boolean = false
     name: string = "- Unassigned -";
     renderer: UnassignedRenderer;
 

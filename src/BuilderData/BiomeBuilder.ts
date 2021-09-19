@@ -115,6 +115,11 @@ export class BiomeBuilder{
         this.renderedElements.set(slice.getKey(), slice)
     }
 
+    public removeSlice(key: string){
+        this.slices.delete(key)
+        this.renderedElements.delete(key)
+    }
+
     public registerLayoutElement(element: LayoutElement){
         this.layoutElements.set(element.getKey(), element);
         this.renderedElements.set(element.getKey(), element)
@@ -125,6 +130,20 @@ export class BiomeBuilder{
             this.biomes.set(element.getKey(), element)
         }
     }
+
+    public removeLayoutElement(key: string){
+        const element = this.layoutElements.get(key)
+        this.layoutElements.delete(key)
+        this.renderedElements.delete(key)
+        if (element instanceof Layout){
+            this.layouts.delete(key)
+        }
+        if (element instanceof Biome){
+            this.biomes.delete(key)
+        }
+
+    }
+
 
     getNumTemperatures(){
         return this.temperatures.length

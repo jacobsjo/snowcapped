@@ -96,7 +96,7 @@ export class VanillaBiomes{
 
     static registerVanillaBiomes(builder: BiomeBuilder){
         for (let biome of VanillaBiomes.biomes) {
-            Biome.create(builder, biome.name, biome.color)
+            Biome.create(builder, biome.name, biome.color, undefined, true)
         }
     }
 

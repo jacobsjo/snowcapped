@@ -90,14 +90,43 @@ body {
     padding: 5pt;
     user-select: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
 }
 
 #sidebar .sidebar_entry.assign_slices_button{
     height: 40pt;
-    color: white;
     line-height: 40pt;
+    color: white;
     text-align: center;
+    display: block;
+}
 
+
+
+#sidebar .sidebar_entry.slice .grid{
+    height: 60pt;
+}
+
+#sidebar .sidebar_entry.layout .grid{
+    height: 40pt;
+}
+
+#sidebar .sidebar_entry.biome .grid{
+    height: 25pt;
+}
+
+#sidebar .sidebar_entry.add_layout_button{
+    height: 25pt;
+    color: rgb(189, 189, 189);
+    background-color: rgb(55, 55, 55);
+    line-height: 25pt;
+    text-align: center;
+    display: block;
+}
+
+#sidebar .sidebar_entry:hover{
+    background-color: rgb(100, 96, 90);
 }
 
 #sidebar .sidebar_entry.selected{
@@ -108,28 +137,35 @@ body {
     background-color: #6d6933;
 }
 
-#sidebar .sidebar_entry.slice{
-    height: 60pt;
+
+#sidebar .sidebar_entry .name{
+    display: inline-block;
+    position: relative;
+    text-align: left;
+    margin-left: 5pt;
+    vertical-align: middle;
+    color: white;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    flex-grow: 1;
 }
 
-#sidebar .sidebar_entry.layout{
-    height: 40pt;
+#sidebar .sidebar_entry .delete_button{
+    width: 10pt;
+    min-width: 10pt;
+    background-color: rgb(32, 32, 32);
+    padding: 5pt;
+    border-radius: 5pt;
+    display: none;
 }
 
-#sidebar .sidebar_entry.biome{
-    height: 25pt;
+#sidebar .sidebar_entry:hover .delete_button{
+    display: block;
 }
 
-
-
-
-#sidebar .sidebar_entry.add_layout_button{
-    height: 25pt;
-    color: rgb(189, 189, 189);
-    background-color: rgb(55, 55, 55);
-    line-height: 25pt;
-    text-align: center;
-
+#sidebar .sidebar_entry .delete_button:hover{
+    background-color: rgb(88, 56, 56);
 }
 
 
@@ -150,48 +186,6 @@ body {
     border: 2pt solid black;
     outline: 0pt;
 }
-
-
-#sidebar .sidebar_entry.slice .grid{
-    height: 60pt;
-}
-
-#sidebar .sidebar_entry.layout .grid{
-    height: 40pt;
-}
-
-#sidebar .sidebar_entry.biome .grid{
-    height: 20pt;
-}
-
-#sidebar .sidebar_entry .name{
-    display: inline-block;
-    position: relative;
-    height: 40pt;
-    line-height: 40pt;
-    text-align: left;
-    margin-left: 5pt;
-    vertical-align: middle;
-    color: white;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-#sidebar .sidebar_entry.slice .name{
-    top: -25pt;
-    width: 150pt;
-} 
-
-#sidebar .sidebar_entry.layout .name{
-    top: -15pt;
-    width: 177pt;
-} 
-
-#sidebar .sidebar_entry.biome .name{
-    top: -10pt;
-    width: 197pt;
-} 
 
 /* Assign Slices */
 #assignSlices{

@@ -1,20 +1,26 @@
+import * as uniqid from 'uniqid'
 import { BiomeRenderer, ElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { BiomeBuilder } from './BiomeBuilder'
 import {LayoutElement, Mode} from './LayoutElement'
 
 export class Biome implements LayoutElement{
     readonly name: string
+    readonly allowDeletion: boolean = true
 
     private biome_color: string
     private renderer: BiomeRenderer
 
-    private constructor(name: string, color: string){
+    private key: string
+
+    private constructor(name: string, color: string, key?: string, isVanilla: boolean = false){
         this.name = name
         this.biome_color = color
+        this.key = key ?? isVanilla ? name : uniqid('biome_')
+        this.allowDeletion = !isVanilla
     }
 
-    static create(builder: BiomeBuilder, name: string, color: string): Biome{
-        const layout = new Biome(name, color)
+    static create(builder: BiomeBuilder, name: string, color: string, key?: string, isVanilla: boolean = false): Biome{
+        const layout = new Biome(name, color, key, isVanilla)
         builder.registerLayoutElement(layout);
         return layout
     }
@@ -43,7 +49,9 @@ export class Biome implements LayoutElement{
     }
 
     getKey(){
-        return this.name
+        return this.key
     }
+
+
 }
 

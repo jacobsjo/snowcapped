@@ -6,6 +6,7 @@ import { LayoutElement, Mode } from "./LayoutElement";
 
 
 export class LayoutElementDummy implements LayoutElement{
+    allowDeletion: boolean = false
     name: string = "__dummy__";
 
     static create(builder: BiomeBuilder): LayoutElementDummy{

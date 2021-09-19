@@ -147,35 +147,53 @@ export class SidebarManager {
     }
 
     private createElementDiv(element: LayoutElement | Slice, c: string): HTMLElement {
-        const layout_div = document.createElement("div")
-        layout_div.classList.add("sidebar_entry")
-        layout_div.classList.add(c)
+        const element_div = document.createElement("div")
+        element_div.classList.add("sidebar_entry")
+        element_div.classList.add(c)
 
         if (element.getKey() === UI.getInstance()?.selectedElement){
-            layout_div.classList.add("selected")
+            element_div.classList.add("selected")
         }
 
         if (element.getKey() === UI.getInstance()?.openElement){
-            layout_div.classList.add("open")
+            element_div.classList.add("open")
         }
 
 
-        layout_div.setAttribute("key", element.getKey())
+        element_div.setAttribute("key", element.getKey())
 
         const layout_canvas = document.createElement("canvas") as HTMLCanvasElement
         layout_canvas.classList.add("grid")
         layout_canvas.width = 100
         layout_canvas.height = 100
         element.getRenderer().draw(layout_canvas.getContext("2d"), 0, 0, 100, 100, -1, -1, false, true)
-        layout_div.appendChild(layout_canvas)
+        element_div.appendChild(layout_canvas)
 
         const layout_name = document.createElement("span")
         layout_name.classList.add("name")
         layout_name.innerHTML = element.name
-        layout_div.appendChild(layout_name)
+        element_div.appendChild(layout_name)
+
+        if (element.allowDeletion){
+            const delete_button_img = document.createElement("img") as HTMLImageElement
+            delete_button_img.classList.add("delete_button")
+            delete_button_img.src = "trash-bin.svg"
+            delete_button_img.onclick = (evt) => {
+                if (!confirm("Deleting " + element.constructor.name + " \"" + element.name + "\""))
+                    return
+                if (element instanceof Slice){
+                    this.builder.removeSlice(element.getKey())
+                } else {
+                    this.builder.removeLayoutElement(element.getKey())
+                }
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            }
+            element_div.appendChild(delete_button_img)
+        }
 
         if (element instanceof Layout || element instanceof Slice) {
-            layout_div.oncontextmenu = (evt) => {
+            element_div.oncontextmenu = (evt) => {
                 if (UI.getInstance().openElement === "assign_slices"){
                     UI.getInstance().selectedElement = ""
                 }
@@ -191,10 +209,10 @@ export class SidebarManager {
                 evt.preventDefault()
             }
 
-            layout_div.ondblclick = layout_div.oncontextmenu            
+            element_div.ondblclick = element_div.oncontextmenu            
         }
 
-        layout_div.onclick = (evt) => {
+        element_div.onclick = (evt) => {
             if ((UI.getInstance().openElement === "assign_slices") !== (element instanceof Slice))
                 return
 
@@ -208,8 +226,8 @@ export class SidebarManager {
                 div.classList.toggle("selected", div.getAttribute("key") === UI.getInstance().selectedElement)
             });
         }
-        this.sidebar.appendChild(layout_div)
-        return layout_div
+        this.sidebar.appendChild(element_div)
+        return element_div
     }
 
 }
