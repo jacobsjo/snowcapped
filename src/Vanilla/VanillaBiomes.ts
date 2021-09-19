@@ -98,6 +98,7 @@ export class VanillaBiomes{
         for (let biome of VanillaBiomes.biomes) {
             Biome.create(builder, biome.name, this.colorToHex(biome.r, biome.g, biome.b), undefined, true)
         }
+
     }
 
     private static colorToHex(r: number, g: number, b: number){

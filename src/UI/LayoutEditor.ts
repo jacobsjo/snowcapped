@@ -159,14 +159,18 @@ export class LayoutEditor {
             UI.getInstance().refresh()
         } else if ((action === "add" || action === "add_alt") && selectedElement !== "") {
             //Cycle Check
-            if (this.builder.layoutElements.get(selectedElement) instanceof Layout && this.layout instanceof Layout) {
-                const se = this.builder.layouts.get(selectedElement)
+            const se = this.builder.layoutElements.get(selectedElement)
+            if (se instanceof Layout && this.layout instanceof Layout) {
                 this.layout.set(t_idx, h_idx, this.builder.layoutElementDummy.getKey())
                 if (se.lookupRecursive(t_idx, h_idx, "A") === this.builder.layoutElementDummy || se.lookupRecursive(t_idx, h_idx, "B") === this.builder.layoutElementDummy) {
                     //Cycle found
                     this.layout.set(t_idx, h_idx, element.getKey())
                     return
                 }
+            }
+
+            if (!se && this.builder.vanillaBiomes.has(selectedElement)){
+                this.builder.registerLayoutElement(this.builder.vanillaBiomes.get(selectedElement))
             }
 
             if (action === "add_alt" && !(element instanceof ABElement) && this.layout instanceof Layout) {

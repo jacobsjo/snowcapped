@@ -29,11 +29,11 @@ export class SidebarManager {
         this.layout_divs = []
         this.biome_divs = []
 
-        // Add Add Button
+        // Add Assign splices Button
         const assignSplicesButton = document.createElement("div")
         assignSplicesButton.classList.add("sidebar_entry")
         assignSplicesButton.classList.add("assign_slices_button")
-        if (UI.getInstance().openElement === "assign_slices"){
+        if (UI.getInstance().openElement === "assign_slices") {
             assignSplicesButton.classList.add("open")
         }
         assignSplicesButton.innerHTML = "Assign Slices"
@@ -51,11 +51,6 @@ export class SidebarManager {
         spacer0.classList.add("spacer")
         this.sidebar.appendChild(spacer0)
 
-        // Add Slices
-        this.builder.slices.forEach(slice => {
-            this.layout_divs.push(this.createElementDiv(slice, "slice"))
-        });
-
         // Add Add Button
         const addSlicesButton = document.createElement("div")
         addSlicesButton.classList.add("sidebar_entry")
@@ -65,18 +60,19 @@ export class SidebarManager {
             const slice = Slice.create(this.builder, "New Slice", "unassigned")
             UI.getInstance().openElement = slice.getKey()
             UI.getInstance().refresh()
+            this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
         }
         this.sidebar.appendChild(addSlicesButton)
+
+        // Add Slices
+        this.builder.slices.forEach(slice => {
+            this.layout_divs.push(this.createElementDiv(slice, "slice"))
+        });
 
         // Add spacer
         const spacer1 = document.createElement("div")
         spacer1.classList.add("spacer")
         this.sidebar.appendChild(spacer1)
-
-        // Layouts
-        this.builder.layouts.forEach(element => {
-            this.layout_divs.push(this.createElementDiv(element, "layout"))
-        });
 
         // Add Add Button
         const addLayoutButton = document.createElement("div")
@@ -87,14 +83,35 @@ export class SidebarManager {
             const layout = Layout.create(this.builder, "New Layout")
             UI.getInstance().openElement = layout.getKey()
             UI.getInstance().refresh()
+            this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
         }
         this.sidebar.appendChild(addLayoutButton)
+
+        // Layouts
+        this.builder.layouts.forEach(element => {
+            this.layout_divs.push(this.createElementDiv(element, "layout"))
+        });
 
         // Add spacer
         const spacer2 = document.createElement("div")
         spacer2.classList.add("spacer")
         this.sidebar.appendChild(spacer2)
 
+        // Add Add Button
+        const addBiomeButton = document.createElement("div")
+        addBiomeButton.classList.add("sidebar_entry")
+        addBiomeButton.classList.add("add_layout_button")
+        addBiomeButton.innerHTML = "+ Add Biome"
+        addBiomeButton.onclick = (evt: Event) => {
+            const biome_name = prompt("Input biome name:", "new:biome")
+            if (biome_name === null)
+                return
+            const biome = Biome.create(this.builder, biome_name, "#888888")
+            if (UI.getInstance().openElement !== "assign_slises")
+                UI.getInstance().selectedElement = biome.getKey()
+            UI.getInstance().refresh()
+        }
+        this.sidebar.appendChild(addBiomeButton)
 
         // Add seachBar
         this.search_bar = document.createElement("input") as HTMLInputElement
@@ -113,16 +130,20 @@ export class SidebarManager {
             this.biome_divs.push(div)
         });
 
-        // Add Add Button
-        const addBiomeButton = document.createElement("div")
-        addBiomeButton.classList.add("sidebar_entry")
-        addBiomeButton.classList.add("add_layout_button")
-        addBiomeButton.innerHTML = "+ Add Biome"
-        addBiomeButton.onclick = (evt: Event) => {
-            const biome = Biome.create(this.builder, "new:biome", "#888888")
-            UI.getInstance().refresh()
-        }
-        this.sidebar.appendChild(addBiomeButton)
+        const vanilla_label = document.createElement("div") as HTMLElement
+        vanilla_label.innerHTML = "Unused Vanilla Biomes"
+        vanilla_label.classList.add("label")
+        this.sidebar.appendChild(vanilla_label)
+
+        // Vanilla Biomes
+        this.builder.vanillaBiomes.forEach(element => {
+            if (this.builder.layoutElements.has(element.getKey()))
+                return
+
+            const div = this.createElementDiv(element, "vanilla_biome")
+            this.biome_divs.push(div)
+        });
+
 
         // Add bottom spacer
         this.bottom_spacer = document.createElement("div")
@@ -138,11 +159,11 @@ export class SidebarManager {
         this.updateBiomeSearch()
     }
 
-    private updateBiomeSearch(){
+    private updateBiomeSearch() {
         this.bottom_spacer.style.height = "10000pt"
 
         this.biome_divs.forEach(div => {
-            if (div.getAttribute("key").includes(this.search_bar.value)){
+            if (div.getAttribute("key").includes(this.search_bar.value)) {
                 div.classList.remove("hidden")
             } else {
                 div.classList.add("hidden")
@@ -160,24 +181,24 @@ export class SidebarManager {
         element_div.classList.add("sidebar_entry")
         element_div.classList.add(c)
 
-        if (element.getKey() === UI.getInstance()?.selectedElement){
+        if (element.getKey() === UI.getInstance()?.selectedElement) {
             element_div.classList.add("selected")
         }
 
-        if (element.getKey() === UI.getInstance()?.openElement){
+        if (element.getKey() === UI.getInstance()?.openElement) {
             element_div.classList.add("open")
         }
 
 
         element_div.setAttribute("key", element.name)
 
-        if (element instanceof Biome){
+        if (element instanceof Biome) {
             const color_input = document.createElement("input") as HTMLInputElement
             color_input.classList.add("color_selector")
             color_input.type = "color"
             color_input.value = element.color
             //color_input.disabled = !element.allowEdit
-            
+
             color_input.onchange = (evt: Event) => {
                 element.color = color_input.value
                 UI.getInstance().refresh()
@@ -197,8 +218,8 @@ export class SidebarManager {
         layout_name.classList.add("name")
         element_div.appendChild(layout_name)
 
-        if (element.allowEdit){
-            
+        if (element.allowEdit) {
+
             const edit_name_button = document.createElement("img") as HTMLImageElement
             edit_name_button.classList.add("button", "edit")
             edit_name_button.src = "edit-pen.svg"
@@ -212,34 +233,35 @@ export class SidebarManager {
             }
             element_div.appendChild(edit_name_button)
 
-            
+        }
+
+        if (c !== "vanilla_biome"){
             const db = document.createElement("img") as HTMLImageElement
             db.classList.add("button", "delete")
             db.src = "trash-bin.svg"
             db.onclick = (evt) => {
                 if (!confirm("Deleting " + element.constructor.name + " \"" + element.name + "\""))
                     return
-                if (element instanceof Slice){
-                    this.builder.removeSlice(element.getKey())
+                if (element instanceof Slice) {
+                    this.builder.removeSlice(element)
                 } else {
-                    this.builder.removeLayoutElement(element.getKey())
+                    this.builder.removeLayoutElement(element)
                 }
                 UI.getInstance().refresh()
                 evt.stopPropagation()
             }
             element_div.appendChild(db)
-
         }
 
         if (element instanceof Layout || element instanceof Slice) {
             element_div.oncontextmenu = (evt) => {
-                if (UI.getInstance().openElement === "assign_slices"){
+                if (UI.getInstance().openElement === "assign_slices") {
                     UI.getInstance().selectedElement = ""
                 }
 
                 UI.getInstance().openElement = element.getKey()
 
-                if (UI.getInstance().selectedElement === element.getKey()){
+                if (UI.getInstance().selectedElement === element.getKey()) {
                     UI.getInstance().selectedElement = ""
                 }
 
@@ -248,8 +270,8 @@ export class SidebarManager {
                 evt.preventDefault()
             }
 
-            element_div.ondblclick = element_div.oncontextmenu            
-        } else if (element instanceof Biome && element.allowEdit){
+            element_div.ondblclick = element_div.oncontextmenu
+        } else if (element instanceof Biome && element.allowEdit) {
 
         }
 

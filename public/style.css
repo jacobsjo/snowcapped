@@ -109,7 +109,7 @@ body {
     height: 40pt;
 }
 
-#sidebar .sidebar_entry.biome .color_selector{
+#sidebar .sidebar_entry.biome .color_selector, #sidebar .sidebar_entry.vanilla_biome .color_selector{
     height: 25pt;
     width: 25pt;
     min-width: 25pt;
@@ -117,6 +117,7 @@ body {
     margin: 0;
     padding: 0;
 }
+
 
 #sidebar .sidebar_entry.add_layout_button{
     height: 25pt;
@@ -137,6 +138,24 @@ body {
 
 #sidebar .sidebar_entry.open{
     background-color: #6d6933;
+}
+
+#sidebar .sidebar_entry.vanilla_biome{
+    background-color: rgb(20, 20, 20);
+}
+
+#sidebar .sidebar_entry.vanilla_biome:hover{
+    background-color: rgb(48, 45, 40);
+}
+
+#sidebar .sidebar_entry.vanilla_biome.selected{
+    background-color: rgb(68, 65, 62);
+}
+
+#sidebar .label{
+    color: white;
+    text-align: center;
+    padding-top: 10pt;
 }
 
 

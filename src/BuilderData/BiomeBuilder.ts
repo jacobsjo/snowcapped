@@ -18,10 +18,13 @@ export class BiomeBuilder{
     humidities: [string,Climate.Param][]
 
     renderedElements: Map<string, LayoutElement | Slice>
-    slices: Map<string, Slice>
     layoutElements: Map<string, LayoutElement>
-    layouts: Map<string, Layout>
-    biomes: Map<string, Biome>
+    vanillaBiomes: Map<string, Biome>
+
+    slices: Slice[]
+    layouts: Layout[]
+    biomes: Biome[]
+
 
     layoutElementDummy: LayoutElementDummy
     layoutElementUnassigned: LayoutElementUnassigned
@@ -33,13 +36,14 @@ export class BiomeBuilder{
         this.temperatures = temperatures
         this.humidities = humidities
 
-
-        this.slices = new Map<string, Slice>();
         this.renderedElements = new Map<string, LayoutElement | Slice>();
         this.layoutElements = new Map<string, LayoutElement>();
-        this.layouts = new Map<string, Layout>();
-        this.biomes = new Map<string, Biome>();
+        this.vanillaBiomes = new Map<string, Biome>();
+        this.slices = []
+        this.layouts = []
+        this.biomes = []
 
+        
         this.layoutElementDummy = LayoutElementDummy.create(this)
         this.layoutElementUnassigned = LayoutElementUnassigned.create(this)
     }
@@ -53,9 +57,9 @@ export class BiomeBuilder{
         this.humidities = json.humidities
 
         this.layoutElements.clear()
-        this.layouts.clear()
-        this.biomes.clear()
-        this.slices.clear()
+        this.layouts = []
+        this.biomes = []
+        this.slices = []
 
         VanillaBiomes.registerVanillaBiomes(this)
         LayoutElementUnassigned.create(this)
@@ -66,6 +70,10 @@ export class BiomeBuilder{
 
         json.layouts?.forEach((layout : any) => {
             Layout.fromJSON(this, layout)
+        });
+
+        json.biomes?.forEach((biome : any) => {
+            Biome.fromJSON(this, biome)
         });
     }
 
@@ -79,13 +87,14 @@ export class BiomeBuilder{
             }),
             temperatures: this.temperatures,
             humidities: this.humidities,
-            layouts: Array.from(this.layouts.values()),
-            slices: Array.from(this.slices.values())
+            layouts: this.layouts,
+            slices: this.slices,
+            biomes: this.biomes
         }
     }
     
     public getSlice(name: string){
-        return this.slices.get(name) ?? this.layoutElementUnassigned;
+        return this.renderedElements.get(name) ?? this.layoutElementUnassigned;
     }
 
     public getRenderedElement(name: string): LayoutElement | Slice {
@@ -93,7 +102,14 @@ export class BiomeBuilder{
     }
 
     public getLayoutElement(name: string): LayoutElement{
-        const element = this.layoutElements.get(name)
+        var element = this.layoutElements.get(name)
+        /*
+        if (element === undefined && this.vanillaBiomes.has(name)){
+            element = this.vanillaBiomes.get(name)
+            this.registerLayoutElement(element)
+        }*/
+
+        
         if (element === undefined){
             const biomeKeys = name.split('/')
             if (biomeKeys.length !== 2){
@@ -111,39 +127,47 @@ export class BiomeBuilder{
     }
 
     public registerSlice(slice: Slice){
-        this.slices.set(slice.getKey(), slice);
+        this.slices.push(slice);
         this.renderedElements.set(slice.getKey(), slice)
     }
 
-    public removeSlice(key: string){
-        this.slices.delete(key)
-        this.renderedElements.delete(key)
+    public removeSlice(slice: Slice){
+        const index = this.slices.indexOf(slice)
+        if (index > -1){
+            this.slices.splice(index, 1)
+        }
+        this.renderedElements.delete(slice.getKey())
+    }
+
+    public registerVanillaBiome(biome: Biome){
+        this.vanillaBiomes.set(biome.getKey(), biome);
+        this.renderedElements.set(biome.getKey(), biome)
     }
 
     public registerLayoutElement(element: LayoutElement){
         this.layoutElements.set(element.getKey(), element);
         this.renderedElements.set(element.getKey(), element)
         if (element instanceof Layout){
-            this.layouts.set(element.getKey(), element)
+            this.layouts.push(element)
         }
         if (element instanceof Biome){
-            this.biomes.set(element.getKey(), element)
+            this.biomes.push(element)
         }
     }
 
-    public removeLayoutElement(key: string){
-        const element = this.layoutElements.get(key)
-        this.layoutElements.delete(key)
-        this.renderedElements.delete(key)
+    public removeLayoutElement(element: LayoutElement){
+        this.layoutElements.delete(element.getKey())
+        this.renderedElements.delete(element.getKey())
+
         if (element instanceof Layout){
-            this.layouts.delete(key)
+            const index = this.layouts.indexOf(element)
+            this.layouts.splice(index, 1)
         }
         if (element instanceof Biome){
-            this.biomes.delete(key)
+            const index = this.biomes.indexOf(element)
+            this.biomes.splice(index, 1)
         }
-
     }
-
 
     getNumTemperatures(){
         return this.temperatures.length
