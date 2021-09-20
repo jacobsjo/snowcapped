@@ -1,34 +1,38 @@
+import { Spline, TerrainShaper } from "deepslate";
 import { ABElement } from "../BuilderData/ABBiome";
 import { Biome } from "../BuilderData/Biome";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { Layout } from "../BuilderData/Layout";
+import { LayoutElement } from "../BuilderData/LayoutElement";
 import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
+import { Slice } from "../BuilderData/Slice";
 import { LayoutGridRenderer } from "./Renderer/LayoutGridRenderer";
 import { UI } from "./UI";
 
 
+function lerp(a:number, b:number, l:number){
+    return ((1-l) * a + l*b)
+}
 export class LayoutEditor {
     private builder: BiomeBuilder
     private title: HTMLInputElement
     private canvas: HTMLCanvasElement
 
     private mouse_position: { mouse_x: number, mouse_y: number }
+    private splineCanvas: HTMLCanvasElement
+    private isShiftPressed: boolean
 
-    layout: Layout
+    layout: Layout | Slice
 
     constructor(builder: BiomeBuilder) {
         this.builder = builder
 
         this.title = document.getElementById("layoutName") as HTMLInputElement
         this.canvas = document.getElementById("layoutEditorCanvas") as HTMLCanvasElement
+        this.splineCanvas = document.getElementById("spliceDisplay") as HTMLCanvasElement
 
         const tooltip = document.getElementById("layoutEditorTooltip")
         const tooltip_name = tooltip.getElementsByClassName("name")[0] as HTMLElement
-        const tooltip_instructions = tooltip.getElementsByClassName("instructions")[0] as HTMLElement
-        const tooltip_instruction_change = tooltip_instructions.getElementsByClassName("change")[0] as HTMLElement
-        const tooltip_instruction_remove = tooltip_instructions.getElementsByClassName("remove")[0] as HTMLElement
-        const tooltip_instruction_add_alt = tooltip_instructions.getElementsByClassName("add_alt")[0] as HTMLElement
-        const tooltip_instruction_open = tooltip_instructions.getElementsByClassName("open")[0] as HTMLElement
 
         this.title.onchange = (evt: Event) => {
             this.layout.name = this.title.value
@@ -55,31 +59,75 @@ export class LayoutEditor {
 
             if (this.layout instanceof Layout) {
                 if (element instanceof ABElement) {
-                    if (ids.mode === "A") {
-                        element = this.builder.getLayoutElement(element.elementA)
-                    } else {
-                        element = this.builder.getLayoutElement(element.elementB)
-                    }
-                    tooltip_instruction_add_alt.classList.add("hidden")
-                } else {
-                    tooltip_instruction_add_alt.classList.remove("hidden")
+                    element = element.getElement(ids.mode)
                 }
-            } else {
-                tooltip_instruction_add_alt.classList.add("hidden")
             }
 
             if (element instanceof Biome) {
                 tooltip_name.innerHTML = element.name
-                tooltip_instruction_open.classList.add("hidden")
-                tooltip_instruction_remove.classList.remove("hidden")
             } else if (element instanceof Layout) {
                 tooltip_name.innerHTML = "&crarr; " + element.name + " (Layout)"
-                tooltip_instruction_open.classList.remove("hidden")
-                tooltip_instruction_remove.classList.remove("hidden")
             } else if (element instanceof LayoutElementUnassigned) {
                 tooltip_name.innerHTML = "Unassigned"
-                tooltip_instruction_open.classList.add("hidden")
-                tooltip_instruction_remove.classList.add("hidden")
+            }
+
+            if (this.layout instanceof Slice){
+                const spline_ctx = this.splineCanvas.getContext('2d')
+                spline_ctx.clearRect(0,0,200,200);
+
+                spline_ctx.fillStyle = "rgb(92, 154, 255)"
+                spline_ctx.fillRect(0, 160, 200, 40)
+
+                const cont = builder.continentalnesses[ids.t_idx][1]
+                const c = lerp(cont.min, cont.max, ids.local_t)
+
+                const ero = builder.erosions[ids.h_idx][1]
+                const e = lerp(ero.min, ero.max, ids.local_h)
+
+
+                spline_ctx.fillStyle = "rgb(80,80,80)"
+                spline_ctx.beginPath()
+                spline_ctx.moveTo(0, 200)
+                for (let w = -1; w<1 ; w+=0.1){
+                    const offset = TerrainShaper.offset(TerrainShaper.point(c, e, w))
+                    spline_ctx.lineTo((w + 1) * 100, -offset * 150 + 160)
+                }
+                spline_ctx.lineTo(200, 200)
+                spline_ctx.fill()
+
+                spline_ctx.strokeStyle = "rgb(255,0,0)"
+                spline_ctx.setLineDash([5, 5])
+                spline_ctx.lineWidth=3
+                spline_ctx.beginPath()
+                for (let w = -1; w<1 ; w+=0.1){
+                    const factor = TerrainShaper.factor(TerrainShaper.point(c, e, w))
+                    spline_ctx.lineTo((w + 1) * 100, -(1/factor) * 10000 + 210)
+                }
+                spline_ctx.stroke()
+
+                spline_ctx.strokeStyle = "rgb(0,0,255)"
+                spline_ctx.setLineDash([5, 5])
+                spline_ctx.lineWidth=3
+                spline_ctx.beginPath()
+                for (let w = -1; w<1 ; w+=0.1){
+                    const peaks = TerrainShaper.peaks(TerrainShaper.point(c, e, w))
+                    spline_ctx.lineTo((w + 1) * 100, -peaks * 2 + 200)
+                }
+                spline_ctx.stroke()
+
+                spline_ctx.fillStyle = "rgba(255,255,0,0.2)"
+                spline_ctx.strokeStyle = "yellow"
+                spline_ctx.setLineDash([5, 5])
+                spline_ctx.lineWidth=1
+
+                builder.weirdnesses.forEach(weirdness => {
+                    if (weirdness[2] === this.layout.getKey()){
+                        spline_ctx.beginPath()                        
+                        spline_ctx.rect((weirdness[1].min + 1)*100, -2, (weirdness[1].max - weirdness[1].min)*100, 204)
+                        spline_ctx.stroke()
+                        spline_ctx.fill()
+                    }
+                })
             }
         }
         this.canvas.onmouseleave = (evt: MouseEvent) => {
@@ -97,6 +145,22 @@ export class LayoutEditor {
             this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, evt.ctrlKey ? "add_alt" : evt.altKey ? "pick" : "add")
         }
 
+        this.canvas.onauxclick = (evt: MouseEvent) => {
+            if (evt.button === 1){
+                const renderer = this.layout.getRenderer() as LayoutGridRenderer
+                const mouse_position = this.getMousePosition(evt)
+                const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, mouse_position.mouse_x, mouse_position.mouse_y)
+                if (ids === undefined) {
+                    return
+                }
+
+                this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "pick")
+            }
+        }
+
+
+        
+
         this.canvas.oncontextmenu = (evt: MouseEvent) => {
             const renderer = this.layout.getRenderer() as LayoutGridRenderer
             const mouse_position = this.getMousePosition(evt)
@@ -109,7 +173,21 @@ export class LayoutEditor {
             evt.preventDefault()
         }
 
+        this.canvas.onkeydown = (evt: KeyboardEvent) => {
+            if (evt.key === "Shift"){
+                this.isShiftPressed = true
+                if (this.layout instanceof Slice)
+                    this.splineCanvas.classList.remove("hidden")
+            }
+        }
+
         this.canvas.onkeyup = (evt: KeyboardEvent) => {
+            if (evt.key === "Shift"){
+                this.isShiftPressed = false
+                if (this.layout instanceof Slice)
+                    this.splineCanvas.classList.add("hidden")
+            }
+
             if (evt.key === "Delete") {
                 const renderer = this.layout.getRenderer() as LayoutGridRenderer
                 const mouse_position = this.mouse_position
@@ -214,9 +292,13 @@ export class LayoutEditor {
     refresh() {
         this.canvas.classList.remove("hidden")
         this.title.readOnly = false
-        this.layout = this.builder.getRenderedElement(UI.getInstance().openElement) as Layout
+        const element = this.builder.getRenderedElement(UI.getInstance().openElement)
+        if (element instanceof Slice || element instanceof Layout)
+            this.layout = element
         this.title.value = this.layout.name
         this.layout.getRenderer().draw(this.canvas.getContext('2d'), 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
+
+        this.splineCanvas.classList.toggle("hidden", !(this.layout instanceof Slice && this.isShiftPressed))
     }
 
     hide() {

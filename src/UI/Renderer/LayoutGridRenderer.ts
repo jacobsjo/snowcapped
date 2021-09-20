@@ -61,7 +61,7 @@ export class LayoutGridRenderer implements ElementRenderer{
         
     }
 
-    public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, mode: "A"|"B"} | undefined{
+    public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, local_t: number, local_h: number, mode: "A"|"B"} | undefined{
         const size = this.layout.getSize()
 
         const maxElementSizeX = sizeX / size[1]
@@ -79,7 +79,7 @@ export class LayoutGridRenderer implements ElementRenderer{
         const localY = y - minY - (h_idx * elementSize)
         const mode = localX > elementSize - localY ? "B" : "A"
 
-        return {t_idx: t_idx, h_idx: h_idx, mode: mode}
+        return {t_idx: t_idx, h_idx: h_idx, local_t: localX / elementSize, local_h: localY / elementSize, mode: mode}
     }
 
 

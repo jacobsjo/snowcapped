@@ -54,7 +54,7 @@ export class SliceGridRenderer {
 
     }
 
-    public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, mode: "A"|"B"} | undefined{
+    public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, local_t: number, local_h: number, mode: "A"|"B"}  | undefined{
         const size = this.slice.getSize()
 
         const maxElementSizeX = sizeX / size[1]
@@ -68,11 +68,11 @@ export class SliceGridRenderer {
         const t_idx = Math.floor((y - minY) / elementSize)
         const h_idx = Math.floor((x - minX) / elementSize)
 
-        const localX = x - minX - (t_idx * elementSize)
-        const localY = y - minY - (h_idx * elementSize)
+        const localX = x - minX - (h_idx * elementSize)
+        const localY = y - minY - (t_idx * elementSize)
         const mode = localX > elementSize - localY ? "B" : "A"
 
-        return {t_idx: t_idx, h_idx: h_idx, mode: mode}
+        return {t_idx: t_idx, h_idx: h_idx, local_h: localX / elementSize, local_t: localY / elementSize, mode: mode}
     }
 
 

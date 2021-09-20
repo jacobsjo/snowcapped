@@ -51,20 +51,23 @@ body {
     z-index: 1;
     top: 0;
     left: 0;
+}
+
+.tooltip .name{
     background-color: rgb(27, 27, 27);
     padding: 5pt;
     border: 2pt solid lightgray;
     border-radius: 5pt;
-}
-
-.tooltip .name{
     color: yellow;
     font-size: 15pt;
 }
 
-.tooltip .instructions{
-    color: lightgray;
-    font-size: 10pt;
+.tooltip #spliceDisplay{
+    background-color: rgb(27, 27, 27);
+    padding: 5pt;
+    border: 2pt solid lightgray;
+    border-radius: 5pt;
+    height: 100pt;
 }
 
 
