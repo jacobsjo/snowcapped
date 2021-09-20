@@ -119,7 +119,7 @@ export class BiomeBuilder{
             const biomeA : Biome = this.getLayoutElement(biomeKeys[0]) as Biome
             const biomeB : Biome  = this.getLayoutElement(biomeKeys[1]) as Biome
 
-            return ABElement.create(this, biomeA, biomeB)
+            return ABElement.create(this, biomeA.getKey(), biomeB.getKey())
         } else {
 
             return element

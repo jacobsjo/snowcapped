@@ -5,19 +5,21 @@ import {LayoutElement, Mode} from './LayoutElement'
 
 export class ABElement implements LayoutElement{
     readonly allowEdit: boolean = false
-    readonly elementA: LayoutElement
-    readonly elementB: LayoutElement
+    readonly elementA: string
+    readonly elementB: string
 
+    private builder: BiomeBuilder
     private renderer: ABBiomeRenderer
     readonly name: string
 
-    private constructor(elementA: Biome, elementB: Biome){
+    private constructor(builder: BiomeBuilder, elementA: string, elementB: string){
         this.elementA = elementA
         this.elementB = elementB
+        this.builder = builder
     }
 
-    static create(builder: BiomeBuilder, elementA: Biome, elementB: Biome): ABElement{
-        const ab_biome = new ABElement(elementA, elementB)
+    static create(builder: BiomeBuilder, elementA: string, elementB: string): ABElement{
+        const ab_biome = new ABElement(builder, elementA, elementB)
         builder.registerLayoutElement(ab_biome);
         return ab_biome
     }
@@ -34,12 +36,19 @@ export class ABElement implements LayoutElement{
         if (mode === "Any"){
             return this
         } else if (mode === "A"){
-            return this.elementA.lookupRecursive(temperatureIndex, humidityIndex, mode)
+            return this.builder.getLayoutElement(this.elementA).lookupRecursive(temperatureIndex, humidityIndex, mode)
         } else {
-            return this.elementB.lookupRecursive(temperatureIndex, humidityIndex, mode)
+            return this.builder.getLayoutElement(this.elementB).lookupRecursive(temperatureIndex, humidityIndex, mode)
         }
     }
 
+    getElement(mode: "A" | "B"){
+        if (mode === "A"){
+            return this.builder.getLayoutElement(this.elementA)
+        } else {
+            return this.builder.getLayoutElement(this.elementB)
+        }
+    }
 
     getRenderer(): ElementRenderer {
         if (this.renderer === undefined)
@@ -49,6 +58,6 @@ export class ABElement implements LayoutElement{
     }
 
     getKey(){
-        return this.elementA.getKey() + "/" + this.elementB.getKey()
+        return this.elementA + "/" + this.elementB
     }
 }

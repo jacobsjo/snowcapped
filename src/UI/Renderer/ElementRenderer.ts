@@ -47,8 +47,8 @@ export class ABBiomeRenderer implements ElementRenderer{
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
-        const isARecursive = this.ab_biome.elementA instanceof Layout
-        const isBRecursive = this.ab_biome.elementB instanceof Layout
+        const isARecursive = this.ab_biome.getElement("A") instanceof Layout
+        const isBRecursive = this.ab_biome.getElement("B") instanceof Layout
 
         const elementA = this.ab_biome.lookupRecursive(t_idx, h_idx, "A")
 

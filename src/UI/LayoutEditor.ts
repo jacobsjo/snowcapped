@@ -56,9 +56,9 @@ export class LayoutEditor {
             if (this.layout instanceof Layout) {
                 if (element instanceof ABElement) {
                     if (ids.mode === "A") {
-                        element = element.elementA
+                        element = this.builder.getLayoutElement(element.elementA)
                     } else {
-                        element = element.elementB
+                        element = this.builder.getLayoutElement(element.elementB)
                     }
                     tooltip_instruction_add_alt.classList.add("hidden")
                 } else {
@@ -94,7 +94,7 @@ export class LayoutEditor {
                 return
             }
 
-            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, evt.ctrlKey ? "add_alt" : evt.altKey ? "pick" : "add" )
+            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, evt.ctrlKey ? "add_alt" : evt.altKey ? "pick" : "add")
         }
 
         this.canvas.oncontextmenu = (evt: MouseEvent) => {
@@ -105,7 +105,7 @@ export class LayoutEditor {
                 return
             }
 
-            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "open" )
+            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "open")
             evt.preventDefault()
         }
 
@@ -117,8 +117,8 @@ export class LayoutEditor {
                 if (ids === undefined) {
                     return
                 }
-    
-                this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "remove" )
+
+                this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "remove")
                 evt.preventDefault
             }
         }
@@ -141,15 +141,15 @@ export class LayoutEditor {
         let exact_element = element
         if (exact_element instanceof ABElement) {
             if (mode === "A") {
-                exact_element = exact_element.elementA
+                exact_element = this.builder.getLayoutElement(exact_element.elementA)
             } else {
-                exact_element = exact_element.elementB
+                exact_element = this.builder.getLayoutElement(exact_element.elementB)
             }
         }
 
         var selectedElement = UI.getInstance().selectedElement;
 
-        if (action === "remove"){
+        if (action === "remove") {
             selectedElement = "unassigned"
             action = "add"
         }
@@ -169,7 +169,7 @@ export class LayoutEditor {
                 }
             }
 
-            if (!se && this.builder.vanillaBiomes.has(selectedElement)){
+            if (!se && this.builder.vanillaBiomes.has(selectedElement)) {
                 this.builder.registerLayoutElement(this.builder.vanillaBiomes.get(selectedElement))
             }
 
@@ -183,16 +183,16 @@ export class LayoutEditor {
             } else {
                 if (element instanceof ABElement) {
                     if (mode === "A") {
-                        if (selectedElement === element.elementB.getKey()) {
+                        if (selectedElement === element.elementB) {
                             this.layout.set(t_idx, h_idx, selectedElement)
                         } else {
-                            this.layout.set(t_idx, h_idx, selectedElement + "/" + element.elementB.getKey())
+                            this.layout.set(t_idx, h_idx, selectedElement + "/" + element.elementB)
                         }
                     } else {
-                        if (selectedElement === element.elementA.getKey()) {
+                        if (selectedElement === element.elementA) {
                             this.layout.set(t_idx, h_idx, selectedElement)
                         } else {
-                            this.layout.set(t_idx, h_idx, element.elementA.getKey() + "/" + selectedElement)
+                            this.layout.set(t_idx, h_idx, element.elementA + "/" + selectedElement)
                         }
                     }
                 } else {
