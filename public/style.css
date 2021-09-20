@@ -83,7 +83,7 @@ body {
 #sidebar .sidebar_entry:not(.hidden){
     width: 222pt;
     background-color: rgb(68, 67, 67);
-    margin: 5pt;
+    border: 3pt solid rgb(43, 42, 42);
     padding: 5pt;
     user-select: none;
     cursor: pointer;
@@ -140,6 +140,11 @@ body {
     background-color: #6d6933;
 }
 
+#sidebar .sidebar_entry.dragged{
+    background-color: rgb(39, 39, 39);
+}
+
+
 #sidebar .sidebar_entry.vanilla_biome{
     background-color: rgb(20, 20, 20);
 }
@@ -151,6 +156,15 @@ body {
 #sidebar .sidebar_entry.vanilla_biome.selected{
     background-color: rgb(68, 65, 62);
 }
+
+#sidebar .sidebar_entry.dragover_up{
+    border-top: 20pt solid rgb(43, 42, 42);
+}
+
+#sidebar .sidebar_entry.dragover_down{
+    border-bottom: 20pt solid rgb(43, 42, 42);
+}
+
 
 #sidebar .label{
     color: white;
@@ -186,7 +200,7 @@ body {
     display: none;
 }
 
-#sidebar .sidebar_entry:hover .button{
+#sidebar .sidebar_entry:hover:not(.dragged) .button{
     display: block;
 }
 

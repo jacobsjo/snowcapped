@@ -180,6 +180,7 @@ export class SidebarManager {
         const element_div = document.createElement("div")
         element_div.classList.add("sidebar_entry")
         element_div.classList.add(c)
+        element_div.draggable = (c !== "vanilla_biome")
 
         if (element.getKey() === UI.getInstance()?.selectedElement) {
             element_div.classList.add("selected")
@@ -281,14 +282,77 @@ export class SidebarManager {
 
             UI.getInstance().selectedElement = element.getKey()
 
+            UI.getInstance().refresh()
+            /*
             this.layout_divs.forEach(div => {
                 div.classList.toggle("selected", div.getAttribute("key") === UI.getInstance().selectedElement)
             });
 
             this.biome_divs.forEach(div => {
                 div.classList.toggle("selected", div.getAttribute("key") === UI.getInstance().selectedElement)
-            });
+            });*/
         }
+
+        element_div.ondragstart = (evt) => {
+            evt.dataTransfer.setData("type", c)
+            evt.dataTransfer.setData("key", element.getKey())
+            element_div.classList.add("dragged")
+        }
+
+        element_div.ondragend = (evt) => {
+            element_div.classList.remove("dragged")
+        }
+
+        element_div.ondragover = (evt) => {
+            if (evt.dataTransfer.getData("type") === c && evt.dataTransfer.getData("key") !== element.getKey()){
+                var self_id, other_id
+
+                if (element instanceof Slice){
+                    self_id = this.builder.slices.indexOf(element)
+                    other_id = this.builder.slices.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                } else if (element instanceof Layout){
+                    self_id = this.builder.layouts.indexOf(element)
+                    other_id = this.builder.layouts.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                } else if (element instanceof Biome){
+                    self_id = this.builder.biomes.indexOf(element)
+                    other_id = this.builder.biomes.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                }
+
+                if (self_id < other_id){
+                    element_div.classList.add("dragover_up")
+                } else {
+                    element_div.classList.add("dragover_down")
+                }
+
+                evt.preventDefault()
+            }
+        }
+
+        element_div.ondragleave = (evt) => {
+            element_div.classList.remove("dragover_up","dragover_down")
+        }
+
+        element_div.ondrop = (evt) => {
+            element_div.classList.remove("dragover_up","dragover_down")
+
+            var self_id, other_id
+
+            if (element instanceof Slice){
+                self_id = this.builder.slices.indexOf(element)
+                other_id = this.builder.slices.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                this.builder.slices.splice(self_id, 0, this.builder.slices.splice(other_id, 1)[0])
+            } else if (element instanceof Layout){
+                self_id = this.builder.layouts.indexOf(element)
+                other_id = this.builder.layouts.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                this.builder.layouts.splice(self_id, 0, this.builder.layouts.splice(other_id, 1)[0])
+            } else if (element instanceof Biome){
+                self_id = this.builder.biomes.indexOf(element)
+                other_id = this.builder.biomes.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                this.builder.biomes.splice(self_id, 0, this.builder.biomes.splice(other_id, 1)[0])
+            }
+            UI.getInstance().refresh()
+        }
+
         this.sidebar.appendChild(element_div)
         return element_div
     }
