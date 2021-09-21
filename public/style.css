@@ -64,16 +64,44 @@ body {
     border-radius: 5pt;
     color: yellow;
     font-size: 15pt;
+    white-space: nowrap;
 }
 
-.tooltip #spliceDisplay{
-    background-color: rgb(27, 27, 27);
-    padding: 5pt;
-    border: 2pt solid lightgray;
-    border-radius: 5pt;
-    height: 100pt;
+.closable_vertical{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
+.closable_vertical .button{
+    width: 15pt;
+    height: 10pt;
+    margin-top: 2pt;
+    margin-bottom: 3pt;
+    background-color: gray;
+    mask: url('close_down.svg') no-repeat center;
+}
+
+.closable_vertical.closed .button{
+    mask: url('close_up.svg') no-repeat center;
+}
+
+.closable_vertical .button:hover{
+    background-color: lightgray;
+}
+
+.closable_vertical.closed .content{
+    height: 0;
+}
+
+
+.closable_vertical .content{
+    width: 100%;
+    height: fit-content;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
 
 
 /* Sidebar */
@@ -83,8 +111,24 @@ body {
     min-width: 250pt;
     height: 100%;
     background-color: rgb(43, 42, 42);
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar #sidebar_menu{
     overflow-y: scroll;
     overflow-x: hidden;
+}
+
+#sidebar #splineDisplay{
+    background-color: #111111;
+    margin-top: 5pt;
+}
+
+#sidebar #splineDisplay #splineDisplayCanvas{
+    background-color: rgb(43, 42, 42);
+    height: 140pt;
+    width: 100%;
 }
 
 #sidebar .sidebar_entry:not(.hidden){

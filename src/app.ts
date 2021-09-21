@@ -12,6 +12,17 @@ import { Slice } from './BuilderData/Slice';
 import { LayoutElementUnassigned } from './BuilderData/LayoutElementUnassigned';
 
 
+const close_elements = document.getElementsByClassName("closable_vertical")
+
+for (let i = 0 ; i < close_elements.length ; i++){
+    (close_elements[i].getElementsByClassName("button")[0] as HTMLElement).onclick = (evt: Event) => {
+        close_elements[i].classList.toggle("closed")
+    }
+}
+
+
+
+
 const continentalnesses: [string, Climate.Param][] = [
     ['Mushroom Field', new Climate.Param(-1.2, -1.05)],
     ['Deep Ocean', new Climate.Param(-1.05, -0.455)],

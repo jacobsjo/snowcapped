@@ -10,8 +10,8 @@ import { LayoutGridRenderer } from "./Renderer/LayoutGridRenderer";
 import { UI } from "./UI";
 
 
-function lerp(a:number, b:number, l:number){
-    return ((1-l) * a + l*b)
+function lerp(a: number, b: number, l: number) {
+    return ((1 - l) * a + l * b)
 }
 export class LayoutEditor {
     private builder: BiomeBuilder
@@ -20,8 +20,6 @@ export class LayoutEditor {
 
     private mouse_position: { mouse_x: number, mouse_y: number }
     private splineCanvas: HTMLCanvasElement
-    private isShiftPressed: boolean
-
     layout: Layout | Slice
 
     constructor(builder: BiomeBuilder) {
@@ -29,7 +27,7 @@ export class LayoutEditor {
 
         this.title = document.getElementById("layoutName") as HTMLInputElement
         this.canvas = document.getElementById("layoutEditorCanvas") as HTMLCanvasElement
-        this.splineCanvas = document.getElementById("spliceDisplay") as HTMLCanvasElement
+        this.splineCanvas = document.getElementById("splineDisplayCanvas") as HTMLCanvasElement
 
         const tooltip = document.getElementById("layoutEditorTooltip")
         const tooltip_name = tooltip.getElementsByClassName("name")[0] as HTMLElement
@@ -46,12 +44,14 @@ export class LayoutEditor {
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, this.mouse_position.mouse_x, this.mouse_position.mouse_y)
             if (ids === undefined) {
                 tooltip.classList.add("hidden")
+                const spline_ctx = this.splineCanvas.getContext('2d')
+                spline_ctx.clearRect(0, 0, this.splineCanvas.width, this.splineCanvas.height);
                 return
             }
 
             this.canvas.focus()
 
-            tooltip.style.left = (evt.pageX + 20) + "px"
+            tooltip.style.left = (Math.min(evt.pageX + 20, document.body.clientWidth - tooltip.clientWidth)) + "px"
             tooltip.style.top = (evt.pageY + 15) + "px"
             tooltip.classList.remove("hidden")
 
@@ -71,67 +71,22 @@ export class LayoutEditor {
                 tooltip_name.innerHTML = "Unassigned"
             }
 
+            const cont = builder.continentalnesses[ids.t_idx][1]
+            const c = lerp(cont.min, cont.max, ids.local_t)
+
+            const ero = builder.erosions[ids.h_idx][1]
+            const e = lerp(ero.min, ero.max, ids.local_h)
+
             if (this.layout instanceof Slice){
-                const spline_ctx = this.splineCanvas.getContext('2d')
-                spline_ctx.clearRect(0,0,200,200);
-
-                spline_ctx.fillStyle = "rgb(92, 154, 255)"
-                spline_ctx.fillRect(0, 160, 200, 40)
-
-                const cont = builder.continentalnesses[ids.t_idx][1]
-                const c = lerp(cont.min, cont.max, ids.local_t)
-
-                const ero = builder.erosions[ids.h_idx][1]
-                const e = lerp(ero.min, ero.max, ids.local_h)
-
-
-                spline_ctx.fillStyle = "rgb(80,80,80)"
-                spline_ctx.beginPath()
-                spline_ctx.moveTo(0, 200)
-                for (let w = -1; w<1 ; w+=0.1){
-                    const offset = TerrainShaper.offset(TerrainShaper.point(c, e, w))
-                    spline_ctx.lineTo((w + 1) * 100, -offset * 150 + 160)
-                }
-                spline_ctx.lineTo(200, 200)
-                spline_ctx.fill()
-
-                spline_ctx.strokeStyle = "rgb(255,0,0)"
-                spline_ctx.setLineDash([5, 5])
-                spline_ctx.lineWidth=3
-                spline_ctx.beginPath()
-                for (let w = -1; w<1 ; w+=0.1){
-                    const factor = TerrainShaper.factor(TerrainShaper.point(c, e, w))
-                    spline_ctx.lineTo((w + 1) * 100, -(1/factor) * 10000 + 210)
-                }
-                spline_ctx.stroke()
-
-                spline_ctx.strokeStyle = "rgb(0,0,255)"
-                spline_ctx.setLineDash([5, 5])
-                spline_ctx.lineWidth=3
-                spline_ctx.beginPath()
-                for (let w = -1; w<1 ; w+=0.1){
-                    const peaks = TerrainShaper.peaks(TerrainShaper.point(c, e, w))
-                    spline_ctx.lineTo((w + 1) * 100, -peaks * 2 + 200)
-                }
-                spline_ctx.stroke()
-
-                spline_ctx.fillStyle = "rgba(255,255,0,0.2)"
-                spline_ctx.strokeStyle = "yellow"
-                spline_ctx.setLineDash([5, 5])
-                spline_ctx.lineWidth=1
-
-                builder.weirdnesses.forEach(weirdness => {
-                    if (weirdness[2] === this.layout.getKey()){
-                        spline_ctx.beginPath()                        
-                        spline_ctx.rect((weirdness[1].min + 1)*100, -2, (weirdness[1].max - weirdness[1].min)*100, 204)
-                        spline_ctx.stroke()
-                        spline_ctx.fill()
-                    }
-                })
+                UI.getInstance().splineDisplayManager.setPos({c: c, e: e})
+                UI.getInstance().splineDisplayManager.refresh()
             }
         }
+
         this.canvas.onmouseleave = (evt: MouseEvent) => {
             tooltip.classList.add("hidden")
+            UI.getInstance().splineDisplayManager.setPos(undefined)
+            UI.getInstance().splineDisplayManager.refresh()
         }
 
         this.canvas.onclick = (evt: MouseEvent) => {
@@ -146,7 +101,7 @@ export class LayoutEditor {
         }
 
         this.canvas.onauxclick = (evt: MouseEvent) => {
-            if (evt.button === 1){
+            if (evt.button === 1) {
                 const renderer = this.layout.getRenderer() as LayoutGridRenderer
                 const mouse_position = this.getMousePosition(evt)
                 const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, mouse_position.mouse_x, mouse_position.mouse_y)
@@ -159,7 +114,7 @@ export class LayoutEditor {
         }
 
 
-        
+
 
         this.canvas.oncontextmenu = (evt: MouseEvent) => {
             const renderer = this.layout.getRenderer() as LayoutGridRenderer
@@ -174,25 +129,13 @@ export class LayoutEditor {
         }
 
         this.canvas.onkeydown = (evt: KeyboardEvent) => {
-            if (evt.key === "Shift"){
-                this.isShiftPressed = true
-                if (this.layout instanceof Slice)
-                    this.splineCanvas.classList.remove("hidden")
-            }
-
-            if (evt.key === "z" && evt.ctrlKey){
+            if (evt.key === "z" && evt.ctrlKey) {
                 this.undo()
                 UI.getInstance().refresh()
             }
         }
 
         this.canvas.onkeyup = (evt: KeyboardEvent) => {
-            if (evt.key === "Shift"){
-                this.isShiftPressed = false
-                if (this.layout instanceof Slice)
-                    this.splineCanvas.classList.add("hidden")
-            }
-
             if (evt.key === "Delete") {
                 const renderer = this.layout.getRenderer() as LayoutGridRenderer
                 const mouse_position = this.mouse_position
@@ -307,9 +250,15 @@ export class LayoutEditor {
         if (element instanceof Slice || element instanceof Layout)
             this.layout = element
         this.title.value = this.layout.name
-        this.layout.getRenderer().draw(this.canvas.getContext('2d'), 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
 
-        this.splineCanvas.classList.toggle("hidden", !(this.layout instanceof Slice && this.isShiftPressed))
+        if (this.layout instanceof Slice){
+            UI.getInstance().splineDisplayManager.setWeirdnesses(this.builder.weirdnesses.filter(w => (w[2] === this.layout.getKey())).map(w => w[1]))
+        } else {
+            UI.getInstance().splineDisplayManager.setWeirdnesses([])
+            UI.getInstance().splineDisplayManager.setPos(undefined)            
+        }
+
+        this.layout.getRenderer().draw(this.canvas.getContext('2d'), 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
     }
 
     hide() {

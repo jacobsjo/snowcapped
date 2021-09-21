@@ -3,6 +3,7 @@ import { AssignSlicesManager } from "./AssignSlicesManager";
 import { LayoutEditor } from "./LayoutEditor";
 import { MenuManager } from "./MenuManager";
 import { SidebarManager } from "./SidebarManager";
+import { SplineDisplayManager } from "./SplineDisplayManager";
 
 
 
@@ -22,6 +23,7 @@ export class UI{
     readonly sidebarManager: SidebarManager
     readonly layoutEditor: LayoutEditor
     readonly assignSlicesEditor: AssignSlicesManager
+    readonly splineDisplayManager: SplineDisplayManager
 
     readonly builder: BiomeBuilder
 
@@ -37,6 +39,7 @@ export class UI{
         this.layoutEditor = new LayoutEditor(builder)
         this.sidebarManager = new SidebarManager(builder)
         this.assignSlicesEditor = new AssignSlicesManager(builder)
+        this.splineDisplayManager = new SplineDisplayManager(builder)
 
         this.refresh()
 
@@ -53,5 +56,7 @@ export class UI{
             this.assignSlicesEditor.hide()
             this.layoutEditor.refresh()
         }
+
+        this.splineDisplayManager.refresh()
     }
 }

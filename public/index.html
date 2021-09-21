@@ -21,19 +21,27 @@
             <div class="button" id="exportButton">Export</div>
         </div>
         <div id="editor">
-            <div id="sidebar"></div>
+            <div id="sidebar">
+                <div id="sidebar_menu">
+
+                </div>
+                <div class="closable_vertical" id="splineDisplay">
+                    <div class="button"></div>
+                    <div class="content">
+                        <canvas id="splineDisplayCanvas" width="500" height="280"></canvas>
+                    </div>
+                </div>
+            </div>
             <div id="layoutEditor">
                 <input type="text" id="layoutName" />
                 <div id="layoutEditorDiv">
                     <canvas tabindex='1' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
                 </div>
-
                 <div id="assignSlices" class="hidden">
                 </div>
             </div>
             <div class="tooltip hidden" id="layoutEditorTooltip">
                 <div class="name">minecraft:extreme_hills</div>
-                <canvas id="spliceDisplay" width="200" height="200"></canvas>
             </div>
         </div>
     </div>

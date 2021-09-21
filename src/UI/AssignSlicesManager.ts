@@ -7,6 +7,7 @@ export class AssignSlicesManager {
     private builder: BiomeBuilder
     private title: HTMLInputElement
     private div: HTMLElement
+    private splineCanvas: HTMLCanvasElement
 
     private undoActions: {w_idx: number, value: string}[]
 
@@ -15,11 +16,14 @@ export class AssignSlicesManager {
 
         this.title = document.getElementById("layoutName") as HTMLInputElement
         this.div = document.getElementById("assignSlices")
+        this.splineCanvas = document.getElementById("splineDisplayCanvas") as HTMLCanvasElement
         this.undoActions = []
 
     }
 
     refresh() {
+        UI.getInstance().splineDisplayManager.setPos(undefined)
+
         this.title.readOnly = true
         this.title.value = "Assign Slices"
         this.div.classList.remove("hidden")
@@ -87,11 +91,23 @@ export class AssignSlicesManager {
                 evt.preventDefault()
             }
 
+            row.onmouseover = (evt) => {
+                UI.getInstance().splineDisplayManager.setWeirdnesses([weirdness[1]])
+                UI.getInstance().splineDisplayManager.refresh()
+            }
+
             row.appendChild(slice_mode_select_col)
 
 
             table.appendChild(row)
         })
+        const t = this
+        table.onmouseout = (evt) => {
+            if (!t.div.classList.contains('hidden')){
+                UI.getInstance().splineDisplayManager.setWeirdnesses([])
+                UI.getInstance().splineDisplayManager.refresh()
+            }
+        }
 
         this.div.appendChild(table)
 

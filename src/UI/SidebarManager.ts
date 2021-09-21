@@ -18,7 +18,7 @@ export class SidebarManager {
     private search_bar: HTMLInputElement
 
     constructor(builder: BiomeBuilder) {
-        this.sidebar = document.getElementById("sidebar")
+        this.sidebar = document.getElementById("sidebar_menu")
         this.builder = builder
     }
 
