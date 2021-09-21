@@ -62,7 +62,8 @@ export class BiomeBuilder{
         this.slices = []
 
         VanillaBiomes.registerVanillaBiomes(this)
-        LayoutElementUnassigned.create(this)
+        this.registerLayoutElement(this.layoutElementDummy)
+        this.registerLayoutElement(this.layoutElementUnassigned)
 
         json.slices?.forEach((slice : any) => {
             Slice.fromJSON(this, slice)

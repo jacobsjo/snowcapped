@@ -11,6 +11,9 @@ export class Slice{
     private builder: BiomeBuilder
     private renderer: SliceGridRenderer
     private key: string
+
+    private undoActions: {c_id: number, e_id: number, value: string}[]
+
     
     private constructor(builder: BiomeBuilder, name: string, array: string[][], key?: string){
         this.name = name;
@@ -18,6 +21,7 @@ export class Slice{
 
         this.array = array;
         this.key = key ?? uniqid('slice_')
+        this.undoActions = []
     }
 
     static create(builder: BiomeBuilder, name: string, fill: string): Slice{
@@ -45,7 +49,19 @@ export class Slice{
     }
 
     set(continentalnessIndex: number, erosionIndex: number, element: string){
+        if (this.array[continentalnessIndex][erosionIndex] === element)
+            return
+
+        this.undoActions.push({c_id: continentalnessIndex, e_id: erosionIndex, value: this.array[continentalnessIndex][erosionIndex]})
+        
         this.array[continentalnessIndex][erosionIndex] = element
+    }
+
+    undo(){
+        if (this.undoActions.length > 0){
+            const action = this.undoActions.pop()
+            this.array[action.c_id][action.e_id] = action.value
+        }
     }
 
     lookupKey(continentalnessIndex: number, erosionIndex: number): string{

@@ -8,11 +8,14 @@ export class AssignSlicesManager {
     private title: HTMLInputElement
     private div: HTMLElement
 
+    private undoActions: {w_idx: number, value: string}[]
+
     constructor(builder: BiomeBuilder) {
         this.builder = builder
 
         this.title = document.getElementById("layoutName") as HTMLInputElement
         this.div = document.getElementById("assignSlices")
+        this.undoActions = []
 
     }
 
@@ -68,7 +71,8 @@ export class AssignSlicesManager {
                     UI.getInstance().selectedElement = this.builder.weirdnesses[w_idx][2]
                     UI.getInstance().refresh()
                 } else {
-                    if (UI.getInstance().selectedElement !== "") {
+                    if (UI.getInstance().selectedElement !== "" && this.builder.weirdnesses[w_idx][2] !== UI.getInstance().selectedElement) {
+                        this.undoActions.push({w_idx: w_idx, value: this.builder.weirdnesses[w_idx][2]})
                         this.builder.weirdnesses[w_idx][2] = UI.getInstance().selectedElement
                         UI.getInstance().refresh()
                     }
@@ -90,6 +94,20 @@ export class AssignSlicesManager {
         })
 
         this.div.appendChild(table)
+
+        this.div.tabIndex = 1
+
+        this.div.focus()
+
+        this.div.onkeydown = (evt: KeyboardEvent) => {
+            if (evt.key === "z" && evt.ctrlKey && this.undoActions.length > 0){
+                const action = this.undoActions.pop()
+                this.builder.weirdnesses[action.w_idx][2] = action.value
+                UI.getInstance().refresh()
+            }
+
+        }
+
     }
 
     hide() {

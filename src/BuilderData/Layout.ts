@@ -15,6 +15,8 @@ export class Layout implements LayoutElement {
     private builder: BiomeBuilder
     private renderer: LayoutGridRenderer
 
+    private undoActions: {t_id: number, h_id: number, value: string}[]
+
     private key: string
     
     private constructor(builder: BiomeBuilder, name: string, array?: string[][], key?: string){
@@ -23,6 +25,7 @@ export class Layout implements LayoutElement {
         this.array = array ?? new Array(builder.getNumTemperatures()).fill(0).map(() => new Array(builder.getNumHumidities()).fill("unassigned"))
 
         this.key = key ?? uniqid('layout_')
+        this.undoActions = []
     }
 
     static create(builder: BiomeBuilder, name: string, array?: string[][], key?: string): Layout{
@@ -43,8 +46,21 @@ export class Layout implements LayoutElement {
         }
     }
 
-    set(temperatureIndex: number, humidityIndex: number, element: string){
+    set(temperatureIndex: number, humidityIndex: number, element: string, recordUndo: boolean = true){
+        if (this.array[temperatureIndex][humidityIndex] === element)
+            return
+
+        if (recordUndo)
+            this.undoActions.push({t_id: temperatureIndex, h_id: humidityIndex, value: this.array[temperatureIndex][humidityIndex]})
+
         this.array[temperatureIndex][humidityIndex] = element
+    }
+
+    undo(){
+        if (this.undoActions.length > 0){
+            const action = this.undoActions.pop()
+            this.array[action.t_id][action.h_id] = action.value
+        }
     }
 
     lookupKey(temperatureIndex: number, humidityIndex: number): string {

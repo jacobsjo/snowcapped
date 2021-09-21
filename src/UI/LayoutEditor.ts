@@ -179,6 +179,11 @@ export class LayoutEditor {
                 if (this.layout instanceof Slice)
                     this.splineCanvas.classList.remove("hidden")
             }
+
+            if (evt.key === "z" && evt.ctrlKey){
+                this.undo()
+                UI.getInstance().refresh()
+            }
         }
 
         this.canvas.onkeyup = (evt: KeyboardEvent) => {
@@ -239,11 +244,13 @@ export class LayoutEditor {
             //Cycle Check
             const se = this.builder.layoutElements.get(selectedElement)
             if (se instanceof Layout && this.layout instanceof Layout) {
-                this.layout.set(t_idx, h_idx, this.builder.layoutElementDummy.getKey())
+                this.layout.set(t_idx, h_idx, this.builder.layoutElementDummy.getKey(), false)
                 if (se.lookupRecursive(t_idx, h_idx, "A") === this.builder.layoutElementDummy || se.lookupRecursive(t_idx, h_idx, "B") === this.builder.layoutElementDummy) {
                     //Cycle found
-                    this.layout.set(t_idx, h_idx, element.getKey())
+                    this.layout.set(t_idx, h_idx, element.getKey(), false)
                     return
+                } else {
+                    this.layout.set(t_idx, h_idx, element.getKey(), false)
                 }
             }
 
@@ -287,6 +294,10 @@ export class LayoutEditor {
                 UI.getInstance().refresh()
             }
         }
+    }
+
+    undo() {
+        this.layout.undo()
     }
 
     refresh() {
