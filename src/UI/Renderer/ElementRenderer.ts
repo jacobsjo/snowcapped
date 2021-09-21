@@ -81,7 +81,7 @@ export class ABBiomeRenderer implements ElementRenderer{
 
             if (!isIcon){
                 ctx.fillStyle = "rgb(0,0,0,1)"
-                ctx.font = '45px serif';
+                ctx.font = '110px serif';
                 ctx.textAlign = "center"
                 ctx.textBaseline = "middle"
                 ctx.fillText('↵', minX + 0.25 * sizeX, minY + 0.33 * sizeY)
@@ -118,7 +118,7 @@ export class ABBiomeRenderer implements ElementRenderer{
 
             if (!isIcon){
                 ctx.fillStyle = "rgb(0,0,0,1)"
-                ctx.font = '45px serif';
+                ctx.font = '110px serif';
                 ctx.textAlign = "center"
                 ctx.textBaseline = "middle"
                 ctx.fillText('↵', minX + 0.72 * sizeX, minY + 0.8 * sizeY)

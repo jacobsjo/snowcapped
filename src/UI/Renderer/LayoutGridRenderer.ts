@@ -43,7 +43,7 @@ export class LayoutGridRenderer implements ElementRenderer{
 
                     if (!isIcon){
                         ctx.fillStyle = "rgb(0,0,0,1)"
-                        ctx.font = '60px serif';
+                        ctx.font = '140px serif';
                         ctx.textAlign = "center"
                         ctx.textBaseline = "middle"
                         ctx.fillText('↵', xOffset + (h_idx+0.5) * elementSize, yOffset + (t_idx+0.6) * elementSize)
