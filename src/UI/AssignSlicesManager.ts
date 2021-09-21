@@ -23,6 +23,7 @@ export class AssignSlicesManager {
 
     refresh() {
         UI.getInstance().splineDisplayManager.setPos(undefined)
+        UI.getInstance().splineDisplayManager.setWeirdnesses([])
 
         this.title.readOnly = true
         this.title.value = "Assign Slices"
