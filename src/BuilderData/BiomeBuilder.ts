@@ -170,6 +170,35 @@ export class BiomeBuilder{
         }
     }
 
+    private findIndex(array: Climate.Param[], number: number): number{
+        return number < array[0].min ? 0 : number > array[array.length-1].max ? array.length - 1 : array.findIndex(e => e.min < number && e.max > number)
+    }
+
+    public lookup(weirdness: number, continentalness: number, erosion: number, humidity: number, temperature: number): Biome | LayoutElementUnassigned{
+        const w_idx = this.findIndex(this.weirdnesses.map(e => e[1]), weirdness)
+        const c_idx = this.findIndex(this.continentalnesses.map(e => e[1]), continentalness)
+        const e_idx = this.findIndex(this.erosions.map(e => e[1]), erosion)
+        const t_idx = this.findIndex(this.temperatures.map(e => e[1]), temperature)
+        const h_idx = this.findIndex(this.humidities.map(e => e[1]), humidity)
+
+//        console.log("ids| c: " + c_idx + " e: " + e_idx + " h: " + h_idx + " t: " + h_idx)
+        const w = this.weirdnesses[w_idx]
+
+        if (w === undefined){
+            return this.layoutElementUnassigned
+        }
+
+        const slice = this.getSlice(w[2]) as Slice
+        const layout = slice.lookup(c_idx, e_idx) as LayoutElement
+        if (layout instanceof Biome || layout instanceof LayoutElementUnassigned){
+            return layout
+        } else if (layout instanceof Layout){
+            const biome = layout.lookupRecursive(t_idx, h_idx, w[3])
+            if (biome instanceof Biome || biome instanceof LayoutElementUnassigned)
+                return biome
+        }
+    }
+
     getNumTemperatures(){
         return this.temperatures.length
     }

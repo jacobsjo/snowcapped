@@ -12,7 +12,7 @@ import { Slice } from './BuilderData/Slice';
 import { LayoutElementUnassigned } from './BuilderData/LayoutElementUnassigned';
 
 
-const close_elements = document.getElementsByClassName("closable_vertical")
+const close_elements = document.getElementsByClassName("closable")
 
 for (let i = 0 ; i < close_elements.length ; i++){
     (close_elements[i].getElementsByClassName("button")[0] as HTMLElement).onclick = (evt: Event) => {

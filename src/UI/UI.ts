@@ -4,6 +4,7 @@ import { LayoutEditor } from "./LayoutEditor";
 import { MenuManager } from "./MenuManager";
 import { SidebarManager } from "./SidebarManager";
 import { SplineDisplayManager } from "./SplineDisplayManager";
+import { VisualizationManger } from "./VisualizationManager";
 
 
 
@@ -24,11 +25,13 @@ export class UI{
     readonly layoutEditor: LayoutEditor
     readonly assignSlicesEditor: AssignSlicesManager
     readonly splineDisplayManager: SplineDisplayManager
+    readonly visualizationManager: VisualizationManger
 
     readonly builder: BiomeBuilder
 
     public selectedElement: string = ""
     public openElement: string
+
 
     private constructor(builder: BiomeBuilder){
         UI.instance = this
@@ -40,6 +43,7 @@ export class UI{
         this.sidebarManager = new SidebarManager(builder)
         this.assignSlicesEditor = new AssignSlicesManager(builder)
         this.splineDisplayManager = new SplineDisplayManager(builder)
+        this.visualizationManager = new VisualizationManger(builder)
 
         this.refresh()
 
@@ -58,5 +62,6 @@ export class UI{
         }
 
         this.splineDisplayManager.refresh()
+        this.visualizationManager.refresh()
     }
 }

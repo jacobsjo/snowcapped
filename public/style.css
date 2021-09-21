@@ -52,7 +52,7 @@ body {
 /* Tooltip */
 .tooltip{
     position: absolute;
-    z-index: 1;
+    z-index: 1000;
     top: 0;
     left: 0;
 }
@@ -67,38 +67,73 @@ body {
     white-space: nowrap;
 }
 
-.closable_vertical{
+.closable{
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: #111111;
 }
 
-.closable_vertical .button{
+.closable.vertical{
+    flex-direction: column;
+}
+
+.closable.horizontal{
+    flex-direction: row;
+}
+
+.closable .button{
+    background-color: gray;
+}
+
+.closable.vertical .button{
     width: 15pt;
     height: 10pt;
     margin-top: 2pt;
     margin-bottom: 3pt;
-    background-color: gray;
+}
+
+.closable.horizontal .button{
+    width: 10pt;
+    height: 15pt;
+    margin-left: 2pt;
+    margin-right: 3pt;
+}
+
+.closable.closable.horizontal:not(.closed) .button{
+    mask: url('close_right.svg') no-repeat center;
+}
+
+.closable.horizontal.closed .button{
+    mask: url('close_left.svg') no-repeat center;
+}
+
+.closable.closable.vertical:not(.closed) .button{
     mask: url('close_down.svg') no-repeat center;
 }
 
-.closable_vertical.closed .button{
+.closable.vertical.closed .button{
     mask: url('close_up.svg') no-repeat center;
 }
 
-.closable_vertical .button:hover{
+.closable .button:hover{
     background-color: lightgray;
 }
 
-.closable_vertical.closed .content{
-    height: 0;
+.closable.closed .content{
+    display: none;
 }
 
-
-.closable_vertical .content{
+.closable.vertical:not(.closed) .content{
     width: 100%;
     height: fit-content;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.closable.horizontal:not(.closed) .content{
+    height: 100%;
+    width: fit-content;
     flex-grow: 1;
     flex-shrink: 1;
 }
@@ -120,10 +155,6 @@ body {
     overflow-x: hidden;
 }
 
-#sidebar #splineDisplay{
-    background-color: #111111;
-    margin-top: 5pt;
-}
 
 #sidebar #splineDisplay #splineDisplayCanvas{
     background-color: rgb(43, 42, 42);
@@ -413,4 +444,24 @@ body {
 
 .hidden{
     display: none;
+}
+
+
+
+/* Visualization */
+#visualization_panel:not(.closed){
+    width: fit-content;
+    flex-grow: 1;
+}
+
+#visualization{
+    min-width: 300pt;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(43, 42, 42);
+}
+
+#visualization_map{
+    height: 100%;
+    width: 100%;
 }
