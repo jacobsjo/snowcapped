@@ -25,12 +25,12 @@ export class BiomeLayer extends L.GridLayer{
             tile.width = size.x / this.gridIndicesManager.resolution
             tile.height = size.y / this.gridIndicesManager.resolution
 
-            tile.style.imageRendering = "crisp-edges"
-    
-            const indexesGetter = this.gridIndicesManager.get(coords)
-            let nv
-            
-            nv = await indexesGetter
+            let nv = this.gridIndicesManager.get(coords)
+            if (nv instanceof Promise){
+                nv = await nv
+            } else {
+                tile.classList.add('leaflet-tile-loaded')
+            }
 
             const biomes = nv.map(row => row.map(idxs => this.builder.lookup(idxs)))
             for (let x = 0 ; x<size.x/this.gridIndicesManager.resolution ; x++){

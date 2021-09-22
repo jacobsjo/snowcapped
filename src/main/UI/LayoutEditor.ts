@@ -54,7 +54,7 @@ export class LayoutEditor {
             tooltip.style.left = (Math.min(evt.pageX + 20, document.body.clientWidth - tooltip.clientWidth)) + "px"
             tooltip.style.top = (evt.pageY + 15) + "px"
             tooltip.classList.remove("hidden")
-
+  
             let element = this.layout.lookup(ids.t_idx, ids.h_idx)
 
             if (this.layout instanceof Layout) {
