@@ -3,7 +3,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 
 module.exports = {
-    entry: './src/app.ts',
+    entry: {
+        bundle: './src/main/app.ts',
+        multinoiseworker: './src/multinoiseworker/worker.ts'
+    },
     devtool: 'inline-source-map',
     mode: 'development',
     module: {
@@ -24,7 +27,7 @@ module.exports = {
         }),
     ],
     output: {
-        filename: 'bundle.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
         clean: true
     }

@@ -1,0 +1,9 @@
+{
+    "extends": "../generic-tsconfig.json",
+    "references": [
+      {"path": "../multinoiseworker/"}
+    ],
+    "compilerOptions": {
+        "lib": ["esnext", "dom", "webworker"]
+      }
+  }

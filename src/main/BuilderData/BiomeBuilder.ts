@@ -10,6 +10,9 @@ import { LayoutElementUnassigned } from "./LayoutElementUnassigned"
 
 import { Slice } from "./Slice"
 
+export type MultiNoiseParameters = {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}
+export type MultiNoiseIndexes = {w_idx: number, c_idx:number, e_idx: number, h_idx: number, t_idx: number}
+
 export class BiomeBuilder{
     continentalnesses: [string, Climate.Param][]
     erosions: [string,Climate.Param][]
@@ -174,28 +177,34 @@ export class BiomeBuilder{
         return number < array[0].min ? 0 : number > array[array.length-1].max ? array.length - 1 : array.findIndex(e => e.min < number && e.max > number)
     }
 
-    public lookup(weirdness: number, continentalness: number, erosion: number, humidity: number, temperature: number): Biome | LayoutElementUnassigned{
-        const w_idx = this.findIndex(this.weirdnesses.map(e => e[1]), weirdness)
-        const c_idx = this.findIndex(this.continentalnesses.map(e => e[1]), continentalness)
-        const e_idx = this.findIndex(this.erosions.map(e => e[1]), erosion)
-        const t_idx = this.findIndex(this.temperatures.map(e => e[1]), temperature)
-        const h_idx = this.findIndex(this.humidities.map(e => e[1]), humidity)
+    public getIndexes(params: MultiNoiseParameters): MultiNoiseIndexes{
+        const w_idx = this.findIndex(this.weirdnesses.map(e => e[1]), params.weirdness)
+        const c_idx = this.findIndex(this.continentalnesses.map(e => e[1]), params.continentalness)
+        const e_idx = this.findIndex(this.erosions.map(e => e[1]), params.erosion)
+        const t_idx = this.findIndex(this.temperatures.map(e => e[1]), params.temperature)
+        const h_idx = this.findIndex(this.humidities.map(e => e[1]), params.humidity)
+        return {w_idx: w_idx, e_idx: e_idx, c_idx: c_idx, t_idx: t_idx, h_idx: h_idx}
+    }
 
-//        console.log("ids| c: " + c_idx + " e: " + e_idx + " h: " + h_idx + " t: " + h_idx)
-        const w = this.weirdnesses[w_idx]
+    public lookup(indexes: MultiNoiseIndexes): {slice?: Slice, layout?: Layout, biome?: Biome}{
+        const w = this.weirdnesses[indexes.w_idx]
 
         if (w === undefined){
-            return this.layoutElementUnassigned
+            return {}
         }
 
         const slice = this.getSlice(w[2]) as Slice
-        const layout = slice.lookup(c_idx, e_idx) as LayoutElement
-        if (layout instanceof Biome || layout instanceof LayoutElementUnassigned){
-            return layout
+        const layout = slice.lookup(indexes.c_idx, indexes.e_idx) as LayoutElement
+        if (layout instanceof LayoutElementUnassigned){
+            return {slice: slice}
+        } else if (layout instanceof Biome){
+            return {slice: slice, biome: layout}
         } else if (layout instanceof Layout){
-            const biome = layout.lookupRecursive(t_idx, h_idx, w[3])
-            if (biome instanceof Biome || biome instanceof LayoutElementUnassigned)
-                return biome
+            const biome = layout.lookupRecursive(indexes.t_idx, indexes.h_idx, w[3])
+            if (biome instanceof Biome)
+                return {slice: slice, layout: layout, biome: biome}
+            else
+                return {slice: slice, layout: layout}
         }
     }
 

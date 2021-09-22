@@ -1,11 +1,12 @@
 import { BiomeSource, NoiseParams, NoiseSampler, NormalNoise, TerrainShaper, WorldgenRandom } from "deepslate";
+import { uniqueId } from "lodash";
 import { Biome } from "../BuilderData/Biome";
-import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
+import { BiomeBuilder, MultiNoiseParameters } from "../BuilderData/BiomeBuilder";
 import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
 
 
 
-export class GridMultiNoise{
+export class GridMultiNoise {
 	private readonly temperature: NormalNoise
 	private readonly humidity: NormalNoise
 	private readonly continentalness: NormalNoise
@@ -13,44 +14,50 @@ export class GridMultiNoise{
 	private readonly weirdness: NormalNoise
 	private readonly offset: NormalNoise
 
-    private readonly builder: BiomeBuilder
+	private readonly builder: BiomeBuilder
 
-    constructor(
+	private worker : Worker
+	private messageHandlers: Map<string, (values: {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]) => void>
+
+	constructor(
 		seed: bigint,
-        builder: BiomeBuilder,
-        temperatureParams: NoiseParams,
+		builder: BiomeBuilder,
+		temperatureParams: NoiseParams,
 		humidityParams: NoiseParams,
 		continentalnessParams: NoiseParams,
 		erosionParams: NoiseParams,
 		weirdnessParams: NoiseParams,
 		offsetParams: NoiseParams,
 	) {
-        this.builder = builder
+		this.builder = builder
 		this.temperature = new NormalNoise(new WorldgenRandom(seed), temperatureParams.firstOctave, temperatureParams.amplitudes)
 		this.humidity = new NormalNoise(new WorldgenRandom(seed + BigInt(1)), humidityParams.firstOctave, humidityParams.amplitudes)
 		this.continentalness = new NormalNoise(new WorldgenRandom(seed + BigInt(2)), continentalnessParams.firstOctave, continentalnessParams.amplitudes)
 		this.erosion = new NormalNoise(new WorldgenRandom(seed + BigInt(3)), erosionParams.firstOctave, erosionParams.amplitudes)
 		this.weirdness = new NormalNoise(new WorldgenRandom(seed + BigInt(4)), weirdnessParams.firstOctave, weirdnessParams.amplitudes)
 		this.offset = new NormalNoise(new WorldgenRandom(seed + BigInt(5)), offsetParams.firstOctave, offsetParams.amplitudes)
+
+		this.worker = new Worker("multinoiseworker.js")
+
+		this.messageHandlers = new Map<string, (values: {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]) => void>()
+
+		this.worker.onmessage = (evt) => {
+			this.messageHandlers.get(evt.data.key)?.(evt.data.values)
+		}
 	}
 
-    getBiome(x: number, y: number, z: number): Biome | LayoutElementUnassigned {
-        const xx = x + this.getOffset(x, 0, z)
-		const yy = y + this.getOffset(y, z, x)
-		const zz = z + this.getOffset(z, x, 0)
-		const temperature = this.temperature.sample(xx, yy, zz)
-		const humidity = this.humidity.sample(xx, yy, zz)
-		const continentalness = this.continentalness.sample(xx, 0, zz)
-		const erosion = this.erosion.sample(xx, 0, zz)
-		const weirdness = this.weirdness.sample(xx, 0, zz)
-		const offset = TerrainShaper.offset(TerrainShaper.point(continentalness, erosion, weirdness))
-		const depth = NoiseSampler.computeDimensionDensity(1, -0.51875, y * 4) + offset
-        
-        //console.log("looking up for w: " + weirdness + " c: " + continentalness + " e: " + erosion + " h: " + humidity + " t: " + temperature)
-        return this.builder.lookup(weirdness, continentalness, erosion, humidity, temperature)
-    }
+	async getNoiseValues(x: number, z: number, size: number, step: number): Promise<MultiNoiseParameters[][]> {
+		const key = uniqueId()
+		this.worker.postMessage({ task: "calculate", key: key,  coords: { x: x, z: z, size: size, step: step } })
 
-    public getTerrainShape(x: number, z: number) {
+		return new Promise<{weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]>(resolve => {
+			this.messageHandlers.set(key, (values:  {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]) => {
+				resolve(values)
+			})
+		})
+	}
+
+	public getTerrainShape(x: number, z: number) {
 		const xx = x + this.getOffset(x, 0, z)
 		const zz = z + this.getOffset(z, x, 0)
 		const continentalness = this.continentalness.sample(xx, 0, zz)
@@ -63,5 +70,5 @@ export class GridMultiNoise{
 
 	public getOffset(x: number, y: number, z: number) {
 		return this.offset.sample(x, y, z) * 4
-	}    
+	}
 }

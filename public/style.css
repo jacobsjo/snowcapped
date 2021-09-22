@@ -1,4 +1,4 @@
-*{
+* {
     outline: none;
 }
 
@@ -12,21 +12,21 @@ body {
     position: absolute;
 }
 
-
-#main{
+#main {
     display: flex;
     flex-direction: column;
     height: inherit;
 }
 
 /* Menubar */
+
 #menu {
     width: 100vw;
     display: flex;
     background-color: rgb(31, 31, 31);
 }
 
-#menu .button{
+#menu .button {
     height: auto;
     background-color: rgb(58, 58, 58);
     padding: 3pt 10pt;
@@ -35,7 +35,7 @@ body {
     cursor: pointer;
 }
 
-#menu .button:hover{
+#menu .button:hover {
     background-color: rgb(87, 87, 87);
 }
 
@@ -44,20 +44,21 @@ body {
 #editor {
     flex-grow: 1;
     width: 100vw;
-    height:0;
+    height: 0;
     background-color: rgb(61, 61, 61);
     display: flex;
 }
 
 /* Tooltip */
-.tooltip{
+
+.tooltip {
     position: absolute;
     z-index: 1000;
     top: 0;
     left: 0;
 }
 
-.tooltip .name{
+.tooltip .name {
     background-color: rgb(27, 27, 27);
     padding: 5pt;
     border: 2pt solid lightgray;
@@ -67,77 +68,80 @@ body {
     white-space: nowrap;
 }
 
-.closable{
+.closable {
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #111111;
 }
 
-.closable.vertical{
+.closable.vertical {
     flex-direction: column;
 }
 
-.closable.horizontal{
+.closable.horizontal {
     flex-direction: row;
 }
 
-.closable .button{
+.closable .button {
     background-color: gray;
 }
 
-.closable.vertical .button{
+.closable.vertical .button {
     width: 15pt;
     height: 10pt;
     margin-top: 2pt;
     margin-bottom: 3pt;
 }
 
-.closable.horizontal .button{
+.closable.horizontal .button {
     width: 10pt;
     height: 15pt;
     margin-left: 2pt;
     margin-right: 3pt;
 }
 
-.closable.closable.horizontal:not(.closed) .button{
+.closable.closable.horizontal:not(.closed) .button {
+    -webkit-mask: url('close_right.svg') no-repeat center;
     mask: url('close_right.svg') no-repeat center;
 }
 
-.closable.horizontal.closed .button{
+.closable.horizontal.closed .button {
+    -webkit-mask: url('close_left.svg') no-repeat center;
     mask: url('close_left.svg') no-repeat center;
 }
 
-.closable.closable.vertical:not(.closed) .button{
+.closable.closable.vertical:not(.closed) .button {
+    -webkit-mask: url('close_down.svg') no-repeat center;
     mask: url('close_down.svg') no-repeat center;
 }
 
-.closable.vertical.closed .button{
+.closable.vertical.closed .button {
+    -webkit-mask: url('close_up.svg') no-repeat center;
     mask: url('close_up.svg') no-repeat center;
 }
 
-.closable .button:hover{
+.closable .button:hover {
     background-color: lightgray;
 }
 
-.closable.closed .content{
+.closable.closed .content {
     display: none;
 }
 
-.closable.vertical:not(.closed) .content{
+.closable.vertical:not(.closed) .content {
     width: 100%;
     height: fit-content;
     flex-grow: 1;
     flex-shrink: 1;
 }
 
-.closable.horizontal:not(.closed) .content{
+.closable.horizontal:not(.closed) .content {
     height: 100%;
     width: fit-content;
     flex-grow: 1;
     flex-shrink: 1;
 }
-
 
 /* Sidebar */
 
@@ -150,19 +154,18 @@ body {
     flex-direction: column;
 }
 
-#sidebar #sidebar_menu{
+#sidebar #sidebar_menu {
     overflow-y: scroll;
     overflow-x: hidden;
 }
 
-
-#sidebar #splineDisplay #splineDisplayCanvas{
+#sidebar #splineDisplay #splineDisplayCanvas {
     background-color: rgb(43, 42, 42);
     height: 140pt;
     width: 100%;
 }
 
-#sidebar .sidebar_entry:not(.hidden){
+#sidebar .sidebar_entry:not(.hidden) {
     width: 222pt;
     background-color: rgb(68, 67, 67);
     border: 3pt solid rgb(43, 42, 42);
@@ -173,7 +176,7 @@ body {
     align-items: center;
 }
 
-#sidebar .sidebar_entry.assign_slices_button{
+#sidebar .sidebar_entry.assign_slices_button {
     height: 40pt;
     line-height: 40pt;
     color: white;
@@ -181,17 +184,15 @@ body {
     display: block;
 }
 
-
-
-#sidebar .sidebar_entry.slice .grid{
+#sidebar .sidebar_entry.slice .grid {
     height: 60pt;
 }
 
-#sidebar .sidebar_entry.layout .grid{
+#sidebar .sidebar_entry.layout .grid {
     height: 40pt;
 }
 
-#sidebar .sidebar_entry.biome .color_selector, #sidebar .sidebar_entry.vanilla_biome .color_selector{
+#sidebar .sidebar_entry.biome .color_selector, #sidebar .sidebar_entry.vanilla_biome .color_selector {
     height: 25pt;
     width: 25pt;
     min-width: 25pt;
@@ -200,8 +201,7 @@ body {
     padding: 0;
 }
 
-
-#sidebar .sidebar_entry.add_layout_button{
+#sidebar .sidebar_entry.add_layout_button {
     height: 25pt;
     color: rgb(189, 189, 189);
     background-color: rgb(55, 55, 55);
@@ -210,59 +210,56 @@ body {
     display: block;
 }
 
-#sidebar .sidebar_entry:hover{
+#sidebar .sidebar_entry:hover {
     background-color: rgb(100, 96, 90);
 }
 
-#sidebar .sidebar_entry.selected{
+#sidebar .sidebar_entry.selected {
     background-color: rgb(138, 132, 124);
 }
 
-#sidebar .sidebar_entry.open{
+#sidebar .sidebar_entry.open {
     background-color: #6d6933;
 }
 
-#sidebar .sidebar_entry.dragged{
+#sidebar .sidebar_entry.dragged {
     background-color: rgb(39, 39, 39);
 }
 
-
-#sidebar .sidebar_entry.vanilla_biome{
+#sidebar .sidebar_entry.vanilla_biome {
     background-color: rgb(20, 20, 20);
 }
 
-#sidebar .sidebar_entry.vanilla_biome:hover{
+#sidebar .sidebar_entry.vanilla_biome:hover {
     background-color: rgb(48, 45, 40);
 }
 
-#sidebar .sidebar_entry.vanilla_biome.selected{
+#sidebar .sidebar_entry.vanilla_biome.selected {
     background-color: rgb(68, 65, 62);
 }
 
-#sidebar .sidebar_entry.dragover_up{
+#sidebar .sidebar_entry.dragover_up {
     border-top: 20pt solid rgb(43, 42, 42);
 }
 
-#sidebar .sidebar_entry.dragover_down{
+#sidebar .sidebar_entry.dragover_down {
     border-bottom: 20pt solid rgb(43, 42, 42);
 }
 
-
-#sidebar .label{
+#sidebar .label {
     color: white;
     text-align: center;
     padding-top: 10pt;
 }
 
-
-#sidebar .sidebar_entry .name{
+#sidebar .sidebar_entry .name {
     display: inline-block;
     position: relative;
     text-align: left;
     margin-left: 5pt;
     vertical-align: middle;
     color: white;
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
     border: 0;
     font-size: 12pt;
     text-overflow: ellipsis;
@@ -271,8 +268,7 @@ body {
     flex-grow: 1;
 }
 
-
-#sidebar .sidebar_entry .button{
+#sidebar .sidebar_entry .button {
     width: 10pt;
     min-width: 10pt;
     background-color: rgb(32, 32, 32);
@@ -282,20 +278,19 @@ body {
     display: none;
 }
 
-#sidebar .sidebar_entry:hover:not(.dragged) .button{
+#sidebar .sidebar_entry:hover:not(.dragged) .button {
     display: block;
 }
 
-#sidebar .sidebar_entry .button.delete:hover{
+#sidebar .sidebar_entry .button.delete:hover {
     background-color: rgb(88, 56, 56);
 }
 
-#sidebar .sidebar_entry .button.edit:hover{
+#sidebar .sidebar_entry .button.edit:hover {
     background-color: rgb(56, 67, 88);
 }
 
-
-#sidebar .spacer{
+#sidebar .spacer {
     width: 222pt;
     height: 5pt;
     margin: 5pt;
@@ -303,7 +298,7 @@ body {
     user-select: none;
 }
 
-#sidebar .search_bar{
+#sidebar .search_bar {
     width: 233pt;
     padding: 5pt;
     margin: 5pt;
@@ -314,18 +309,21 @@ body {
 }
 
 /* Assign Slices */
-#assignSlices{
+
+#assignSlices {
     margin: auto;
+    min-width: 300pt;
+    flex-grow: 1;
 }
 
-#assignSlices table{
+#assignSlices table {
     border-spacing: 0 5pt;
-    cursor: default;    
+    cursor: default;
     user-select: none;
     margin: auto;
 }
 
-#assignSlices table tr .weirdness_name{
+#assignSlices table tr .weirdness_name {
     text-align: right;
     color: white;
     padding-right: 10pt;
@@ -334,37 +332,37 @@ body {
     white-space: nowrap;
 }
 
-
-#assignSlices table tr .slice_icon{
+#assignSlices table tr .slice_icon {
     background-color: rgb(34, 34, 34);
     padding: 10pt;
 }
 
-#assignSlices table tr .slice_icon canvas{
+#assignSlices table tr .slice_icon canvas {
     height: 70pt;
 }
 
-#assignSlices table tr .slice_name{
+#assignSlices table tr .slice_name {
     background-color: rgb(34, 34, 34);
     color: white;
     width: 250pt;
 }
 
-#assignSlices table tr .slice_mode_select{
+#assignSlices table tr .slice_mode_select {
     background-color: rgb(34, 34, 34);
     padding-right: 10pt;
 }
 
-#assignSlices table tr .slice_mode_select img{
+#assignSlices table tr .slice_mode_select img {
     height: 25pt;
 }
 
 /* Editor */
 
-#layoutEditor{
+#layoutEditor {
     flex-grow: 1;
+    flex-shrink: 1;
     height: 100%;
-    min-width: 300pt;
+    width: 300pt;
     text-align: center;
     /*overflow-y: auto;*/
     overflow-x: hidden;
@@ -372,9 +370,10 @@ body {
     flex-direction: column;
 }
 
-#layoutEditor #layoutName{
+#layoutEditor #layoutName {
     display: block;
     width: 100%;
+    min-width: 300pt;
     padding: 10pt;
     margin: 5pt;
     background-color: rgb(36, 36, 36, 0);
@@ -385,13 +384,14 @@ body {
     text-align: center;
 }
 
-#layoutEditor #layoutEditorDiv{
+#layoutEditor #layoutEditorDiv {
     margin: 5pt;
     height: 300pt;
+    min-width: 300pt;
     flex-grow: 1;
 }
 
-#layoutEditor #layoutEditorCanvas{
+#layoutEditor #layoutEditorCanvas {
     margin: auto;
     max-width: 100%;
     max-height: 100%;
@@ -400,68 +400,32 @@ body {
 }
 
 
-/* Old */
-
-#sliceEditor {
-    float: left;
-    width: 520pt;
-}
-
-
-
-#visualization {
-    width: 40%;
-    height: 100%;
-    background-color: rgb(36, 36, 36);
-    float: left;
-}
-
-.selectionElement {
-    width: 30pt;
-    height: 30pt;
-    padding: 0pt 0pt 0pt 0pt;
-    user-select: none;
-    cursor: pointer;
-}
-
-.sliceTable {
-    align-self: center;
-    margin: 10pt;
-    padding: 10pt;
-    background-color: rgb(94, 94, 94);
-}
-
-.sliceTable .TopHeader {
-    color: lightblue;
-    text-align: center;
-}
-
-.sliceTable .SideHeader {
-    color: lightblue;
-    text-align: right;
-}
-
-
-.hidden{
+.hidden {
     display: none;
 }
 
-
-
 /* Visualization */
-#visualization_panel:not(.closed){
+
+#visualization_panel:not(.closed) {
     width: fit-content;
     flex-grow: 1;
 }
 
-#visualization{
+#visualization {
     min-width: 300pt;
     width: 100%;
     height: 100%;
     background-color: rgb(43, 42, 42);
 }
 
-#visualization_map{
+#visualization_map {
     height: 100%;
     width: 100%;
+    background: #eee url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" ><rect x="200" width="200" height="200" /><rect y="200" width="200" height="200" /></svg>');
+    background-size: 30px 30px;
+}
+
+#visualization_map  canvas.leaflet-tile{
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
 }
