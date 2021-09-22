@@ -8,7 +8,7 @@ export class VanillaBiomes{
         {name: "minecraft:ocean", r: 50, g: 50, b: 255},
         {name: "minecraft:plains", r: 61, g: 196, b: 12},
         {name: "minecraft:desert", r: 247, g: 237, b: 40},
-        {name: "minecraft:extreme_hills", r: 66, g: 66, b: 66},
+        {name: "minecraft:mountains", r: 66, g: 66, b: 66, key: "minecraft:extreme_hills"},
         {name: "minecraft:forest", r: 21, g: 107, b: 23},
         {name: "minecraft:taiga", r: 105, g: 69, b: 19},
         {name: "minecraft:swamp", r: 60, g: 130, b: 96},
@@ -59,7 +59,7 @@ export class VanillaBiomes{
         {name: "minecraft:the_void", r: 0, g: 0, b: 0},
         {name: "minecraft:sunflower_plains", r: 198, g: 255, b: 92},
         {name: "minecraft:desert_lakes", r: 97, g: 179, b: 186},
-        {name: "minecraft:gravelly_hills", r: 85, g: 101, b: 102},
+        {name: "minecraft:gravelly_mountains", r: 85, g: 101, b: 102, key: "minecraft:gravelly_hills"},
         {name: "minecraft:flower_forest", r: 172, g: 252, b: 33},
         {name: "minecraft:taiga_mountains", r: 46, g: 30, b: 8},
         {name: "minecraft:swamp_hills", r: 32, g: 66, b: 50},
@@ -96,8 +96,10 @@ export class VanillaBiomes{
 
     static registerVanillaBiomes(builder: BiomeBuilder){
         for (let biome of VanillaBiomes.biomes) {
-            Biome.create(builder, biome.name, this.colorToHex(biome.r, biome.g, biome.b), undefined, true)
+            Biome.create(builder, biome.name, this.colorToHex(biome.r, biome.g, biome.b), biome.key, true)
         }
+
+
 
     }
 

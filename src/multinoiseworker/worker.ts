@@ -144,9 +144,9 @@ function lerpMultiNoiseValues(a: MultiNoiseParameters, b: MultiNoiseParameters, 
 self.onmessage = (evt: ExtendableMessageEvent) => {
   if (evt.data.task === "calculate") {
     const values = []
-    for (let x = 0; x < evt.data.coords.size / noiseDownsample + 2 ; x++) {
+    for (let x = 0; x < evt.data.coords.size / noiseDownsample + 1 ; x++) {
       values[x] = []
-      for (let z = 0; z < evt.data.coords.size / noiseDownsample + 2; z++) {
+      for (let z = 0; z < evt.data.coords.size / noiseDownsample + 1; z++) {
         values[x][z] = multiNoiseCalculator.getMultiNoiseValues(evt.data.coords.x + x * evt.data.coords.step * noiseDownsample, 64, evt.data.coords.z + z * evt.data.coords.step * noiseDownsample)
       }
     }
@@ -162,8 +162,6 @@ self.onmessage = (evt: ExtendableMessageEvent) => {
         upsampled[x][z] = lerpMultiNoiseValues(lerpMultiNoiseValues(values[ds_x][ds_z] , values[ds_x+1][ds_z], lerp_x), lerpMultiNoiseValues(values[ds_x][ds_z+1], values[ds_x+1][ds_z+1], lerp_x), lerp_z)
       }
     }
-
-    console.log(upsampled)
 
     postMessage({ key: evt.data.key, values: upsampled })
   }

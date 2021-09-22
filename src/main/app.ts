@@ -16,6 +16,8 @@ const close_elements = document.getElementsByClassName("closable")
 
 for (let i = 0 ; i < close_elements.length ; i++){
     (close_elements[i].getElementsByClassName("button")[0] as HTMLElement).onclick = (evt: Event) => {
+        if ((close_elements[i] as any).onopenchange !== undefined)
+            (close_elements[i] as any).onopenchange()
         close_elements[i].classList.toggle("closed")
     }
 }

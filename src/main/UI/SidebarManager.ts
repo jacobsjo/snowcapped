@@ -4,6 +4,7 @@ import { Layout } from "../BuilderData/Layout"
 import { LayoutElement } from "../BuilderData/LayoutElement"
 import { Slice } from "../BuilderData/Slice"
 import { LayoutEditor } from "./LayoutEditor"
+import { MenuManager } from "./MenuManager"
 import { UI } from "./UI"
 
 
@@ -66,7 +67,10 @@ export class SidebarManager {
 
         // Add Slices
         this.builder.slices.forEach(slice => {
-            this.layout_divs.push(this.createElementDiv(slice, "slice"))
+            const s = this.createElementDiv(slice, "slice")
+
+
+            this.layout_divs.push(s)
         });
 
         // Add spacer
@@ -351,6 +355,18 @@ export class SidebarManager {
                 this.builder.biomes.splice(self_id, 0, this.builder.biomes.splice(other_id, 1)[0])
             }
             UI.getInstance().refresh()
+        }
+
+        element_div.onmousemove = () => {
+            MenuManager.toggleAction("open", true)
+            MenuManager.toggleAction("reorder", c !== "vanilla_biome")
+            MenuManager.toggleAction("select", (UI.getInstance().openElement === "assign_slices") === (c === "slice"))
+        }
+
+        element_div.onmouseleave = () => {
+            MenuManager.toggleAction("open", false)
+            MenuManager.toggleAction("reorder", false)
+            MenuManager.toggleAction("select", false)
         }
 
         this.sidebar.appendChild(element_div)

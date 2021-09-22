@@ -6,6 +6,9 @@ import { ElementRenderer } from "./ElementRenderer"
 export class SliceGridRenderer {
     private slice: Slice
 
+    private highlight_c: number = -1
+    private highlight_e: number = -1
+
     constructor(slice: Slice) {
         this.slice = slice
     }
@@ -52,6 +55,17 @@ export class SliceGridRenderer {
             }
         }
 
+        if (this.highlight_c >= 0 && this.highlight_e >= 0 && !isIcon){
+            ctx.strokeStyle = "red"
+            ctx.lineWidth = elementSize / 15
+            ctx.beginPath()
+            ctx.rect(xOffset + this.highlight_e * elementSize, yOffset + this.highlight_c * elementSize, elementSize, elementSize)
+            ctx.stroke()
+
+            this.highlight_c = -1
+            this.highlight_e = -1
+        }
+
     }
 
     public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, local_t: number, local_h: number, mode: "A"|"B"}  | undefined{
@@ -75,5 +89,9 @@ export class SliceGridRenderer {
         return {t_idx: t_idx, h_idx: h_idx, local_h: localX / elementSize, local_t: localY / elementSize, mode: mode}
     }
 
+    public setHighlight(c_idx: number, e_idx: number){
+        this.highlight_c = c_idx
+        this.highlight_e = e_idx
+    }
 
 }

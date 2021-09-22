@@ -6,6 +6,7 @@ import { LayoutElementUnassigned } from "../../BuilderData/LayoutElementUnassign
 
 export interface ElementRenderer{
     draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean, isIcon: boolean): void;
+    setHighlight(x_idx: number, y_idx: number): void;
 }
 
 export class BiomeRenderer implements ElementRenderer{
@@ -13,6 +14,8 @@ export class BiomeRenderer implements ElementRenderer{
 
     constructor(biome: Biome){
         this.biome = biome
+    }
+    setHighlight(x_idx: number, y_idx: number): void {
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
@@ -26,6 +29,9 @@ export class BiomeRenderer implements ElementRenderer{
 }
 
 export class UnassignedRenderer implements ElementRenderer{
+    setHighlight(x_idx: number, y_idx: number): void {
+    }
+
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
         ctx.fillStyle = "gray"
         ctx.fillRect(minX, minY, sizeX, sizeY)
@@ -44,6 +50,8 @@ export class ABBiomeRenderer implements ElementRenderer{
 
     constructor(ab_biome: ABElement){
         this.ab_biome = ab_biome
+    }
+    setHighlight(x_idx: number, y_idx: number): void {
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){

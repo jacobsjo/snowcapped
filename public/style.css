@@ -39,6 +39,25 @@ body {
     background-color: rgb(87, 87, 87);
 }
 
+#menu .help{
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    width: 0;
+    flex-grow: 1;
+}
+
+#menu .help .help-entry{
+    white-space: nowrap;
+    color: lightgray;
+    padding: 5pt;
+    padding-right: 15pt;
+}
+
+#menu .help .help-entry .b{
+    color: rgb(156, 125, 90);
+}
+
 /* Editor */
 
 #editor {
@@ -56,16 +75,28 @@ body {
     z-index: 1000;
     top: 0;
     left: 0;
+    border-radius: 5pt;
 }
 
-.tooltip .name {
+.tooltip .tooltip_line {
+    padding: 4pt;
     background-color: rgb(27, 27, 27);
-    padding: 5pt;
-    border: 2pt solid lightgray;
-    border-radius: 5pt;
+    border: 1pt solid rgb(131, 131, 131);
     color: yellow;
-    font-size: 15pt;
+    font-size: 12pt;
     white-space: nowrap;
+    width: min-content;
+}
+
+.tooltip .tooltip_line .icon{
+    padding-left: 10pt;
+    height: 12pt;
+    position: relative;
+    top:2pt
+}
+
+.tooltip .tooltip_line .name{
+    display: inline;
 }
 
 .closable {
@@ -199,6 +230,11 @@ body {
     border: 0;
     margin: 0;
     padding: 0;
+    border-top-style: hidden;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-bottom-style: hidden;   
+    background-color: rgba(0,0,0,0); 
 }
 
 #sidebar .sidebar_entry.add_layout_button {
@@ -421,7 +457,7 @@ body {
 #visualization_map {
     height: 100%;
     width: 100%;
-    background: #eee url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" ><rect x="200" width="200" height="200" /><rect y="200" width="200" height="200" /></svg>');
+    background: rgb(82, 82, 82) url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" ><rect x="200" width="200" height="200" /><rect y="200" width="200" height="200" /></svg>');
     background-size: 30px 30px;
 }
 

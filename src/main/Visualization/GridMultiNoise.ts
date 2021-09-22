@@ -46,7 +46,7 @@ export class GridMultiNoise {
 		}
 	}
 
-	async getNoiseValues(x: number, z: number, size: number, step: number): Promise<MultiNoiseParameters[][]> {
+	async getNoiseValueArray(x: number, z: number, size: number, step: number): Promise<MultiNoiseParameters[][]> {
 		const key = uniqueId()
 		this.worker.postMessage({ task: "calculate", key: key,  coords: { x: x, z: z, size: size, step: step } })
 

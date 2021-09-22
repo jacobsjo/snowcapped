@@ -1,5 +1,6 @@
 import { slice } from "lodash"
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
+import { MenuManager } from "./MenuManager"
 import { UI } from "./UI"
 
 
@@ -93,6 +94,8 @@ export class AssignSlicesManager {
             }
 
             row.onmouseover = (evt) => {
+                MenuManager.toggleAction("paint", true)
+                MenuManager.toggleAction("open", this.builder.weirdnesses[w_idx][2] !== "unassigned")
                 UI.getInstance().splineDisplayManager.setWeirdnesses([weirdness[1]])
                 UI.getInstance().splineDisplayManager.refresh()
             }
@@ -107,6 +110,9 @@ export class AssignSlicesManager {
             if (!t.div.classList.contains('hidden')){
                 UI.getInstance().splineDisplayManager.setWeirdnesses([])
                 UI.getInstance().splineDisplayManager.refresh()
+                MenuManager.toggleAction("paint", false)
+                MenuManager.toggleAction("open", false)
+
             }
         }
 

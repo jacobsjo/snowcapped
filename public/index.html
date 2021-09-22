@@ -22,6 +22,17 @@
             <div class="button" id="openButton">Open</div>
             <div class="button" id="saveButton">Save</div>
             <div class="button" id="exportButton">Export</div>
+            <div class="help" id="help">
+                <div class="help-entry hidden" id="select"><span class="b">[Left Click]</span> Select</div>
+                <div class="help-entry hidden" id="paint"><span class="b">[Left Click]</span> Paint</div>
+                <div class="help-entry hidden" id="open-slice"><span class="b">[Left Click]</span> Open Slice</div>
+                <div class="help-entry hidden" id="reorder"><span class="b">[Drag]</span> Reorder</div>
+                <div class="help-entry hidden" id="paint-mode"><span class="b">[Ctrl]+[Left Click]</span> Paint only for one Mode</div>
+                <div class="help-entry hidden" id="open-layout"><span class="b">[Ctrl]+[Left Click]</span> Open Layout</div>
+                <div class="help-entry hidden" id="pick"><span class="b">[Middle Click]</span> Pick</div>
+                <div class="help-entry hidden" id="open"><span class="b">[Right Click]</span> Open</div>
+                <div class="help-entry hidden" id="remove"><span class="b">[Delete]</span> Remove</div>
+            </div>
         </div>
         <div id="editor">
             <div id="sidebar">
@@ -53,7 +64,21 @@
                 </div>
             </div>
             <div class="tooltip hidden" id="layoutEditorTooltip">
-                <div class="name">minecraft:extreme_hills</div>
+                <div class="tooltip_line">
+                    <div class="name">minecraft:extreme_hills</div>
+                </div>
+            </div>
+            <div class="tooltip hidden" id="visualizationTooltip">
+                <div class="tooltip_line">
+                    <div class="name slice">Mid Slice</div>
+                    <img class="icon mode" />
+                </div>
+                <div class="tooltip_line">
+                    <div class="name layout">Middle</div>
+                </div>
+                <div class="tooltip_line">
+                    <div class="name biome">minecraft:extreme_hills</div>
+                </div>
             </div>
         </div>
     </div>

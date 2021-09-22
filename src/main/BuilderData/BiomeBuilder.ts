@@ -186,7 +186,10 @@ export class BiomeBuilder{
         return {w_idx: w_idx, e_idx: e_idx, c_idx: c_idx, t_idx: t_idx, h_idx: h_idx}
     }
 
-    public lookup(indexes: MultiNoiseIndexes): {slice?: Slice, layout?: Layout, biome?: Biome}{
+    public lookup(indexes: MultiNoiseIndexes): {slice?: Slice, mode?: "A"|"B", layout?: Layout, biome?: Biome}{
+        if (indexes === undefined)
+            return undefined
+            
         const w = this.weirdnesses[indexes.w_idx]
 
         if (w === undefined){
@@ -196,15 +199,15 @@ export class BiomeBuilder{
         const slice = this.getSlice(w[2]) as Slice
         const layout = slice.lookup(indexes.c_idx, indexes.e_idx) as LayoutElement
         if (layout instanceof LayoutElementUnassigned){
-            return {slice: slice}
+            return {slice: slice, mode: w[3]}
         } else if (layout instanceof Biome){
-            return {slice: slice, biome: layout}
+            return {slice: slice, mode: w[3], biome: layout}
         } else if (layout instanceof Layout){
             const biome = layout.lookupRecursive(indexes.t_idx, indexes.h_idx, w[3])
             if (biome instanceof Biome)
-                return {slice: slice, layout: layout, biome: biome}
+                return {slice: slice, mode: w[3], layout: layout, biome: biome}
             else
-                return {slice: slice, layout: layout}
+                return {slice: slice, mode: w[3], layout: layout}
         }
     }
 

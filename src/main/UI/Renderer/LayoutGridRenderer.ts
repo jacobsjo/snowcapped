@@ -5,6 +5,10 @@ import { ElementRenderer } from "./ElementRenderer"
 export class LayoutGridRenderer implements ElementRenderer{
     private layout: Layout
 
+    private highlight_t: number = -1
+    private highlight_h: number = -1
+
+
     constructor(layout: Layout){
         this.layout = layout
     }
@@ -58,6 +62,16 @@ export class LayoutGridRenderer implements ElementRenderer{
 
             }
         }
+
+        if (this.highlight_h >= 0 && this.highlight_t >= 0 && !isIcon){
+            ctx.strokeStyle = "red"
+            ctx.lineWidth = elementSize / 15
+            ctx.beginPath()
+            ctx.rect(xOffset + this.highlight_h * elementSize, yOffset + this.highlight_t * elementSize, elementSize, elementSize)
+            ctx.stroke()
+            this.highlight_h = -1
+            this.highlight_t = -1
+        }
         
     }
 
@@ -82,5 +96,9 @@ export class LayoutGridRenderer implements ElementRenderer{
         return {t_idx: t_idx, h_idx: h_idx, local_t: localX / elementSize, local_h: localY / elementSize, mode: mode}
     }
 
+    public setHighlight(t_idx: number, h_idx: number){
+        this.highlight_h = h_idx
+        this.highlight_t = t_idx
+    }
 
 }

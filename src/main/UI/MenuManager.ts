@@ -68,4 +68,9 @@ export class MenuManager {
         }
 
     }
+
+    static toggleAction(name: string, force?: boolean){
+        console.log(name + " -> " + force)
+        document.getElementById(name).classList.toggle("hidden", !force)
+    }
 }

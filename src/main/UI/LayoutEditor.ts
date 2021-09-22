@@ -6,6 +6,7 @@ import { Layout } from "../BuilderData/Layout";
 import { LayoutElement } from "../BuilderData/LayoutElement";
 import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
 import { Slice } from "../BuilderData/Slice";
+import { MenuManager } from "./MenuManager";
 import { LayoutGridRenderer } from "./Renderer/LayoutGridRenderer";
 import { UI } from "./UI";
 
@@ -46,8 +47,14 @@ export class LayoutEditor {
                 tooltip.classList.add("hidden")
                 const spline_ctx = this.splineCanvas.getContext('2d')
                 spline_ctx.clearRect(0, 0, this.splineCanvas.width, this.splineCanvas.height);
+                MenuManager.toggleAction("paint", false)
+                MenuManager.toggleAction("paint-mode", false)
+                MenuManager.toggleAction("open", false)
                 return
             }
+
+
+            MenuManager.toggleAction("paint", true)
 
             this.canvas.focus()
 
@@ -59,16 +66,27 @@ export class LayoutEditor {
 
             if (this.layout instanceof Layout) {
                 if (element instanceof ABElement) {
+                    MenuManager.toggleAction("paint-mode", false)
                     element = element.getElement(ids.mode)
+                } else {
+                    MenuManager.toggleAction("paint-mode", true)
                 }
+            } else {
+                MenuManager.toggleAction("paint-mode", false)
             }
 
             if (element instanceof Biome) {
                 tooltip_name.innerHTML = element.name
+                MenuManager.toggleAction("open", false)
+                MenuManager.toggleAction("remove", true)
             } else if (element instanceof Layout) {
                 tooltip_name.innerHTML = "&crarr; " + element.name + " (Layout)"
+                MenuManager.toggleAction("open", true)
+                MenuManager.toggleAction("remove", true)
             } else if (element instanceof LayoutElementUnassigned) {
                 tooltip_name.innerHTML = "Unassigned"
+                MenuManager.toggleAction("open", false)
+                MenuManager.toggleAction("remove", false)
             }
 
             const cont = builder.continentalnesses[ids.t_idx][1]
@@ -87,6 +105,12 @@ export class LayoutEditor {
             tooltip.classList.add("hidden")
             UI.getInstance().splineDisplayManager.setPos(undefined)
             UI.getInstance().splineDisplayManager.refresh()
+
+            MenuManager.toggleAction("paint", false)
+            MenuManager.toggleAction("paint-mode", false)
+            MenuManager.toggleAction("open", false)
+            MenuManager.toggleAction("remove", false)
+
         }
 
         this.canvas.onclick = (evt: MouseEvent) => {
@@ -148,6 +172,13 @@ export class LayoutEditor {
                 evt.preventDefault
             }
         }
+    }
+
+    highlight(x_idx: number, y_idx: number){
+        const element = this.builder.getRenderedElement(UI.getInstance().openElement)
+        if (element instanceof Slice || element instanceof Layout)
+            this.layout = element
+        this.layout.getRenderer().setHighlight(x_idx, y_idx)
     }
 
     getMousePosition(evt: MouseEvent): { mouse_x: number, mouse_y: number } {
@@ -258,7 +289,8 @@ export class LayoutEditor {
             UI.getInstance().splineDisplayManager.setPos(undefined)            
         }
 
-        this.layout.getRenderer().draw(this.canvas.getContext('2d'), 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
+        const ctx = this.canvas.getContext('2d')
+        this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
     }
 
     hide() {

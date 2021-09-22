@@ -27,7 +27,7 @@ export class GridMultiNoiseIndicesManager{
         const idx = this.cache.findIndex(c=>c.key === this._tileCoordsToKey(coords))
         let nv
         if (idx === -1){
-            const params = this.multiNoise.getNoiseValues(nwpoint.x, nwpoint.y, this.size.x / this.resolution, this.size.x / Math.pow(2, coords.z - 5) * this.resolution).then(nv => {
+            const params = this.multiNoise.getNoiseValueArray(nwpoint.x, nwpoint.y, this.size.x / this.resolution, this.size.x / Math.pow(2, coords.z - 5) * this.resolution).then(nv => {
                 const indices = nv.map(row => row.map(params => this.builder.getIndexes(params)))
                 this.cache.push({key: this._tileCoordsToKey(coords), values: indices})
                 if (this.cache.length > 20)
