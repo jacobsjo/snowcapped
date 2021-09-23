@@ -21,8 +21,8 @@ export class LayoutGridRenderer implements ElementRenderer{
 
         const elementSize = Math.min(maxElementSizeX, maxElementSizeY)
 
-        const xOffset = (elementSize * size[1] - sizeX)/2 + minX
-        const yOffset = (elementSize * size[0] - sizeY)/2 + minY
+        const xOffset = -(elementSize * size[1] - sizeX)/2 + minX
+        const yOffset = -(elementSize * size[0] - sizeY)/2 + minY
 
         ctx.clearRect(minX, minY, sizeX, sizeY)
 
@@ -78,19 +78,24 @@ export class LayoutGridRenderer implements ElementRenderer{
     public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, local_t: number, local_h: number, mode: "A"|"B"} | undefined{
         const size = this.layout.getSize()
 
+        console.log(size)
+
         const maxElementSizeX = sizeX / size[1]
         const maxElementSizeY = sizeY / size[0]
 
         const elementSize = Math.min(maxElementSizeX, maxElementSizeY)
 
-        if (x < minX || y < minY || x > minX + size[1] * elementSize || y > minY + size[0] * elementSize)
+        const xOffset = -(elementSize * size[1] - sizeX)/2 + minX
+        const yOffset = -(elementSize * size[0] - sizeY)/2 + minY
+
+        if (x < xOffset || y < yOffset || x > xOffset + size[1] * elementSize || y > yOffset + size[0] * elementSize)
             return undefined
 
-        const t_idx = Math.floor((y - minY) / elementSize)
-        const h_idx = Math.floor((x - minX) / elementSize)
+        const t_idx = Math.floor((y - yOffset) / elementSize)
+        const h_idx = Math.floor((x - xOffset) / elementSize)
 
-        const localX = x - minX - (t_idx * elementSize)
-        const localY = y - minY - (h_idx * elementSize)
+        const localX = x - xOffset - (t_idx * elementSize)
+        const localY = y - yOffset - (h_idx * elementSize)
         const mode = localX > elementSize - localY ? "B" : "A"
 
         return {t_idx: t_idx, h_idx: h_idx, local_t: localX / elementSize, local_h: localY / elementSize, mode: mode}

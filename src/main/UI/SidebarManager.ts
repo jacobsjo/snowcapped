@@ -52,18 +52,26 @@ export class SidebarManager {
         spacer0.classList.add("spacer")
         this.sidebar.appendChild(spacer0)
 
-        // Add Add Button
-        const addSlicesButton = document.createElement("div")
-        addSlicesButton.classList.add("sidebar_entry")
-        addSlicesButton.classList.add("add_layout_button")
-        addSlicesButton.innerHTML = "+ Add Slice"
+        const slicesHeader = document.createElement("div")
+        slicesHeader.classList.add("sidebar_header")
+
+        const slicesHeaderName = document.createElement("div")
+        slicesHeaderName.classList.add("name")
+        slicesHeaderName.innerHTML = "Slices: "
+        slicesHeader.appendChild(slicesHeaderName)
+
+        const addSlicesButton = document.createElement("img")
+        addSlicesButton.classList.add("button")
+        addSlicesButton.src = "add.svg"
         addSlicesButton.onclick = (evt: Event) => {
             const slice = Slice.create(this.builder, "New Slice", "unassigned")
             UI.getInstance().openElement = slice.getKey()
             UI.getInstance().refresh()
             this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
         }
-        this.sidebar.appendChild(addSlicesButton)
+
+        slicesHeader.appendChild(addSlicesButton)
+        this.sidebar.appendChild(slicesHeader)
 
         // Add Slices
         this.builder.slices.forEach(slice => {
@@ -78,18 +86,43 @@ export class SidebarManager {
         spacer1.classList.add("spacer")
         this.sidebar.appendChild(spacer1)
 
-        // Add Add Button
-        const addLayoutButton = document.createElement("div")
-        addLayoutButton.classList.add("sidebar_entry")
-        addLayoutButton.classList.add("add_layout_button")
-        addLayoutButton.innerHTML = "+ Add Layout"
+        // Add Header
+        const layoutHeader = document.createElement("div")
+        layoutHeader.classList.add("sidebar_header")
+
+        const layoutHeaderName = document.createElement("div")
+        layoutHeaderName.classList.add("name")
+        layoutHeaderName.innerHTML = "Layouts: "
+        layoutHeader.appendChild(layoutHeaderName)
+
+        const addLayoutButton = document.createElement("img")
+        addLayoutButton.classList.add("button")
+        addLayoutButton.src = "add.svg"
         addLayoutButton.onclick = (evt: Event) => {
             const layout = Layout.create(this.builder, "New Layout")
             UI.getInstance().openElement = layout.getKey()
             UI.getInstance().refresh()
             this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
         }
-        this.sidebar.appendChild(addLayoutButton)
+        layoutHeader.appendChild(addLayoutButton)
+
+
+        const modifyLayoutButton = document.createElement("img")
+        modifyLayoutButton.classList.add("button")
+        if (UI.getInstance().openElement === "modify_layout"){
+            modifyLayoutButton.classList.add("open")
+        }
+        modifyLayoutButton.classList.add("button")
+        modifyLayoutButton.src = "grid.svg"
+        modifyLayoutButton.onclick = (evt: Event) => {
+            UI.getInstance().selectedElement = ""
+            UI.getInstance().openElement = "modify_layout"
+            UI.getInstance().refresh()
+        }
+        layoutHeader.appendChild(modifyLayoutButton)
+
+
+        this.sidebar.appendChild(layoutHeader)
 
         // Layouts
         this.builder.layouts.forEach(element => {
@@ -101,11 +134,18 @@ export class SidebarManager {
         spacer2.classList.add("spacer")
         this.sidebar.appendChild(spacer2)
 
-        // Add Add Button
-        const addBiomeButton = document.createElement("div")
-        addBiomeButton.classList.add("sidebar_entry")
-        addBiomeButton.classList.add("add_layout_button")
-        addBiomeButton.innerHTML = "+ Add Biome"
+        // Add Header
+        const biomeHeader = document.createElement("div")
+        biomeHeader.classList.add("sidebar_header")
+
+        const biomeHeaderName = document.createElement("div")
+        biomeHeaderName.classList.add("name")
+        biomeHeaderName.innerHTML = "Biomes: "
+        biomeHeader.appendChild(biomeHeaderName)
+
+        const addBiomeButton = document.createElement("img")
+        addBiomeButton.classList.add("button")
+        addBiomeButton.src = "add.svg"
         addBiomeButton.onclick = (evt: Event) => {
             const biome_name = prompt("Input biome name:", "new:biome")
             if (biome_name === null)
@@ -115,7 +155,9 @@ export class SidebarManager {
                 UI.getInstance().selectedElement = biome.getKey()
             UI.getInstance().refresh()
         }
-        this.sidebar.appendChild(addBiomeButton)
+        biomeHeader.appendChild(addBiomeButton)
+
+        this.sidebar.appendChild(biomeHeader)
 
         // Add seachBar
         this.search_bar = document.createElement("input") as HTMLInputElement

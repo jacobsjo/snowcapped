@@ -1,5 +1,6 @@
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { AssignSlicesManager } from "./AssignSlicesManager";
+import { GridEditor } from "./GridEditor";
 import { LayoutEditor } from "./LayoutEditor";
 import { MenuManager } from "./MenuManager";
 import { SidebarManager } from "./SidebarManager";
@@ -26,6 +27,7 @@ export class UI{
     readonly assignSlicesEditor: AssignSlicesManager
     readonly splineDisplayManager: SplineDisplayManager
     readonly visualizationManager: VisualizationManger
+    readonly gridEditor: GridEditor
 
     readonly builder: BiomeBuilder
 
@@ -44,6 +46,7 @@ export class UI{
         this.assignSlicesEditor = new AssignSlicesManager(builder)
         this.splineDisplayManager = new SplineDisplayManager(builder)
         this.visualizationManager = new VisualizationManger(builder)
+        this.gridEditor = new GridEditor(builder)
 
         this.refresh()
 
@@ -55,9 +58,15 @@ export class UI{
 
         if (this.openElement === "assign_slices"){
             this.layoutEditor.hide()
+            this.gridEditor.hide()
             this.assignSlicesEditor.refresh()
+        } else if (this.openElement.startsWith("modify_") ) {
+            this.assignSlicesEditor.hide()
+            this.layoutEditor.hide()
+            this.gridEditor.refresh()
         } else {
             this.assignSlicesEditor.hide()
+            this.gridEditor.hide()
             this.layoutEditor.refresh()
         }
 

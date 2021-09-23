@@ -8,6 +8,7 @@
     <meta property="og:description" content="A minecraft dimension layout editor. Exports a multi-noise dimension file. Based on the vanilla biome builder." />
     <meta property="og:determiner" content="" />
     
+    <link rel="icon" href="icon.svg" sizes="any" types="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
     integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
@@ -53,6 +54,10 @@
                 </div>
                 <div id="assignSlices" class="hidden">
                 </div>
+                <div id="gridEditorDiv">
+                    <canvas tabindex='1' id="gridEditorCanvas" width="1300" height="1300"></canvas>
+                </div>
+
             </div>
             <div class="closable horizontal" id="visualization_panel">
                 <div class="button"></div>

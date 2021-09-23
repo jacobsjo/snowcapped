@@ -176,6 +176,10 @@ export class VisualizationManger{
       return values[pixel.x][pixel.y]
     }
 
+    invalidateIndices(){
+      this.indicesManger.invalidateIndices()
+    }
+
     async refresh(){
       if (!this.closeContainer.classList.contains("closed"))
         this.biomeLayer.redraw()

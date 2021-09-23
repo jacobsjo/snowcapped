@@ -211,12 +211,48 @@ export class BiomeBuilder{
         }
     }
 
+    deleteParam(param: "humidity"|"temperature"|"continentalness"|"erosion"|"weirdness", id: number){
+        if (param === "humidity" || param === "temperature"){
+            this.layouts.forEach(layout => layout.deleteParam(param, id))
+            if (param === "humidity"){
+                this.humidities.splice(id, 1)
+            } else {
+                this.temperatures.splice(id, 1)
+            }
+        } else { 
+
+        }
+    }
+
+    splitParam(param: "humidity"|"temperature"|"continentalness"|"erosion"|"weirdness", id: number){
+        if (param === "humidity" || param === "temperature"){
+            this.layouts.forEach(layout => layout.splitParam(param, id))
+            if (param === "humidity"){
+                const midPoint = (this.humidities[id][1].min + this.humidities[id][1].max)/2
+
+                const newHumid1 = new Climate.Param(this.humidities[id][1].min, midPoint)
+                const newHumid2 = new Climate.Param(midPoint, this.humidities[id][1].max)
+
+                this.humidities.splice(id, 1, ["d", newHumid1], ["d", newHumid2])
+            } else {
+                const midPoint = (this.temperatures[id][1].min + this.temperatures[id][1].max)/2
+
+                const newTemp1 = new Climate.Param(this.temperatures[id][1].min, midPoint)
+                const newTemp2 = new Climate.Param(midPoint, this.temperatures[id][1].max)
+
+                this.temperatures.splice(id, 1, ["d", newTemp1], ["d", newTemp2])
+            }
+        } else { 
+
+        }
+    }
+
     getNumTemperatures(){
         return this.temperatures.length
     }
 
     getNumHumidities(){
-        return this.temperatures.length
+        return this.humidities.length
     }
 
     getNumContinentalnesses(){

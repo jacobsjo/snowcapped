@@ -89,13 +89,13 @@ export class LayoutEditor {
                 MenuManager.toggleAction("remove", false)
             }
 
-            const cont = builder.continentalnesses[ids.t_idx][1]
-            const c = lerp(cont.min, cont.max, ids.local_t)
-
-            const ero = builder.erosions[ids.h_idx][1]
-            const e = lerp(ero.min, ero.max, ids.local_h)
-
             if (this.layout instanceof Slice){
+                const cont = builder.continentalnesses[ids.t_idx][1]
+                const c = lerp(cont.min, cont.max, ids.local_t)
+    
+                const ero = builder.erosions[ids.h_idx][1]
+                const e = lerp(ero.min, ero.max, ids.local_h)
+
                 UI.getInstance().splineDisplayManager.setPos({c: c, e: e})
                 UI.getInstance().splineDisplayManager.refresh()
             }
@@ -275,7 +275,7 @@ export class LayoutEditor {
     }
 
     refresh() {
-        this.canvas.classList.remove("hidden")
+        this.canvas.parentElement.classList.remove("hidden")
         this.title.readOnly = false
         const element = this.builder.getRenderedElement(UI.getInstance().openElement)
         if (element instanceof Slice || element instanceof Layout)
@@ -294,7 +294,7 @@ export class LayoutEditor {
     }
 
     hide() {
-        this.canvas.classList.add("hidden")
+        this.canvas.parentElement.classList.add("hidden")
     }
 }
 

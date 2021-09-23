@@ -237,14 +237,41 @@ body {
     background-color: rgba(0,0,0,0); 
 }
 
-#sidebar .sidebar_entry.add_layout_button {
-    height: 25pt;
+#sidebar .sidebar_header {
+    display: flex;
+}
+
+#sidebar .sidebar_header .name {
+    font-size: 22;
+    padding: 5pt;
+    color: rgb(255, 184, 102);
+    flex-grow: 1;
+}
+
+
+
+#sidebar .sidebar_header .button {
+    height: 15pt;
+    width: 15pt;
+    padding: 5pt;
+    border-radius: 5pt;
+    margin-right: 10pt;
     color: rgb(189, 189, 189);
     background-color: rgb(55, 55, 55);
     line-height: 25pt;
     text-align: center;
     display: block;
+    cursor: pointer;
 }
+
+#sidebar .sidebar_header .button:hover {
+    background-color: rgb(100, 100, 100);
+}
+
+#sidebar .sidebar_header .button.open {
+    background-color: #6d6933;
+}
+
 
 #sidebar .sidebar_entry:hover {
     background-color: rgb(100, 96, 90);
@@ -420,14 +447,14 @@ body {
     text-align: center;
 }
 
-#layoutEditor #layoutEditorDiv {
+#layoutEditor #layoutEditorDiv, #layoutEditor #gridEditorDiv{
     margin: 5pt;
     height: 300pt;
     min-width: 300pt;
     flex-grow: 1;
 }
 
-#layoutEditor #layoutEditorCanvas {
+#layoutEditor #layoutEditorCanvas, #layoutEditor #gridEditorCanvas {
     margin: auto;
     max-width: 100%;
     max-height: 100%;
