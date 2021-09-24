@@ -1,5 +1,6 @@
 import * as uniqid from 'uniqid'
 import { BiomeRenderer, ElementRenderer } from '../UI/Renderer/ElementRenderer'
+import { VanillaBiomes } from '../Vanilla/VanillaBiomes'
 import { BiomeBuilder } from './BiomeBuilder'
 import {LayoutElement, Mode} from './LayoutElement'
 
@@ -37,7 +38,12 @@ export class Biome implements LayoutElement{
 
     static fromJSON(builder: BiomeBuilder, json: any){
         if (builder.vanillaBiomes.has(json.key)){
-            builder.registerLayoutElement(builder.vanillaBiomes.get(json.key))
+            const vanillaBiome = builder.vanillaBiomes.get(json.key)
+
+            builder.registerLayoutElement(vanillaBiome)
+            if (json.color){
+                vanillaBiome.color = json.color
+            }
         } else {
             const biome = new Biome(json.name, json.color, json.key, false)
             builder.registerLayoutElement(biome);
@@ -46,10 +52,20 @@ export class Biome implements LayoutElement{
     }
 
     toJSON(){
+        var color = undefined
+        if (!this.isVanilla)
+            color = this.color
+        else {
+            const vanillaColor = VanillaBiomes.biomes.find(b => b.key === this.getKey()).color
+            if (this.color !== vanillaColor){
+                color = this.color
+            }
+        }
+
         return {
             key: this.key,
             name: this.name,
-            color: this.isVanilla ? undefined : this.color
+            color: color
         }
     }    
 
