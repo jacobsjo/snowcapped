@@ -147,7 +147,7 @@ self.onmessage = (evt: ExtendableMessageEvent) => {
     for (let x = 0; x < evt.data.coords.size / noiseDownsample + 1 ; x++) {
       values[x] = []
       for (let z = 0; z < evt.data.coords.size / noiseDownsample + 1; z++) {
-        values[x][z] = multiNoiseCalculator.getMultiNoiseValues(evt.data.coords.x + x * evt.data.coords.step * noiseDownsample, 64, evt.data.coords.z + z * evt.data.coords.step * noiseDownsample)
+        values[x][z] = multiNoiseCalculator.getMultiNoiseValues(evt.data.coords.x + x * evt.data.coords.step * noiseDownsample, 16, evt.data.coords.z + z * evt.data.coords.step * noiseDownsample)
       }
     }
 

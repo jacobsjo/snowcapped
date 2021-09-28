@@ -1,3 +1,4 @@
+import { lerp2 } from "deepslate";
 import * as L from "leaflet";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
@@ -107,6 +108,7 @@ export class VisualizationManger{
         this.biomeLayer.addTo(this.map)
 
         const tooltip = document.getElementById("visualizationTooltip")
+        const tooltip_position = tooltip.getElementsByClassName("position")[0] as HTMLElement
         const tooltip_slice = tooltip.getElementsByClassName("slice")[0] as HTMLElement
         const tooltip_mode = tooltip.getElementsByClassName("mode")[0] as HTMLImageElement
         const tooltip_layout = tooltip.getElementsByClassName("layout")[0] as HTMLElement
@@ -139,6 +141,8 @@ export class VisualizationManger{
 
           tooltip_mode.src = "mode_" + lookup?.mode + ".png"
 
+          const pos = this.getPos(evt.latlng);
+          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0)
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
           tooltip_biome.innerHTML = lookup?.biome?.name
@@ -157,6 +161,13 @@ export class VisualizationManger{
           MenuManager.toggleAction("open-slice", false)
           MenuManager.toggleAction("open-layout", false)
         })
+    }
+
+    private getPos(latlng: L.LatLng){
+      var tileSize = new L.Point(256, 256)
+      var pixelPoint = this.map.project(latlng, this.map.getZoom())
+      var pos = pixelPoint.unscaleBy(tileSize)
+      return pos.scaleBy(tileSize).divideBy(Math.pow(2, this.map.getZoom() - 16)).subtract( new L.Point(Math.pow(2, 23), Math.pow(2, 23), false))
     }
 
     private getIdxs(latlng: L.LatLng){

@@ -18,7 +18,7 @@ export class GridMultiNoiseIndicesManager {
         this.indices_cache = []
         this.noisevalues_cache = []
         this.size = new L.Point(512, 512, false)
-        this.midPoint = new L.Point(Math.pow(2, 20), Math.pow(2, 20), false)
+        this.midPoint = new L.Point(Math.pow(2, 21), Math.pow(2, 21), false)
         this.builder = builder
         this.multiNoise = multiNoise
     }
