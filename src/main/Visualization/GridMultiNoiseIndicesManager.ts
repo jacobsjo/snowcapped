@@ -23,12 +23,12 @@ export class GridMultiNoiseIndicesManager {
         this.multiNoise = multiNoise
     }
 
-    get(coords: L.Coords): Promise<MultiNoiseIndexes[][]> | MultiNoiseIndexes[][] {
+    get(coords: L.Coords): Promise<{idx: MultiNoiseIndexes[][], values: MultiNoiseParameters[][]}> | {idx: MultiNoiseIndexes[][], values: MultiNoiseParameters[][]} {
         const nwpoint = coords.scaleBy(this.size).divideBy(Math.pow(2, coords.z - 13)).subtract(this.midPoint)
 
         const idx = this.indices_cache.findIndex(c => c.key === this._tileCoordsToKey(coords))
         const nv_idx = this.noisevalues_cache.findIndex(c => c.key === this._tileCoordsToKey(coords))
-        let nv
+
         if (idx === -1) {
             if (nv_idx === -1) {
                 return this.multiNoise.getNoiseValueArray(nwpoint.x, nwpoint.y, this.size.x / this.resolution, this.size.x / Math.pow(2, coords.z - 5) * this.resolution).then(nv => {
@@ -40,7 +40,7 @@ export class GridMultiNoiseIndicesManager {
                     this.indices_cache.push({ key: this._tileCoordsToKey(coords), values: indices })
                     if (this.indices_cache.length > 20)
                         this.indices_cache.unshift()
-                    return indices
+                    return {idx: indices, values: nv}
                 })
             } else {
                 const nvcacheEntry = this.noisevalues_cache[nv_idx]
@@ -52,7 +52,7 @@ export class GridMultiNoiseIndicesManager {
                 if (this.indices_cache.length > 20)
                     this.indices_cache.unshift()
 
-                return indices
+                return {idx: indices, values: nvcacheEntry.values}
             }
         } else {
             const cacheEntry = this.indices_cache[idx]
@@ -63,9 +63,7 @@ export class GridMultiNoiseIndicesManager {
             this.noisevalues_cache.splice(nv_idx, 1)
             this.noisevalues_cache.push(nvcacheEntry)
 
-
-            nv = cacheEntry.values
-            return nv
+            return {idx: cacheEntry.values, values: nvcacheEntry.values}
         }
 
     }

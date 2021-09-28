@@ -116,24 +116,25 @@ export class VisualizationManger{
 
         this.map.addEventListener("click", (evt: L.LeafletMouseEvent) => {
           const idxs = this.getIdxs(evt.latlng)
-          const lookup = this.builder.lookup(idxs)
+          const lookup = this.builder.lookup(idxs.idx)
 
           if (lookup.slice === undefined || lookup.slice instanceof LayoutElementUnassigned)
             return
 
           if (lookup.layout !== undefined && evt.originalEvent.ctrlKey){
             UI.getInstance().openElement = lookup.layout.getKey()
-            UI.getInstance().layoutEditor.highlight(idxs.t_idx, idxs.h_idx)
+            UI.getInstance().layoutEditor.highlight(idxs.idx.t_idx, idxs.idx.h_idx)
             UI.getInstance().refresh()
           } else{
             UI.getInstance().openElement = lookup.slice.getKey()
-            UI.getInstance().layoutEditor.highlight(idxs.c_idx, idxs.e_idx)
+            UI.getInstance().layoutEditor.highlight(idxs.idx.c_idx, idxs.idx.e_idx)
             UI.getInstance().refresh()
           }
         })
 
         this.map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
-          const lookup =  this.builder.lookup(this.getIdxs(evt.latlng))
+          const idxs = this.getIdxs(evt.latlng);
+          const lookup =  this.builder.lookup(idxs.idx)
 
           tooltip.style.left = (Math.min(evt.originalEvent.pageX + 20, document.body.clientWidth - tooltip.clientWidth)) + "px"
           tooltip.style.top = (evt.originalEvent.pageY + 15) + "px"
@@ -152,12 +153,17 @@ export class VisualizationManger{
           tooltip_layout.parentElement.classList.toggle("hidden", lookup?.layout === undefined || lookup.layout instanceof LayoutElementUnassigned)
           tooltip_biome.parentElement.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof LayoutElementUnassigned)
 
+          UI.getInstance().splineDisplayManager.setPos({c: idxs.values.continentalness, e: idxs.values.erosion, w: idxs.values.weirdness})
+          UI.getInstance().splineDisplayManager.refresh()
+
           MenuManager.toggleAction("open-slice", lookup.slice !== undefined && !(lookup.slice instanceof LayoutElementUnassigned))
           MenuManager.toggleAction("open-layout", lookup.layout !== undefined)
         })
 
         this.map.addEventListener("mouseout", (evt: L.LeafletMouseEvent) => {
           tooltip.classList.add("hidden")
+          UI.getInstance().splineDisplayManager.setPos(undefined)
+          UI.getInstance().splineDisplayManager.refresh()
           MenuManager.toggleAction("open-slice", false)
           MenuManager.toggleAction("open-layout", false)
         })
@@ -184,7 +190,7 @@ export class VisualizationManger{
       if (values instanceof Promise)
         return
 
-      return values[pixel.x][pixel.y]
+      return {idx: values.idx[pixel.x][pixel.y], values: values.values[pixel.x][pixel.y]}
     }
 
     invalidateIndices(){

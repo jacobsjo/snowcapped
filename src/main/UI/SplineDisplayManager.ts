@@ -6,7 +6,7 @@ import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 export class SplineDisplayManager {
     private builder: BiomeBuilder
     private splineCanvas: HTMLCanvasElement
-    private pos?: { c: number, e: number }
+    private pos?: { c: number, e: number, w?: number }
     private weirdnesses: Climate.Param[]
 
     constructor(builder: BiomeBuilder) {
@@ -16,7 +16,7 @@ export class SplineDisplayManager {
     }
 
 
-    setPos(pos?: { c: number, e: number }) {
+    setPos(pos?: { c: number, e: number, w?: number }) {
         this.pos = pos
     }
 
@@ -78,6 +78,16 @@ export class SplineDisplayManager {
                 spline_ctx.stroke()
                 spline_ctx.fill()
         })
+
+        if (this.pos?.w){
+            spline_ctx.strokeStyle = "rgb(255, 100, 255)"
+            spline_ctx.lineWidth = 2
+            spline_ctx.setLineDash([1,0])
+            spline_ctx.beginPath()
+            spline_ctx.moveTo((this.pos.w + 1) * 0.5 * scw, -2)
+            spline_ctx.lineTo((this.pos.w + 1) * 0.5 * scw, sch + 4)
+            spline_ctx.stroke()
+        }
     }
 
 }
