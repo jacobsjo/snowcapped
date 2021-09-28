@@ -7,6 +7,7 @@ import { LayoutElement, Mode } from "./LayoutElement";
 export class LayoutElementUnassigned implements LayoutElement{
     allowEdit: boolean = false
     name: string = "- Unassigned -";
+    hidden: boolean;
     renderer: UnassignedRenderer;
 
     private constructor(){

@@ -10,6 +10,7 @@ import * as uniqid from 'uniqid';
 export class Layout implements LayoutElement {
     allowEdit: boolean = true
     name: string;
+    hidden: boolean
 
     private array: string[][]
     private builder: BiomeBuilder
@@ -92,9 +93,12 @@ export class Layout implements LayoutElement {
         return element
     }
 
-    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): LayoutElement{
+    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode, stopAtHidden: boolean = false): LayoutElement{
         const element = this.lookup(temperatureIndex, humidityIndex)
-        return element.lookupRecursive(temperatureIndex, humidityIndex, mode);
+        if (stopAtHidden && element.hidden)
+            return element
+        else 
+            return element.lookupRecursive(temperatureIndex, humidityIndex, mode, stopAtHidden);
     }
 
     getSize(): [number, number]{

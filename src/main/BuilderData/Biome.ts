@@ -6,6 +6,7 @@ import {LayoutElement, Mode} from './LayoutElement'
 
 export class Biome implements LayoutElement{
     name: string
+    hidden: boolean
     readonly allowEdit: boolean = true
 
     public color: string

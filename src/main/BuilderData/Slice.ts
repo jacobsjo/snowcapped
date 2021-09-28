@@ -7,6 +7,7 @@ import { LayoutElement } from './LayoutElement';
 export class Slice{
     allowEdit: boolean = true
     name: string;
+    hidden: boolean
     private array: string[][]
     private builder: BiomeBuilder
     private renderer: SliceGridRenderer

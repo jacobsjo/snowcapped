@@ -69,8 +69,22 @@ export class SidebarManager {
             UI.getInstance().refresh()
             this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
         }
-
         slicesHeader.appendChild(addSlicesButton)
+
+        const hide_button = document.createElement("img") as HTMLImageElement
+        hide_button.classList.add("button", "hide")
+        if (!this.builder.slices.every(s => !s.hidden)){
+            hide_button.classList.add("enabled")
+        }
+        hide_button.src = "eye.svg"
+        hide_button.onclick = (evt) => {
+            const h = this.builder.slices.every(s => !s.hidden)
+            this.builder.slices.forEach(s => s.hidden = h)
+            UI.getInstance().refresh()
+            evt.stopPropagation()
+        }
+        slicesHeader.appendChild(hide_button)
+
         this.sidebar.appendChild(slicesHeader)
 
         // Add Slices
@@ -109,7 +123,7 @@ export class SidebarManager {
 
         const modifyLayoutButton = document.createElement("img")
         modifyLayoutButton.classList.add("button")
-        if (UI.getInstance().openElement === "modify_layout"){
+        if (UI.getInstance().openElement === "modify_layout") {
             modifyLayoutButton.classList.add("open")
         }
         modifyLayoutButton.classList.add("button")
@@ -121,6 +135,19 @@ export class SidebarManager {
         }
         layoutHeader.appendChild(modifyLayoutButton)
 
+        const hide_layout_button = document.createElement("img") as HTMLImageElement
+        hide_layout_button.classList.add("button", "hide")
+        if (!this.builder.layouts.every(s => !s.hidden)){
+            hide_layout_button.classList.add("enabled")
+        }
+        hide_layout_button.src = "eye.svg"
+        hide_layout_button.onclick = (evt) => {
+            const h = this.builder.layouts.every(s => !s.hidden)
+            this.builder.layouts.forEach(s => s.hidden = h)
+            UI.getInstance().refresh()
+            evt.stopPropagation()
+        }
+        layoutHeader.appendChild(hide_layout_button)
 
         this.sidebar.appendChild(layoutHeader)
 
@@ -156,6 +183,20 @@ export class SidebarManager {
             UI.getInstance().refresh()
         }
         biomeHeader.appendChild(addBiomeButton)
+
+        const hide_biome_button = document.createElement("img") as HTMLImageElement
+        hide_biome_button.classList.add("button", "hide")
+        if (!this.builder.biomes.every(s => !s.hidden)){
+            hide_biome_button.classList.add("enabled")
+        }
+        hide_biome_button.src = "eye.svg"
+        hide_biome_button.onclick = (evt) => {
+            const h = this.builder.biomes.every(s => !s.hidden)
+            this.builder.biomes.forEach(s => s.hidden = h)
+            UI.getInstance().refresh()
+            evt.stopPropagation()
+        }
+        biomeHeader.appendChild(hide_biome_button)        
 
         this.sidebar.appendChild(biomeHeader)
 
@@ -265,6 +306,7 @@ export class SidebarManager {
         layout_name.classList.add("name")
         element_div.appendChild(layout_name)
 
+
         if (element.allowEdit) {
 
             const edit_name_button = document.createElement("img") as HTMLImageElement
@@ -282,7 +324,7 @@ export class SidebarManager {
 
         }
 
-        if (c !== "vanilla_biome"){
+        if (c !== "vanilla_biome") {
             const db = document.createElement("img") as HTMLImageElement
             db.classList.add("button", "delete")
             db.src = "trash-bin.svg"
@@ -298,7 +340,21 @@ export class SidebarManager {
                 evt.stopPropagation()
             }
             element_div.appendChild(db)
+
+            const hide_button = document.createElement("img") as HTMLImageElement
+            hide_button.classList.add("button", "hide")
+            if (element.hidden){
+                hide_button.classList.add("enabled")
+            }
+            hide_button.src = "eye.svg"
+            hide_button.onclick = (evt) => {
+                element.hidden = !element.hidden
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            }
+            element_div.appendChild(hide_button)
         }
+
 
         if (element instanceof Layout || element instanceof Slice) {
             element_div.oncontextmenu = (evt) => {
@@ -350,21 +406,21 @@ export class SidebarManager {
         }
 
         element_div.ondragover = (evt) => {
-            if (evt.dataTransfer.getData("type") === c && evt.dataTransfer.getData("key") !== element.getKey()){
+            if (evt.dataTransfer.getData("type") === c && evt.dataTransfer.getData("key") !== element.getKey()) {
                 var self_id, other_id
 
-                if (element instanceof Slice){
+                if (element instanceof Slice) {
                     self_id = this.builder.slices.indexOf(element)
                     other_id = this.builder.slices.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
-                } else if (element instanceof Layout){
+                } else if (element instanceof Layout) {
                     self_id = this.builder.layouts.indexOf(element)
                     other_id = this.builder.layouts.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
-                } else if (element instanceof Biome){
+                } else if (element instanceof Biome) {
                     self_id = this.builder.biomes.indexOf(element)
                     other_id = this.builder.biomes.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
                 }
 
-                if (self_id < other_id){
+                if (self_id < other_id) {
                     element_div.classList.add("dragover_up")
                 } else {
                     element_div.classList.add("dragover_down")
@@ -375,23 +431,23 @@ export class SidebarManager {
         }
 
         element_div.ondragleave = (evt) => {
-            element_div.classList.remove("dragover_up","dragover_down")
+            element_div.classList.remove("dragover_up", "dragover_down")
         }
 
         element_div.ondrop = (evt) => {
-            element_div.classList.remove("dragover_up","dragover_down")
+            element_div.classList.remove("dragover_up", "dragover_down")
 
             var self_id, other_id
 
-            if (element instanceof Slice){
+            if (element instanceof Slice) {
                 self_id = this.builder.slices.indexOf(element)
                 other_id = this.builder.slices.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
                 this.builder.slices.splice(self_id, 0, this.builder.slices.splice(other_id, 1)[0])
-            } else if (element instanceof Layout){
+            } else if (element instanceof Layout) {
                 self_id = this.builder.layouts.indexOf(element)
                 other_id = this.builder.layouts.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
                 this.builder.layouts.splice(self_id, 0, this.builder.layouts.splice(other_id, 1)[0])
-            } else if (element instanceof Biome){
+            } else if (element instanceof Biome) {
                 self_id = this.builder.biomes.indexOf(element)
                 other_id = this.builder.biomes.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
                 this.builder.biomes.splice(self_id, 0, this.builder.biomes.splice(other_id, 1)[0])

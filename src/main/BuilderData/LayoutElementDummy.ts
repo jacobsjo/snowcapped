@@ -6,6 +6,7 @@ import { LayoutElement, Mode } from "./LayoutElement";
 
 
 export class LayoutElementDummy implements LayoutElement{
+    hidden: boolean;
     allowEdit: boolean = false
     name: string = "__dummy__";
 

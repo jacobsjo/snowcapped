@@ -197,13 +197,28 @@ export class BiomeBuilder{
         }
 
         const slice = this.getSlice(w[2]) as Slice
+
+        if (slice.hidden){
+            return {}
+        }
+
         const layout = slice.lookup(indexes.c_idx, indexes.e_idx) as LayoutElement
+
+        if (layout.hidden){
+            return {slice: slice, mode: w[3]}
+        }
+
         if (layout instanceof LayoutElementUnassigned){
             return {slice: slice, mode: w[3]}
         } else if (layout instanceof Biome){
             return {slice: slice, mode: w[3], biome: layout}
         } else if (layout instanceof Layout){
-            const biome = layout.lookupRecursive(indexes.t_idx, indexes.h_idx, w[3])
+            const biome = layout.lookupRecursive(indexes.t_idx, indexes.h_idx, w[3], true)
+
+            if (biome.hidden){
+                return {slice: slice, mode: w[3], layout: layout}
+            }
+
             if (biome instanceof Biome)
                 return {slice: slice, mode: w[3], layout: layout, biome: biome}
             else

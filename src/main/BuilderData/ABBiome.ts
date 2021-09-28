@@ -8,6 +8,8 @@ export class ABElement implements LayoutElement{
     readonly elementA: string
     readonly elementB: string
 
+    hidden: boolean
+
     private builder: BiomeBuilder
     private renderer: ABBiomeRenderer
     readonly name: string
@@ -32,14 +34,21 @@ export class ABElement implements LayoutElement{
         return this
     }
 
-    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): LayoutElement {
+    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode, stopAtHidden: boolean = false): LayoutElement {
+        let element
+
         if (mode === "Any"){
             return this
         } else if (mode === "A"){
-            return this.builder.getLayoutElement(this.elementA).lookupRecursive(temperatureIndex, humidityIndex, mode)
+            element = this.builder.getLayoutElement(this.elementA)
         } else {
-            return this.builder.getLayoutElement(this.elementB).lookupRecursive(temperatureIndex, humidityIndex, mode)
+            element = this.builder.getLayoutElement(this.elementB)
         }
+
+        if (stopAtHidden && element.hidden)
+            return element
+        else 
+            return element.lookupRecursive(temperatureIndex, humidityIndex, mode, stopAtHidden)
     }
 
     getElement(mode: "A" | "B"){

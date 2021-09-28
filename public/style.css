@@ -272,6 +272,15 @@ body {
     background-color: #6d6933;
 }
 
+#sidebar .sidebar_header .button.hide.enabled {
+    background-color: rgb(126, 42, 42);
+    display: block;
+}
+
+#sidebar .sidebar_header .button.hide:hover {
+    background-color: rgb(88, 56, 56);
+}
+
 
 #sidebar .sidebar_entry:hover {
     background-color: rgb(100, 96, 90);
@@ -333,6 +342,7 @@ body {
 
 #sidebar .sidebar_entry .button {
     width: 10pt;
+    height: 10pt;
     min-width: 10pt;
     background-color: rgb(32, 32, 32);
     padding: 5pt;
@@ -352,6 +362,17 @@ body {
 #sidebar .sidebar_entry .button.edit:hover {
     background-color: rgb(56, 67, 88);
 }
+
+#sidebar .sidebar_entry .button.hide.enabled {
+    background-color: rgb(126, 42, 42);
+    display: block;
+}
+
+#sidebar .sidebar_entry .button.hide:hover {
+    background-color: rgb(88, 56, 56);
+}
+
+
 
 #sidebar .spacer {
     width: 222pt;
