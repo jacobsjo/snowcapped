@@ -1,8 +1,9 @@
-import { lerp2 } from "deepslate";
+import { lerp2, TerrainShaper } from "deepslate";
 import * as L from "leaflet";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
 import { BiomeLayer } from "../Visualization/BiomeLayer";
+import { ContourLayer } from "../Visualization/ContourLayer";
 import { GridMultiNoise } from "../Visualization/GridMultiNoise";
 import { GridMultiNoiseIndicesManager } from "../Visualization/GridMultiNoiseIndicesManager";
 import { MenuManager } from "./MenuManager";
@@ -83,9 +84,12 @@ export class VisualizationManger{
     private map: L.Map
     private biomeSource: GridMultiNoise
     private biomeLayer: BiomeLayer
+    private contourLayer: ContourLayer
+
     private indicesManger: GridMultiNoiseIndicesManager
 
     private closeContainer: HTMLElement
+    private toggleIsolinesButton: HTMLElement
 
     constructor(builder: BiomeBuilder){
         this.builder = builder
@@ -94,6 +98,7 @@ export class VisualizationManger{
         (this.closeContainer as any).onopenchange = () => {
           this.biomeLayer.redraw()
         }
+
 
         this.biomeSource = new GridMultiNoise(BigInt("0"), builder, noises.temperature, noises.humidity, noises.continentalness, noises.erosion, noises.weirdness, noises.shift)
 
@@ -106,6 +111,22 @@ export class VisualizationManger{
 
         this.biomeLayer = new BiomeLayer(this.builder, this.indicesManger);
         this.biomeLayer.addTo(this.map)
+
+        this.contourLayer = new ContourLayer(this.builder, this.indicesManger);
+        this.contourLayer.addTo(this.map)
+
+        this.toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
+
+        this.toggleIsolinesButton.onclick = (evt: MouseEvent) => {
+          if (this.map.hasLayer(this.contourLayer)){
+            this.map.removeLayer(this.contourLayer)
+            this.toggleIsolinesButton.classList.remove("enabled")
+          } else {
+            this.map.addLayer(this.contourLayer)
+            this.toggleIsolinesButton.classList.add("enabled")
+          }
+        }
+
 
         const tooltip = document.getElementById("visualizationTooltip")
         const tooltip_position = tooltip.getElementsByClassName("position")[0] as HTMLElement
@@ -143,7 +164,8 @@ export class VisualizationManger{
           tooltip_mode.src = "mode_" + lookup?.mode + ".png"
 
           const pos = this.getPos(evt.latlng);
-          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0)
+          const y = (TerrainShaper.offset(TerrainShaper.point(idxs.values.continentalness, idxs.values.erosion, idxs.values.weirdness)) * 128 + 64).toFixed(0)
+          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0) + " -> Y: " + y
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
           tooltip_biome.innerHTML = lookup?.biome?.name
@@ -198,7 +220,9 @@ export class VisualizationManger{
     }
 
     async refresh(){
-      if (!this.closeContainer.classList.contains("closed"))
+      if (!this.closeContainer.classList.contains("closed")){
         this.biomeLayer.redraw()
+        //this.contourLayer.redraw()
+      }
     }
 }

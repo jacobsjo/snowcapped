@@ -6,6 +6,7 @@ import { GridMultiNoise } from "./GridMultiNoise";
 
 
 export class GridMultiNoiseIndicesManager {
+    private promises_cache: Map<string, Promise<{idx: MultiNoiseIndexes[][], values: MultiNoiseParameters[][]}>>
     private noisevalues_cache: { key: string, values: MultiNoiseParameters[][] }[]
     private indices_cache: { key: string, values: MultiNoiseIndexes[][] }[]
     readonly resolution = 6
@@ -17,6 +18,7 @@ export class GridMultiNoiseIndicesManager {
     constructor(builder: BiomeBuilder, multiNoise: GridMultiNoise) {
         this.indices_cache = []
         this.noisevalues_cache = []
+        this.promises_cache = new Map<string, Promise<{idx: MultiNoiseIndexes[][], values: MultiNoiseParameters[][]}>>()
         this.size = new L.Point(512, 512, false)
         this.midPoint = new L.Point(Math.pow(2, 21), Math.pow(2, 21), false)
         this.builder = builder
@@ -31,7 +33,11 @@ export class GridMultiNoiseIndicesManager {
 
         if (idx === -1) {
             if (nv_idx === -1) {
-                return this.multiNoise.getNoiseValueArray(nwpoint.x, nwpoint.y, this.size.x / this.resolution, this.size.x / Math.pow(2, coords.z - 5) * this.resolution).then(nv => {
+                if (this.promises_cache.has(this._tileCoordsToKey(coords))){
+                    return this.promises_cache.get(this._tileCoordsToKey(coords))
+                }
+                
+                const promise = this.multiNoise.getNoiseValueArray(nwpoint.x, nwpoint.y, this.size.x / this.resolution, this.size.x / Math.pow(2, coords.z - 5) * this.resolution).then(nv => {
                     this.noisevalues_cache.push({ key: this._tileCoordsToKey(coords), values: nv })
                     if (this.noisevalues_cache.length > 20)
                         this.noisevalues_cache.unshift()
@@ -40,8 +46,13 @@ export class GridMultiNoiseIndicesManager {
                     this.indices_cache.push({ key: this._tileCoordsToKey(coords), values: indices })
                     if (this.indices_cache.length > 20)
                         this.indices_cache.unshift()
+
+                    this.promises_cache.delete(this._tileCoordsToKey(coords))
                     return {idx: indices, values: nv}
                 })
+                this.promises_cache.set(this._tileCoordsToKey(coords), promise)
+                return promise
+
             } else {
                 const nvcacheEntry = this.noisevalues_cache[nv_idx]
                 this.noisevalues_cache.splice(nv_idx, 1)
