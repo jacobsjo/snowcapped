@@ -113,7 +113,7 @@ export class VisualizationManger{
         this.biomeLayer.addTo(this.map)
 
         this.contourLayer = new ContourLayer(this.builder, this.indicesManger);
-        this.contourLayer.addTo(this.map)
+        //this.contourLayer.addTo(this.map)
 
         this.toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
 

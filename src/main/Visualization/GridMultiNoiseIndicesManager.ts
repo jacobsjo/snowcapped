@@ -39,12 +39,12 @@ export class GridMultiNoiseIndicesManager {
                 
                 const promise = this.multiNoise.getNoiseValueArray(nwpoint.x, nwpoint.y, this.size.x / this.resolution, this.size.x / Math.pow(2, coords.z - 5) * this.resolution).then(nv => {
                     this.noisevalues_cache.push({ key: this._tileCoordsToKey(coords), values: nv })
-                    if (this.noisevalues_cache.length > 20)
+                    if (this.noisevalues_cache.length > 40)
                         this.noisevalues_cache.shift()
                     
                     const indices = nv.map(row => row.map(params => this.builder.getIndexes(params)))
                     this.indices_cache.push({ key: this._tileCoordsToKey(coords), values: indices })
-                    if (this.indices_cache.length > 20)
+                    if (this.indices_cache.length > 40)
                         this.indices_cache.shift()
 
                     console.log("Indices Cache lenght: " + this.indices_cache.length)
@@ -62,7 +62,7 @@ export class GridMultiNoiseIndicesManager {
 
                 const indices = nvcacheEntry.values.map(row => row.map(params => this.builder.getIndexes(params)))
                 this.indices_cache.push({ key: this._tileCoordsToKey(coords), values: indices })
-                if (this.indices_cache.length > 20)
+                if (this.indices_cache.length > 40)
                     this.indices_cache.shift()
 
                 return {idx: indices, values: nvcacheEntry.values}

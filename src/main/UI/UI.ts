@@ -71,6 +71,8 @@ export class UI{
         }
 
         this.splineDisplayManager.refresh()
-        this.visualizationManager.refresh()
+        setTimeout(() => {
+            this.visualizationManager.refresh()
+        }, 5)
     }
 }
