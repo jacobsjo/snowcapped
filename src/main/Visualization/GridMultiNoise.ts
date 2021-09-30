@@ -7,13 +7,6 @@ import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned"
 
 
 export class GridMultiNoise {
-	private readonly temperature: NormalNoise
-	private readonly humidity: NormalNoise
-	private readonly continentalness: NormalNoise
-	private readonly erosion: NormalNoise
-	private readonly weirdness: NormalNoise
-	private readonly offset: NormalNoise
-
 	private readonly builder: BiomeBuilder
 
 	private worker : Worker
@@ -22,20 +15,8 @@ export class GridMultiNoise {
 	constructor(
 		seed: bigint,
 		builder: BiomeBuilder,
-		temperatureParams: NoiseParams,
-		humidityParams: NoiseParams,
-		continentalnessParams: NoiseParams,
-		erosionParams: NoiseParams,
-		weirdnessParams: NoiseParams,
-		offsetParams: NoiseParams,
 	) {
 		this.builder = builder
-		this.temperature = new NormalNoise(new WorldgenRandom(seed), temperatureParams.firstOctave, temperatureParams.amplitudes)
-		this.humidity = new NormalNoise(new WorldgenRandom(seed + BigInt(1)), humidityParams.firstOctave, humidityParams.amplitudes)
-		this.continentalness = new NormalNoise(new WorldgenRandom(seed + BigInt(2)), continentalnessParams.firstOctave, continentalnessParams.amplitudes)
-		this.erosion = new NormalNoise(new WorldgenRandom(seed + BigInt(3)), erosionParams.firstOctave, erosionParams.amplitudes)
-		this.weirdness = new NormalNoise(new WorldgenRandom(seed + BigInt(4)), weirdnessParams.firstOctave, weirdnessParams.amplitudes)
-		this.offset = new NormalNoise(new WorldgenRandom(seed + BigInt(5)), offsetParams.firstOctave, offsetParams.amplitudes)
 
 		this.worker = new Worker("multinoiseworker.js")
 
@@ -57,18 +38,7 @@ export class GridMultiNoise {
 		})
 	}
 
-	public getTerrainShape(x: number, z: number) {
-		const xx = x + this.getOffset(x, 0, z)
-		const zz = z + this.getOffset(z, x, 0)
-		const continentalness = this.continentalness.sample(xx, 0, zz)
-		const erosion = this.erosion.sample(xx, 0, zz)
-		const weirdness = this.weirdness.sample(xx, 0, zz)
-		const point = TerrainShaper.point(continentalness, erosion, weirdness)
-		const nearWater = TerrainShaper.nearWater(continentalness, weirdness)
-		return TerrainShaper.shape(point, nearWater)
-	}
-
-	public getOffset(x: number, y: number, z: number) {
-		return this.offset.sample(x, y, z) * 4
+	updateNoiseSettings(){
+		this.worker.postMessage({ task: "updateNoiseSettings", seed: this.builder.seed, params: this.builder.noiseSettings})
 	}
 }

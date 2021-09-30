@@ -1,6 +1,7 @@
 import { Climate } from "deepslate"
 import { UnassignedRenderer } from "../UI/Renderer/ElementRenderer"
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes"
+import { VanillaNoiseSettings } from "../Vanilla/VanillaNoiseSettings"
 import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
 import { Layout } from "./Layout"
@@ -12,6 +13,8 @@ import { Slice } from "./Slice"
 
 export type MultiNoiseParameters = {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}
 export type MultiNoiseIndexes = {w_idx: number, c_idx:number, e_idx: number, h_idx: number, t_idx: number}
+
+export type NoiseSetting = {firstOctave: number, amplitudes: number[]}
 
 export class BiomeBuilder{
     continentalnesses: [string, Climate.Param][]
@@ -32,6 +35,18 @@ export class BiomeBuilder{
     layoutElementDummy: LayoutElementDummy
     layoutElementUnassigned: LayoutElementUnassigned
 
+    noiseSettings: {
+        "continentalness": NoiseSetting,
+        "erosion": NoiseSetting,
+        "weirdness": NoiseSetting,
+        "humidity": NoiseSetting,
+        "temperature": NoiseSetting,
+        "shift": NoiseSetting
+    } = VanillaNoiseSettings.default()
+
+    seed: bigint = BigInt("1")
+    dimensionName: string = "minecraft:overworld"
+
     constructor(continentalnesses: [string, Climate.Param][], erosions: [string,Climate.Param][], weirdnesses: [string,Climate.Param][], temperatures: [string,Climate.Param][], humidities: [string,Climate.Param][]){
         this.continentalnesses = continentalnesses
         this.erosions = erosions
@@ -46,12 +61,16 @@ export class BiomeBuilder{
         this.layouts = []
         this.biomes = []
 
+
         
         this.layoutElementDummy = LayoutElementDummy.create(this)
         this.layoutElementUnassigned = LayoutElementUnassigned.create(this)
     }
 
     loadJSON(json: any){
+        this.dimensionName = json.dimensionName??"minecraft:overworld"
+        this.seed = BigInt(json.seed ?? "1")
+        this.noiseSettings = json.noiseSettings ?? VanillaNoiseSettings.default()
 
         this.continentalnesses = json.continentalnesses
         this.erosions = json.erosions
@@ -83,6 +102,10 @@ export class BiomeBuilder{
 
     toJSON(){
         return {
+            dimensionName: this.dimensionName,
+            seed: this.seed.toString(),
+            noiseSettings: this.noiseSettings,
+
             continentalnesses: this.continentalnesses,
             erosions: this.erosions,
             weirdnesses: this.weirdnesses.map(weirdness => {

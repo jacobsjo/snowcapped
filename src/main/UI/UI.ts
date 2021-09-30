@@ -3,6 +3,7 @@ import { AssignSlicesManager } from "./AssignSlicesManager";
 import { GridEditor } from "./GridEditor";
 import { LayoutEditor } from "./LayoutEditor";
 import { MenuManager } from "./MenuManager";
+import { SettingsManager } from "./SettingsManager";
 import { SidebarManager } from "./SidebarManager";
 import { SplineDisplayManager } from "./SplineDisplayManager";
 import { VisualizationManger } from "./VisualizationManager";
@@ -28,6 +29,7 @@ export class UI{
     readonly splineDisplayManager: SplineDisplayManager
     readonly visualizationManager: VisualizationManger
     readonly gridEditor: GridEditor
+    readonly settingsManager: SettingsManager
 
     readonly builder: BiomeBuilder
 
@@ -47,6 +49,7 @@ export class UI{
         this.splineDisplayManager = new SplineDisplayManager(builder)
         this.visualizationManager = new VisualizationManger(builder)
         this.gridEditor = new GridEditor(builder)
+        this.settingsManager = new SettingsManager(builder)
 
         this.refresh()
 
@@ -74,5 +77,7 @@ export class UI{
         setTimeout(() => {
             this.visualizationManager.refresh()
         }, 5)
+
+        this.settingsManager.refresh()
     }
 }

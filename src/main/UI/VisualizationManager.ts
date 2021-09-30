@@ -9,76 +9,6 @@ import { GridMultiNoiseIndicesManager } from "../Visualization/GridMultiNoiseInd
 import { MenuManager } from "./MenuManager";
 import { UI } from "./UI";
 
-
-const noises = {
-"erosion": {
-    "firstOctave": -9,
-    "amplitudes": [
-      1.0,
-      1.0,
-      0.0,
-      1.0,
-      1.0
-    ]
-  },
-  "weirdness": {
-    "firstOctave": -7,
-    "amplitudes": [
-      1.0,
-      2.0,
-      1.0,
-      0.0,
-      0.0,
-      0.0
-    ]
-  },
-  "shift": {
-    "firstOctave": -3,
-    "amplitudes": [
-      1.0,
-      1.0,
-      1.0,
-      0.0
-    ]
-  },
-  "temperature": {
-    "firstOctave": -9,
-    "amplitudes": [
-      1.5,
-      0.0,
-      1.0,
-      0.0,
-      0.0,
-      0.0
-    ]
-  },
-  "humidity": {
-    "firstOctave": -7,
-    "amplitudes": [
-      1.0,
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0
-    ]
-  },
-  "continentalness": {
-    "firstOctave": -9,
-    "amplitudes": [
-      1.0,
-      1.0,
-      2.0,
-      2.0,
-      2.0,
-      1.0,
-      1.0,
-      1.0,
-      1.0
-    ]
-  }
-}
-
 export class VisualizationManger{
     builder: BiomeBuilder
     private map: L.Map
@@ -100,7 +30,7 @@ export class VisualizationManger{
         }
 
 
-        this.biomeSource = new GridMultiNoise(BigInt("0"), builder, noises.temperature, noises.humidity, noises.continentalness, noises.erosion, noises.weirdness, noises.shift)
+        this.biomeSource = new GridMultiNoise(BigInt("0"), builder)
 
         this.map = L.map('visualization_map')
         this.map.setView([0,0], 15)
@@ -108,6 +38,8 @@ export class VisualizationManger{
         this.map.setMinZoom(13)
 
         this.indicesManger = new GridMultiNoiseIndicesManager(this.builder, this.biomeSource)
+
+        this.updateNoises()
 
         this.biomeLayer = new BiomeLayer(this.builder, this.indicesManger);
         this.biomeLayer.addTo(this.map)
@@ -213,6 +145,11 @@ export class VisualizationManger{
         return
 
       return {idx: values.idx[pixel.x][pixel.y], values: values.values[pixel.x][pixel.y]}
+    }
+
+    updateNoises(){
+      this.biomeSource.updateNoiseSettings()      
+      this.indicesManger.invalidateNoises()
     }
 
     invalidateIndices(){

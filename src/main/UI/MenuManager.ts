@@ -9,16 +9,19 @@ export class MenuManager {
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
     private static exportButton: HTMLElement
+    private static settingsButton: HTMLElement
 
     static createClickHandlers() {
         this.loadVanillaButton = document.getElementById('loadVanillaButton')
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
         this.exportButton = document.getElementById('exportButton')
+        this.settingsButton = document.getElementById('settingsButton')
 
         this.loadVanillaButton.onclick = (evt: Event) => {
             fetch('vanilla_overworld_biome_builder.json').then( r => r.text()).then(jsonString => {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
+                UI.getInstance().visualizationManager.updateNoises()
                 UI.getInstance().openElement = "assign_slices"
                 UI.getInstance().refresh()
             })
@@ -37,6 +40,7 @@ export class MenuManager {
                 reader.onload = (evt: ProgressEvent<FileReader>) => {
                     const jsonString = evt.target.result as string
                     UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
+                    UI.getInstance().visualizationManager.updateNoises()
                     UI.getInstance().openElement = "assign_slices"
                     UI.getInstance().refresh()
                 }
@@ -52,7 +56,7 @@ export class MenuManager {
             const jsonString = JSON.stringify(UI.getInstance().builder.toJSON())
             const bb = new Blob([jsonString], {type: 'text/plain'})
             const a = document.createElement('a')
-            a.download = 'biome_builder.json'
+            a.download = UI.getInstance().builder.dimensionName.replace(new RegExp(":|\/"), "_") + ".snowcapped.json"
             a.href = window.URL.createObjectURL(bb)
             a.click()
         }
@@ -62,11 +66,17 @@ export class MenuManager {
             const jsonString = exporter.export()
             const bb = new Blob([jsonString], {type: 'text/plain'})
             const a = document.createElement('a')
-            a.download = 'dimension.json'
+            const name = UI.getInstance().builder.dimensionName.split(new RegExp(":|\/")).reverse()[0] + ".json"
+            a.download = name
             a.href = window.URL.createObjectURL(bb)
             a.click()
         }
 
+        this.settingsButton.onclick = (evt: Event) => {
+            const settingsOpen = !document.getElementById("settings").classList.toggle("hidden")
+            document.getElementById("editor").classList.toggle("hidden", settingsOpen)
+            this.settingsButton.classList.toggle("open", settingsOpen)
+        }
     }
 
     static toggleAction(name: string, force?: boolean){

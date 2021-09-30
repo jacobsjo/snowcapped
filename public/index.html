@@ -5,14 +5,15 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="http://snowcapped.jacobsjo.eu" />
     <meta property="og:image" content="http://snowcapped.jacobsjo.eu/og_image.jpg" />
-    <meta property="og:description" content="A minecraft dimension layout editor. Exports a multi-noise dimension file. Based on the vanilla biome builder." />
+    <meta property="og:description"
+        content="A minecraft dimension layout editor. Exports a multi-noise dimension file. Based on the vanilla biome builder." />
     <meta property="og:determiner" content="" />
-    
+
     <link rel="icon" href="icon.svg" sizes="any" types="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-    crossorigin=""/>
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
     <script defer src="bundle.js"></script>
 </head>
 
@@ -23,42 +24,81 @@
             <div class="button" id="openButton">Open</div>
             <div class="button" id="saveButton">Save</div>
             <div class="button" id="exportButton">Export</div>
+            <div class="button" id="settingsButton">Settings</div>
             <div class="help" id="help">
                 <div class="help-entry hidden" id="select"><span class="b">[Left Click]</span> Select</div>
                 <div class="help-entry hidden" id="paint"><span class="b">[Left Click]</span> Paint</div>
                 <div class="help-entry hidden" id="open-slice"><span class="b">[Left Click]</span> Open Slice</div>
                 <div class="help-entry hidden" id="reorder"><span class="b">[Drag]</span> Reorder</div>
-                <div class="help-entry hidden" id="paint-mode"><span class="b">[Ctrl]+[Left Click]</span> Paint only for one Mode</div>
-                <div class="help-entry hidden" id="open-layout"><span class="b">[Ctrl]+[Left Click]</span> Open Layout</div>
+                <div class="help-entry hidden" id="paint-mode"><span class="b">[Ctrl]+[Left Click]</span> Paint only for
+                    one Mode</div>
+                <div class="help-entry hidden" id="open-layout"><span class="b">[Ctrl]+[Left Click]</span> Open Layout
+                </div>
                 <div class="help-entry hidden" id="pick"><span class="b">[Middle Click]</span> Pick</div>
                 <div class="help-entry hidden" id="open"><span class="b">[Right Click]</span> Open</div>
                 <div class="help-entry hidden" id="remove"><span class="b">[Delete]</span> Remove</div>
             </div>
         </div>
-        <div id="editor">
-            <div id="sidebar">
-                <div id="sidebar_menu">
+        <div id="content">
+            <div class="main_content">
+                <div id="editor">
+                    <div id="sidebar">
+                        <div id="sidebar_menu">
 
+                        </div>
+                        <div class="closable vertical" id="splineDisplay">
+                            <div class="button"></div>
+                            <div class="content">
+                                <canvas id="splineDisplayCanvas" width="500" height="280"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="layoutEditor">
+                        <input type="text" id="layoutName" />
+                        <div id="layoutEditorDiv">
+                            <canvas tabindex='1' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
+                        </div>
+                        <div id="assignSlices" class="hidden">
+                        </div>
+                        <div id="gridEditorDiv">
+                            <canvas tabindex='1' id="gridEditorCanvas" width="1300" height="1300"></canvas>
+                        </div>
+
+                    </div>
+                    <div class="tooltip hidden" id="layoutEditorTooltip">
+                        <div class="tooltip_line">
+                            <div class="name">minecraft:extreme_hills</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="closable vertical" id="splineDisplay">
-                    <div class="button"></div>
-                    <div class="content">
-                        <canvas id="splineDisplayCanvas" width="500" height="280"></canvas>
+
+                <div class="hidden" id="settings">
+                    <div class="setting"> <label><span class="description">Dimension Name:</span><input type="text"
+                                id="dimension_name" /></label></div>
+                    <div class="setting"> <label><span class="description">Seed:</span><input type="number" step=1
+                                id="seed" /></label></div>
+                    <div class="setting">
+                        <label id="continentalness_setting"><span class="description">Continentalness:</span>
+                        </label><br />
+                        <label id="erosion_setting"><span class="description">Erosion:</span>
+                        </label><br />
+                        <label id="weirdness_setting"><span class="description">Weirdness:</span>
+                        </label><br />
+                        <label id="temperature_setting"><span class="description">Temperature:</span>
+                        </label><br />
+                        <label id="humidity_setting"><span class="description">Humidity:</span>
+                        </label><br />
+                        <label id="shift_setting"><span class="description">Shift:</span>
+                        </label><br />
+                        <button id="reset_noises">Reset to Vanilla</button>
+                        <button id="copy_noise_settings">Copy Settings to Clipboard</button>
+                    </div>
+                    <div class="setting">
+                        <button id="update">Update Map</button>
                     </div>
                 </div>
             </div>
-            <div id="layoutEditor">
-                <input type="text" id="layoutName" />
-                <div id="layoutEditorDiv">
-                    <canvas tabindex='1' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
-                </div>
-                <div id="assignSlices" class="hidden">
-                </div>
-                <div id="gridEditorDiv">
-                    <canvas tabindex='1' id="gridEditorCanvas" width="1300" height="1300"></canvas>
-                </div>
 
-            </div>
             <div class="closable horizontal" id="visualization_panel">
                 <div class="button"></div>
                 <div class="content">
@@ -67,25 +107,20 @@
                         <img id="toggleIsolinesButton" src="isolines.svg" />
                     </div>
                 </div>
-            </div>
-            <div class="tooltip hidden" id="layoutEditorTooltip">
-                <div class="tooltip_line">
-                    <div class="name">minecraft:extreme_hills</div>
-                </div>
-            </div>
-            <div class="tooltip hidden" id="visualizationTooltip">
-                <div class="tooltip_line">
-                    <div class="position">X: 0, Z: 0</div>
-                </div>
-                <div class="tooltip_line">
-                    <div class="name slice">Mid Slice</div>
-                    <img class="icon mode" />
-                </div>
-                <div class="tooltip_line">
-                    <div class="name layout">Middle</div>
-                </div>
-                <div class="tooltip_line">
-                    <div class="name biome">minecraft:extreme_hills</div>
+                <div class="tooltip hidden" id="visualizationTooltip">
+                    <div class="tooltip_line">
+                        <div class="position">X: 0, Z: 0</div>
+                    </div>
+                    <div class="tooltip_line">
+                        <div class="name slice">Mid Slice</div>
+                        <img class="icon mode" />
+                    </div>
+                    <div class="tooltip_line">
+                        <div class="name layout">Middle</div>
+                    </div>
+                    <div class="tooltip_line">
+                        <div class="name biome">minecraft:extreme_hills</div>
+                    </div>
                 </div>
             </div>
         </div>

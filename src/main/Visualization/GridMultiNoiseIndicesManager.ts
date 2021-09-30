@@ -47,8 +47,6 @@ export class GridMultiNoiseIndicesManager {
                     if (this.indices_cache.length > 40)
                         this.indices_cache.shift()
 
-                    console.log("Indices Cache lenght: " + this.indices_cache.length)
-
                     this.promises_cache.delete(this._tileCoordsToKey(coords))
                     return {idx: indices, values: nv}
                 })
@@ -79,6 +77,12 @@ export class GridMultiNoiseIndicesManager {
             return {idx: cacheEntry.values, values: nvcacheEntry.values}
         }
 
+    }
+
+    invalidateNoises() {
+        this.indices_cache = []
+        this.noisevalues_cache = []
+        this.promises_cache.clear()
     }
 
     invalidateIndices() {

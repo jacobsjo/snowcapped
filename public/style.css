@@ -35,6 +35,11 @@ body {
     cursor: pointer;
 }
 
+#menu .button.open {
+    background-color: #6d6933
+}
+
+
 #menu .button:hover {
     background-color: rgb(87, 87, 87);
 }
@@ -60,12 +65,22 @@ body {
 
 /* Editor */
 
-#editor {
+#content {
     flex-grow: 1;
+    display: flex;
     width: 100vw;
     height: 0;
+}
+
+.main_content{
+    flex-grow: 1;
     background-color: rgb(61, 61, 61);
+    width: 700pt;
+}
+
+#editor {
     display: flex;
+    height: 100%;
 }
 
 /* Tooltip */
@@ -485,7 +500,7 @@ body {
 
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Visualization */
@@ -532,4 +547,113 @@ body {
 
 #visualization #toggleIsolinesButton:hover{
     background-color: #666666;
+}
+
+/* Settings */
+
+#settings{
+    padding: 20pt;
+    overflow: auto;
+}
+
+#settings .title{
+    color: rgb(255, 184, 102);
+    margin-top: 10pt;
+}
+
+#settings .setting{
+    margin: 10pt;
+    padding: 5pt;
+    background-color: #333333;
+    border-radius: 5pt;
+}
+
+#settings .setting label{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;    
+}
+
+#settings .setting label .description{
+    display: inline-block;
+    color: white;
+}
+
+#settings .setting label .description:not(.minor){
+    width: 150pt;
+}
+
+#settings .setting label .description.minor{
+    margin-left: 10pt;
+    margin-right: 5pt;
+    white-space: nowrap;
+}
+
+
+#settings .setting label input{
+    color: white;
+    background-color: #222222;
+    border: 2pt solid #111111;
+    -moz-appearance: textfield;
+    flex-grow: 1;
+}
+
+#settings .setting label input[type=number]::-webkit-inner-spin-button,
+#settings .setting label input[type=number]::-webkit-outer-spin-button{
+    -webkit-appearance: none;
+}
+
+#settings .setting label input.small{
+    width: 30pt;
+    max-width: 30pt;
+    margin-left: 5pt;
+    border-radius: 5pt;
+    text-align: center;
+}
+
+#settings .setting label input.small.last{
+    border-radius: 5pt 0pt 0pt 5pt;
+}
+
+#settings button{
+    background-color: #222222;
+    border: 1pt solid black;
+    border-radius: 5pt;
+    height: 20pt;
+    padding-left: 5pt;
+    padding-right: 5pt;
+    color: white
+}
+
+#settings .setting label button{
+    width: 20pt;
+    margin-right: 5pt;
+}
+
+#settings .setting label button.delete{
+    border-radius: 0pt 5pt 5pt 0pt;
+}
+
+
+#settings .setting label button.delete:hover{
+    background-color: #5f3c3c;
+}
+
+#settings .setting button:hover{
+    background-color: #354572;
+}
+
+
+#settings .setting label button img{
+    width: 100%;
+    height: 100%;
+}
+
+#settings button#update {
+    font-size: 15pt;
+    height: 28pt;
+}
+
+#settings button#update:hover {
+    background-color: #316838;
 }

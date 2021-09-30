@@ -159,7 +159,7 @@ export class Exporter {
                     biomes: biomes,
                     type: "minecraft:multi_noise"
                 },
-                seed: 0,
+                seed: this.builder.seed.toString(),
                 settings: "minecraft:overworld",
                 type: "minecraft:noise"
             }
