@@ -35,6 +35,7 @@ export class LayoutEditor {
 
         this.title.onchange = (evt: Event) => {
             this.layout.name = this.title.value
+            this.builder.hasChanges = true
             UI.getInstance().refresh()
         }
 

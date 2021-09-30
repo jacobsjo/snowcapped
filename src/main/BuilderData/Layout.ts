@@ -55,6 +55,7 @@ export class Layout implements LayoutElement {
             this.undoActions.push({t_id: temperatureIndex, h_id: humidityIndex, value: this.array[temperatureIndex][humidityIndex]})
 
         this.array[temperatureIndex][humidityIndex] = element
+        this.builder.hasChanges = true
     }
 
     undo(){

@@ -19,6 +19,11 @@ export class MenuManager {
         this.settingsButton = document.getElementById('settingsButton')
 
         this.loadVanillaButton.onclick = (evt: Event) => {
+            if (!this.confirmUnsavedChanges())
+                return
+
+            UI.getInstance().builder.hasChanges = false
+
             fetch('vanilla_overworld_biome_builder.json').then( r => r.text()).then(jsonString => {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().visualizationManager.updateNoises()
@@ -28,6 +33,11 @@ export class MenuManager {
         }
 
         this.openButton.onclick = (evt: Event) => {
+            if (!this.confirmUnsavedChanges())
+                return
+
+            UI.getInstance().builder.hasChanges = false
+
             const input = document.createElement('input') as HTMLInputElement
             input.type = 'file'
 
@@ -59,6 +69,7 @@ export class MenuManager {
             a.download = UI.getInstance().builder.dimensionName.replace(new RegExp(":|\/"), "_") + ".snowcapped.json"
             a.href = window.URL.createObjectURL(bb)
             a.click()
+            UI.getInstance().builder.hasChanges = false
         }
 
         this.exportButton.onclick = (evt: Event) => {
@@ -77,6 +88,17 @@ export class MenuManager {
             document.getElementById("editor").classList.toggle("hidden", settingsOpen)
             this.settingsButton.classList.toggle("open", settingsOpen)
         }
+
+        window.onbeforeunload = (evt: BeforeUnloadEvent) => {
+            if (UI.getInstance().builder.hasChanges){
+                return "You have unsaved changes. Continue?"
+            }
+            return undefined
+        }
+    }
+
+    private static confirmUnsavedChanges(): boolean{
+        return UI.getInstance().builder.hasChanges ? confirm("You have unsaved changes. Continue?") : true
     }
 
     static toggleAction(name: string, force?: boolean){

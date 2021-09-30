@@ -56,6 +56,7 @@ export class Slice{
         this.undoActions.push({c_id: continentalnessIndex, e_id: erosionIndex, value: this.array[continentalnessIndex][erosionIndex]})
         
         this.array[continentalnessIndex][erosionIndex] = element
+        this.builder.hasChanges = true
     }
 
     undo(){

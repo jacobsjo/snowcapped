@@ -16,6 +16,7 @@ export class SettingsManager {
         const dimensionNameInput = document.getElementById("dimension_name") as HTMLInputElement;
         dimensionNameInput.value = this.builder.dimensionName
         dimensionNameInput.onchange = (evt) => {
+            this.builder.hasChanges = true
             this.builder.dimensionName = dimensionNameInput.value
         }
 
@@ -28,6 +29,7 @@ export class SettingsManager {
             }
         }
         seedInput.onchange = (evt) => {
+            this.builder.hasChanges = true
             this.builder.seed = BigInt(seedInput.value)
         }
 
@@ -40,6 +42,7 @@ export class SettingsManager {
 
         const resetButton = document.getElementById("reset_noises")
         resetButton.onclick = (evt) => {
+            this.builder.hasChanges = true
             this.builder.noiseSettings = VanillaNoiseSettings.default()
             this.refresh()
         }
@@ -88,6 +91,7 @@ export class SettingsManager {
             const value = Math.min(parseInt(firstOctaveInput.value), 1 - noiseSettings.amplitudes.length)
             noiseSettings.firstOctave = value
             firstOctaveInput.value = noiseSettings.firstOctave.toString()
+            this.builder.hasChanges = true
         }
 
         firstOctaveLabel.appendChild(firstOctaveInput)
@@ -119,6 +123,7 @@ export class SettingsManager {
 
             amplitudeInput.onchange = (evt) => {
                 noiseSettings.amplitudes[aidx] = parseFloat(amplitudeInput.value)
+                this.builder.hasChanges = true
             }
 
             amplitudesLabel.appendChild(amplitudeInput)
@@ -132,6 +137,7 @@ export class SettingsManager {
             deleteButton.appendChild(deleteIcon)
             deleteButton.onclick = (evt) => {
                 noiseSettings.amplitudes.splice(noiseSettings.amplitudes.length - 1, 1)
+                this.builder.hasChanges = true
                 this.refresh()
             }
             amplitudesLabel.appendChild(deleteButton)
@@ -150,6 +156,7 @@ export class SettingsManager {
             noiseSettings.firstOctave = value
             firstOctaveInput.value = noiseSettings.firstOctave.toString()
 
+            this.builder.hasChanges = true
             this.refresh()
         }
 

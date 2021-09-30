@@ -84,6 +84,7 @@ export class GridEditor {
                 builder.splitParam("temperature", handle.id)
             }
 
+            this.builder.hasChanges = true
             UI.getInstance().visualizationManager.invalidateIndices()
             UI.getInstance().refresh()
         }
@@ -132,6 +133,7 @@ export class GridEditor {
                         this.builder.deleteParam("humidity", draggingHandle.id)
                     }
 
+                    this.builder.hasChanges = true
                 } else {
                     const min_value = (draggingHandle.id === 0) ? undefined : this.ys[draggingHandle.id - 1]
                     const max_value = (draggingHandle.id === this.ys.length - 1) ? undefined : this.ys[draggingHandle.id + 1]
@@ -160,6 +162,8 @@ export class GridEditor {
                     } else if (this.ys[draggingHandle.id] === max_value) {
                         this.builder.deleteParam("temperature", draggingHandle.id)
                     }
+
+                    this.builder.hasChanges = true
                 }
 
                 draggingHandle = undefined

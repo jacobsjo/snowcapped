@@ -78,6 +78,7 @@ export class AssignSlicesManager {
                     UI.getInstance().refresh()
                 } else {
                     if (UI.getInstance().selectedElement !== "" && this.builder.weirdnesses[w_idx][2] !== UI.getInstance().selectedElement) {
+                        this.builder.hasChanges = true
                         this.undoActions.push({w_idx: w_idx, value: this.builder.weirdnesses[w_idx][2]})
                         this.builder.weirdnesses[w_idx][2] = UI.getInstance().selectedElement
                         UI.getInstance().refresh()

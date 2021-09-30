@@ -17,6 +17,8 @@ export type MultiNoiseIndexes = {w_idx: number, c_idx:number, e_idx: number, h_i
 export type NoiseSetting = {firstOctave: number, amplitudes: number[]}
 
 export class BiomeBuilder{
+    hasChanges: boolean
+
     continentalnesses: [string, Climate.Param][]
     erosions: [string,Climate.Param][]
     weirdnesses: [string,Climate.Param, string, "A"|"B"][]

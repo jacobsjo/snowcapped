@@ -65,6 +65,7 @@ export class SidebarManager {
         addSlicesButton.src = "add.svg"
         addSlicesButton.onclick = (evt: Event) => {
             const slice = Slice.create(this.builder, "New Slice", "unassigned")
+            this.builder.hasChanges = true
             UI.getInstance().openElement = slice.getKey()
             UI.getInstance().refresh()
             this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
@@ -114,6 +115,7 @@ export class SidebarManager {
         addLayoutButton.src = "add.svg"
         addLayoutButton.onclick = (evt: Event) => {
             const layout = Layout.create(this.builder, "New Layout")
+            this.builder.hasChanges = true
             UI.getInstance().openElement = layout.getKey()
             UI.getInstance().refresh()
             this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
@@ -180,6 +182,7 @@ export class SidebarManager {
             const biome = Biome.create(this.builder, biome_name, "#888888")
             if (UI.getInstance().openElement !== "assign_slises")
                 UI.getInstance().selectedElement = biome.getKey()
+            this.builder.hasChanges = true
             UI.getInstance().refresh()
         }
         biomeHeader.appendChild(addBiomeButton)
@@ -289,6 +292,7 @@ export class SidebarManager {
 
             color_input.onchange = (evt: Event) => {
                 element.color = color_input.value
+                this.builder.hasChanges = true
                 UI.getInstance().refresh()
             }
             element_div.appendChild(color_input)
@@ -331,6 +335,8 @@ export class SidebarManager {
             db.onclick = (evt) => {
                 if (!confirm("Deleting " + element.constructor.name + " \"" + element.name + "\""))
                     return
+
+                this.builder.hasChanges = true
                 if (element instanceof Slice) {
                     this.builder.removeSlice(element)
                 } else {
