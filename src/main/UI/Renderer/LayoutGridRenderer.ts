@@ -78,8 +78,6 @@ export class LayoutGridRenderer implements ElementRenderer{
     public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {t_idx: number, h_idx: number, local_t: number, local_h: number, mode: "A"|"B"} | undefined{
         const size = this.layout.getSize()
 
-        console.log(size)
-
         const maxElementSizeX = sizeX / size[1]
         const maxElementSizeY = sizeY / size[0]
 

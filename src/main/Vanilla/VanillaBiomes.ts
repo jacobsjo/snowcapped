@@ -251,52 +251,55 @@ export class VanillaBiomes{
             color: "#00ff57"
         },
 
-        {name: "minecraft:nether_wastes", r: 163, g: 62, b: 62},
-        {name: "minecraft:soul_sand_valley", r: 140, g: 132, b: 108},
-        {name: "minecraft:crimson_forest", r: 68, g: 171, b: 171},
-        {name: "minecraft:warped_forest", r: 219, g: 60, b: 46},
-        {name: "minecraft:basalt_deltas", r: 79, g: 73, b: 66},
+        {key: "minecraft:soul_sand_valley", name: "minecraft:soul_sand_valley", r: 140, g: 132, b: 108},
+        {key: "minecraft:nether_wastes", name: "minecraft:nether_wastes", r: 163, g: 62, b: 62},
+        {key: "minecraft:crimson_forest", name: "minecraft:crimson_forest", r: 68, g: 171, b: 171},
+        {key: "minecraft:warped_forest", name: "minecraft:warped_forest", r: 219, g: 60, b: 46},
+        {key: "minecraft:basalt_deltas", name: "minecraft:basalt_deltas", r: 79, g: 73, b: 66},
 
-        {name: "minecraft:the_end", r: 252, g: 244, b: 121},
-        {name: "minecraft:small_end_islands", r: 234, g: 247, b: 52},
-        {name: "minecraft:end_midlands", r: 170, g: 179, b: 55},
-        {name: "minecraft:end_highlands", r: 112, g: 117, b: 46},
-        {name: "minecraft:end_barrens", r: 199, g: 204, b: 137},
-        {name: "minecraft:the_void", r: 0, g: 0, b: 0},
+        {key: "minecraft:the_end", name: "minecraft:the_end", r: 252, g: 244, b: 121},
+        {key: "minecraft:small_end_islands", name: "minecraft:small_end_islands", r: 234, g: 247, b: 52},
+        {key: "minecraft:end_midlands", name: "minecraft:end_midlands", r: 170, g: 179, b: 55},
+        {key: "minecraft:end_highlands", name: "minecraft:end_highlands", r: 112, g: 117, b: 46},
+        {key: "minecraft:end_barrens", name: "minecraft:end_barrens", r: 199, g: 204, b: 137},
+        {key: "minecraft:the_void", name: "minecraft:the_void", r: 0, g: 0, b: 0},
 
-        {name: "minecraft:lush_caves", r: 112, g: 255, b: 79},
-        {name: "minecraft:dripstone_caves", r: 140, g: 124, b: 0},
+        {key: "minecraft:lush_caves", name: "minecraft:lush_caves", r: 112, g: 255, b: 79},
+        {key: "minecraft:dripstone_caves", name: "minecraft:dripstone_caves", r: 140, g: 124, b: 0},
 
-        {name: "minecraft:snowy_mountains", r: 239, g: 255, b: 235},
-        {name: "minecraft:mushroom_field_shore", r: 240, g: 187, b: 252},
-        {name: "minecraft:desert_hills", r: 181, g: 174, b: 33},
-        {name: "minecraft:wooded_hills", r: 17, g: 69, b: 18},
-        {name: "minecraft:taiga_hills", r: 30, g: 69, b: 8},
-        {name: "minecraft:mountain_edge", r: 110, g: 109, b: 109},
-        {name: "minecraft:jungle_hills", r: 33, g: 184, b: 0},
-        {name: "minecraft:birch_forest_hills", r: 28, g: 97, b: 29},
-        {name: "minecraft:snowy_taiga_hills", r: 103, g: 117, b: 95},
-        {name: "minecraft:giant_tree_taiga_hills", r: 23, g: 15, b: 3},
-        {name: "minecraft:badlands_plateau", r: 120, g: 83, b: 42},
-        {name: "minecraft:desert_lakes", r: 97, g: 179, b: 186},
-        {name: "minecraft:taiga_mountains", r: 46, g: 30, b: 8},
-        {name: "minecraft:swamp_hills", r: 32, g: 66, b: 50},
-        {name: "minecraft:modified_jungle", r: 11, g: 227, b: 37},
-        {name: "minecraft:modified_jungle_edge", r: 71, g: 237, b: 91},
-        {name: "minecraft:tall_birch_hills", r: 4, g: 74, b: 6},
-        {name: "minecraft:dark_forest_hills", r: 0, g: 31, b: 1},
-        {name: "minecraft:snowy_taiga_mountains", r: 74, g: 99, b: 74},
-        {name: "minecraft:giant_spruce_taiga_hills", r: 13, g: 36, b: 7},
-        {name: "minecraft:modified_gravelly_mountains", r: 82, g: 89, b: 99},
-        {name: "minecraft:shattered_savanna_plateau", r: 124, g: 158, b: 60},
-        {name: "minecraft:modified_wooded_badlands_plateau", r: 128, g: 98, b: 54},
-        {name: "minecraft:modified_badlands_plateau", r: 145, g: 101, b: 600},
-        {name: "minecraft:bamboo_jungle_hills", r: 98, g: 140, b: 49}
+        {key: "minecraft:snowy_mountains", name: "minecraft:snowy_mountains", r: 239, g: 255, b: 235},
+        {key: "minecraft:mushroom_field_shore", name: "minecraft:mushroom_field_shore", r: 240, g: 187, b: 252},
+        {key: "minecraft:desert_hills", name: "minecraft:desert_hills", r: 181, g: 174, b: 33},
+        {key: "minecraft:wooded_hills", name: "minecraft:wooded_hills", r: 17, g: 69, b: 18},
+        {key: "minecraft:taiga_hills", name: "minecraft:taiga_hills", r: 30, g: 69, b: 8},
+        {key: "minecraft:mountain_edge", name: "minecraft:mountain_edge", r: 110, g: 109, b: 109},
+        {key: "minecraft:jungle_hills", name: "minecraft:jungle_hills", r: 33, g: 184, b: 0},
+        {key: "minecraft:birch_forest_hills", name: "minecraft:birch_forest_hills", r: 28, g: 97, b: 29},
+        {key: "minecraft:snowy_taiga_hills", name: "minecraft:snowy_taiga_hills", r: 103, g: 117, b: 95},
+        {key: "minecraft:giant_tree_taiga_hills", name: "minecraft:giant_tree_taiga_hills", r: 23, g: 15, b: 3},
+        {key: "minecraft:badlands_plateau", name: "minecraft:badlands_plateau", r: 120, g: 83, b: 42},
+        {key: "minecraft:desert_lakes", name: "minecraft:desert_lakes", r: 97, g: 179, b: 186},
+        {key: "minecraft:taiga_mountains", name: "minecraft:taiga_mountains", r: 46, g: 30, b: 8},
+        {key: "minecraft:swamp_hills", name: "minecraft:swamp_hills", r: 32, g: 66, b: 50},
+        {key: "minecraft:modified_jungle", name: "minecraft:modified_jungle", r: 11, g: 227, b: 37},
+        {key: "minecraft:modified_jungle_edge", name: "minecraft:modified_jungle_edge", r: 71, g: 237, b: 91},
+        {key: "minecraft:tall_birch_hills", name: "minecraft:tall_birch_hills", r: 4, g: 74, b: 6},
+        {key: "minecraft:dark_forest_hills", name: "minecraft:dark_forest_hills", r: 0, g: 31, b: 1},
+        {key: "minecraft:snowy_taiga_mountains", name: "minecraft:snowy_taiga_mountains", r: 74, g: 99, b: 74},
+        {key: "minecraft:giant_spruce_taiga_hills", name: "minecraft:giant_spruce_taiga_hills", r: 13, g: 36, b: 7},
+        {key: "minecraft:modified_gravelly_mountains", name: "minecraft:modified_gravelly_mountains", r: 82, g: 89, b: 99},
+        {key: "minecraft:shattered_savanna_plateau", name: "minecraft:shattered_savanna_plateau", r: 124, g: 158, b: 60},
+        {key: "minecraft:modified_wooded_badlands_plateau", name: "minecraft:modified_wooded_badlands_plateau", r: 128, g: 98, b: 54},
+        {key: "minecraft:modified_badlands_plateau", name: "minecraft:modified_badlands_plateau", r: 145, g: 101, b: 600},
+        {key: "minecraft:bamboo_jungle_hills", name: "minecraft:bamboo_jungle_hills", r: 98, g: 140, b: 49}
     ]
 
     static registerVanillaBiomes(builder: BiomeBuilder){
         for (let biome of VanillaBiomes.biomes) {
-            const color = biome.color ?? this.colorToHex(biome.r, biome.g, biome.b)
+            if (!biome.color){
+                biome.color = this.colorToHex(biome.r, biome.g, biome.b)
+            }
+            const color = biome.color
             Biome.create(builder, biome.name, color, biome.key, true)
         }
 
