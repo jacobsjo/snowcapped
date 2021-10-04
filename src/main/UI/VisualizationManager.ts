@@ -1,5 +1,6 @@
 import { lerp2, TerrainShaper } from "deepslate";
 import * as L from "leaflet";
+import { last } from "lodash";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
 import { BiomeLayer } from "../Visualization/BiomeLayer";
@@ -67,6 +68,9 @@ export class VisualizationManger{
         const tooltip_layout = tooltip.getElementsByClassName("layout")[0] as HTMLElement
         const tooltip_biome = tooltip.getElementsByClassName("biome")[0] as HTMLElement
 
+        let lastPos: L.Point;
+        let lastY: number;
+
         this.map.addEventListener("click", (evt: L.LeafletMouseEvent) => {
           const idxs = this.getIdxs(evt.latlng)
           const lookup = this.builder.lookup(idxs.idx)
@@ -87,31 +91,39 @@ export class VisualizationManger{
 
         this.map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
           const idxs = this.getIdxs(evt.latlng);
-          const lookup =  this.builder.lookup(idxs.idx)
+          const lookup = idxs ? this.builder.lookup(idxs.idx) : undefined
 
           tooltip.style.left = (Math.min(evt.originalEvent.pageX + 20, document.body.clientWidth - tooltip.clientWidth)) + "px"
           tooltip.style.top = (evt.originalEvent.pageY + 15) + "px"
           tooltip.classList.remove("hidden")
 
-          tooltip_mode.src = "mode_" + lookup?.mode + ".png"
+          if (lookup) 
+            tooltip_mode.src = "mode_" + lookup?.mode + ".png"
 
           const pos = this.getPos(evt.latlng);
-          const y = (TerrainShaper.offset(TerrainShaper.point(idxs.values.continentalness, idxs.values.erosion, idxs.values.weirdness)) * 128 + 64).toFixed(0)
-          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0) + " -> Y: " + y
+          const y = idxs ? (TerrainShaper.offset(TerrainShaper.point(idxs.values.continentalness, idxs.values.erosion, idxs.values.weirdness)) * 128 + 64) : undefined
+          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0) + (y?(" -> Y: " + y.toFixed(0)):"")
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
           tooltip_biome.innerHTML = lookup?.biome?.name
 
+          //tooltip_position.classList.toggle("hidden", idxs === undefined)
           tooltip_mode.classList.toggle("hidden", lookup?.mode === undefined)
           tooltip_slice.parentElement.classList.toggle("hidden", lookup?.slice === undefined || lookup.slice instanceof LayoutElementUnassigned)
           tooltip_layout.parentElement.classList.toggle("hidden", lookup?.layout === undefined || lookup.layout instanceof LayoutElementUnassigned)
           tooltip_biome.parentElement.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof LayoutElementUnassigned)
 
-          UI.getInstance().splineDisplayManager.setPos({c: idxs.values.continentalness, e: idxs.values.erosion, w: idxs.values.weirdness})
-          UI.getInstance().splineDisplayManager.refresh()
+          if (idxs){
+            UI.getInstance().splineDisplayManager.setPos({c: idxs.values.continentalness, e: idxs.values.erosion, w: idxs.values.weirdness})
+            UI.getInstance().splineDisplayManager.refresh()
+          }
 
-          MenuManager.toggleAction("open-slice", lookup.slice !== undefined && !(lookup.slice instanceof LayoutElementUnassigned))
-          MenuManager.toggleAction("open-layout", lookup.layout !== undefined)
+          MenuManager.toggleAction("open-slice", lookup?.slice !== undefined && !(lookup?.slice instanceof LayoutElementUnassigned))
+          MenuManager.toggleAction("open-layout", lookup?.layout !== undefined)
+          MenuManager.toggleAction("copy", true)
+
+          lastPos = pos
+          lastY = y
         })
 
         this.map.addEventListener("mouseout", (evt: L.LeafletMouseEvent) => {
@@ -120,6 +132,14 @@ export class VisualizationManger{
           UI.getInstance().splineDisplayManager.refresh()
           MenuManager.toggleAction("open-slice", false)
           MenuManager.toggleAction("open-layout", false)
+          MenuManager.toggleAction("copy", false)
+        })
+
+        this.map.addEventListener("keydown", (evt: L.LeafletKeyboardEvent) => {
+          if (evt.originalEvent.key === "c" && evt.originalEvent.ctrlKey){
+  
+            navigator.clipboard.writeText("/execute in " + builder.dimensionName + " run tp @s " + lastPos.x.toFixed(0) + " " + (lastY + 10).toFixed(0) + " " + lastPos.y.toFixed(0))
+          }
         })
     }
 
