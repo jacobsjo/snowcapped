@@ -1,35 +1,46 @@
 body:not(.light){
-    --primary-bg-color: rgb(61, 61, 61);
-    --secondary-bg-color: rgb(43, 42, 42);
-    --tertiary-bg-color: rgb(31, 31, 31);
+    --primary-bg-color: rgb(39, 39, 39);
+    --secondary-bg-color: rgb(29, 29, 29);
+    --tertiary-bg-color: #0c0e0f;
+
+    --map-bg-color: rgb(94, 94, 94);
 
     --primary-button-color: rgb(68, 67, 67);
-    --primary-button-hover-color: #294441;
+    --primary-button-hover-color: rgb(107, 105, 105);
     --primary-button-hover-delete-color: rgb(126, 42, 42);
     --primary-button-open-color: #9c8446;
     --primary-button-selected-color: #2A9D8F;
-    --primary-button-border-color: rgb(46, 46, 46);
+    --primary-button-border-color: rgb(124, 124, 124);
 
     --secondary-button-color: rgb(32, 32, 32);
     --secondary-button-hover-color: rgb(61, 61, 61);
     --secondary-border-color: black;
 
-    --small-button-color: rgb(32, 32, 32);
-    --small-button-hover-color: rgb(61, 61, 61);
-
+    --small-button-color: #264653;
+    --small-button-border-color: rgb(12, 26, 65);
+    --small-button-hover-color: #33667a;
 
     --main-text-color: white;
-    --emph-text-color: #9c8446;
+    --emph-text-color: #c9a038;
     --secondary-text-color: gray;
 
     --input-color: var(--secondary-button-color);
     --input-border-color: rgb(20, 20, 20);
+
+    --water-color: rgb(123, 123, 255);
+    --terrain-color: #838383;
+    --factor-color: red;
+    --roughness-color: blue;
+    --weirdness-indicator-color: #32524e;;
+    --weirdness-indicator-border-color: #4b7e78;
+    color-scheme: dark;
 }
 
 body.light{
     --primary-bg-color: rgb(255, 255, 255);
     --secondary-bg-color: rgb(230, 230, 230);
     --tertiary-bg-color: #264653;
+    --map-bg-color: rgb(182, 182, 182);
 
     --primary-button-color: rgb(243, 243, 243);
     --primary-button-hover-color: #8EE1D7;
@@ -42,9 +53,9 @@ body.light{
     --secondary-button-hover-color: #619c95;
     --secondary-border-color: black;
 
-    --small-button-color: rgb(32, 32, 32);
-    --small-button-hover-color: rgb(121, 121, 121);
-
+    --small-button-color: #264653;
+    --small-button-border-color: rgb(12, 26, 65);
+    --small-button-hover-color: #33667a;
 
     --main-text-color: black;
     --emph-text-color: #660000;
@@ -52,6 +63,14 @@ body.light{
 
     --input-color: white;
     --input-border-color: rgb(20, 20, 20);
+
+    --water-color: rgb(123, 123, 255);
+    --terrain-color: #182d35;
+    --factor-color: red;
+    --roughness-color: blue;
+    --weirdness-indicator-color: #32524e;;
+    --weirdness-indicator-border-color: #4b7e78;;
+    color-scheme: light;
 }
 
 
@@ -99,6 +118,11 @@ body {
 
 #menu .button:hover {
     background-color: var(--primary-button-hover-color)
+}
+
+#menu .button img{
+    width: 13pt;
+    height: 14pt;
 }
 
 #menu .help{
@@ -263,11 +287,53 @@ body {
     overflow-x: hidden;
 }
 
-#sidebar #splineDisplay #splineDisplayCanvas {
+#sidebar #splineDisplay #splineDisplaySvg {
     background-color: var(--secondary-bg-color);
     height: 140pt;
     width: 100%;
 }
+
+#sidebar #splineDisplay #splineDisplaySvg .water {
+    fill: var(--water-color);
+}
+
+#sidebar #splineDisplay #splineDisplaySvg .terrain {
+    fill: var(--terrain-color);
+}
+
+#sidebar #splineDisplay #splineDisplaySvg .factor {
+    fill: none;
+    stroke: var(--factor-color);
+    stroke-width: 2pt;
+    stroke-dasharray: 5 8;
+    stroke-linecap: round;
+}
+
+
+#sidebar #splineDisplay #splineDisplaySvg .roughness {
+    fill: none;
+    stroke: var(--roughness-color);
+    stroke-width: 2pt;
+    stroke-dasharray: 5 8;
+    stroke-linecap: round;
+}
+
+#sidebar #splineDisplay #splineDisplaySvg .weirdnesses {
+    fill: var(--weirdness-indicator-color);
+    fill-opacity: 0.3;
+    stroke: var(--weirdness-indicator-border-color);
+    stroke-width: 1pt;
+    stroke-dasharray: 5 8;
+    stroke-linecap: round;
+}
+
+#sidebar #splineDisplay #splineDisplaySvg .weirdness {
+    stroke: var(--weirdness-indicator-border-color);
+    stroke-width: 2pt;
+    stroke-dasharray: 5 5;
+    stroke-linecap: round;
+}
+
 
 #sidebar .sidebar_entry:not(.hidden) {
     width: 222pt;
@@ -383,6 +449,7 @@ body {
 
 #sidebar .sidebar_entry.dragged {
     background-color: var(--secondary-bg-color);
+    border: 0pt;
 }
 
 #sidebar .sidebar_entry.vanilla_biome {
@@ -617,7 +684,7 @@ body {
 #visualization_map {
     height: 100%;
     width: 100%;
-    background: var(--secondary-bg-color) url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" ><rect x="200" width="200" height="200" /><rect y="200" width="200" height="200" /></svg>');
+    background: var(--map-bg-color) url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" ><rect x="200" width="200" height="200" /><rect y="200" width="200" height="200" /></svg>');
     background-size: 30px 30px;
 }
 
@@ -642,7 +709,7 @@ body {
 }
 
 #visualization #toggleIsolinesButton:hover{
-    background-color: var(--secondary-button-hover-color);
+    background-color: var(--small-button-hover-color);
 }
 
 /* Settings */
@@ -712,8 +779,8 @@ body {
 }
 
 #settings button{
-    background-color: var(--primary-button-color);
-    border: 1pt solid var(--primary-button-border-color);
+    background-color: var(--small-button-color);
+    border: 1pt solid var(--small-button-border-color);
     border-radius: 5pt;
     height: 20pt;
     padding-left: 5pt;
@@ -722,7 +789,7 @@ body {
 }
 
 #settings button:hover {
-    background-color: var(--primary-button-hover-color);
+    background-color: var(--small-button-hover-color);
 }
 
 #settings .setting label button{

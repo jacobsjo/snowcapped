@@ -39,6 +39,7 @@
                 <div class="help-entry hidden" id="remove"><span class="b">[Delete]</span> Remove</div>
                 <div class="help-entry hidden" id="copy"><span class="b">[Ctrl]+[C]</span> Copy Teleport Command</div>
             </div>
+            <div class="button" id="toggleDarkmodeButton"><img src="moon.svg" /></div>
         </div>
         <div id="content">
             <div class="main_content">
@@ -50,7 +51,14 @@
                         <div class="closable vertical" id="splineDisplay">
                             <div class="button"></div>
                             <div class="content">
-                                <canvas id="splineDisplayCanvas" width="500" height="280"></canvas>
+                                <svg id="splineDisplaySvg" width="500" height="280">
+                                    <rect class="water" />
+                                    <path class="terrain" />
+                                    <path class="factor" />
+                                    <path class="roughness" />
+                                    <g class="weirdnesses" />
+                                    <line class="weirdness" />
+                                </svg>
                             </div>
                         </div>
                     </div>

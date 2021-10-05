@@ -238,6 +238,11 @@ export class GridEditor {
     }
 
     private drawRect() {
+        const style = getComputedStyle(document.body)
+        const bgColor = style.getPropertyValue('--secondary-bg-color')
+        const mainColor = style.getPropertyValue('--main-text-color')
+
+
         const width = this.canvas.width
         const height = this.canvas.height
         const cx_min = 0.07 * width
@@ -254,13 +259,13 @@ export class GridEditor {
         const y_max = this.ys[this.ys.length - 1]
 
 
-        ctx.fillStyle = "#222222"
+        ctx.fillStyle = bgColor
         ctx.fillRect(cx_min, cy_min, size_x, size_y)
 
         for (let ix = 0; ix < this.xs.length; ix++) {
             const x = this.xs[ix]
 
-            ctx.strokeStyle = (this.xs[ix - 1] === x) ? "red" : "white"
+            ctx.strokeStyle = (this.xs[ix - 1] === x) ? "red" : mainColor
             ctx.lineWidth = 3
 
             ctx.setLineDash([1, 0])
@@ -275,10 +280,10 @@ export class GridEditor {
             ctx.lineTo((x / 2.4 + 0.5) * size_x + cx_min, (y_min / 2.4 + 0.5) * size_y + cy_min)
             ctx.stroke()
 
-            ctx.fillStyle = "#222222"
+            ctx.fillStyle = bgColor
             ctx.fillRect((x / 2.4 + 0.5) * size_x + cx_min - 40, cy_min - 60, 80, 55)
 
-            ctx.fillStyle = (this.xs[ix - 1] === x) ? "red" : "white"
+            ctx.fillStyle = (this.xs[ix - 1] === x) ? "red" : mainColor
             ctx.font = '25px serif';
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"
@@ -304,7 +309,7 @@ export class GridEditor {
 
         for (let iy = 0; iy < this.ys.length; iy++) {
             const y = this.ys[iy]
-            ctx.strokeStyle = (this.ys[iy - 1] === y) ? "red" : "white"
+            ctx.strokeStyle = (this.ys[iy - 1] === y) ? "red" : mainColor
             ctx.lineWidth = 3
 
             ctx.setLineDash([1, 0])
@@ -319,10 +324,10 @@ export class GridEditor {
             ctx.lineTo((x_min / 2.4 + 0.5) * size_x + cx_min, (y / 2.4 + 0.5) * size_y + cy_min)
             ctx.stroke()
 
-            ctx.fillStyle = "#222222"
+            ctx.fillStyle = bgColor
             ctx.fillRect(cx_min - 85, (y / 2.4 + 0.5) * size_y + cy_min - 27.5, 80, 55)
 
-            ctx.fillStyle = (this.ys[iy - 1] === y) ? "red" : "white"
+            ctx.fillStyle = (this.ys[iy - 1] === y) ? "red" : mainColor
             ctx.font = '25px serif';
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"

@@ -10,6 +10,7 @@ export class MenuManager {
     private static saveButton: HTMLElement
     private static exportButton: HTMLElement
     private static settingsButton: HTMLElement
+    private static toggleDarkmodeButton: HTMLElement
 
     static createClickHandlers() {
         this.loadVanillaButton = document.getElementById('loadVanillaButton')
@@ -17,6 +18,7 @@ export class MenuManager {
         this.saveButton = document.getElementById('saveButton')
         this.exportButton = document.getElementById('exportButton')
         this.settingsButton = document.getElementById('settingsButton')
+        this.toggleDarkmodeButton = document.getElementById('toggleDarkmodeButton')
 
         this.loadVanillaButton.onclick = (evt: Event) => {
             if (!this.confirmUnsavedChanges())
@@ -87,6 +89,12 @@ export class MenuManager {
             const settingsOpen = !document.getElementById("settings").classList.toggle("hidden")
             document.getElementById("editor").classList.toggle("hidden", settingsOpen)
             this.settingsButton.classList.toggle("open", settingsOpen)
+        }
+
+        this.toggleDarkmodeButton.onclick = (evt: Event) => {
+            const isLight = document.body.classList.toggle("light")
+            ;(this.toggleDarkmodeButton.children[0] as (HTMLImageElement)).src = isLight ? "moon.svg" : "sun.svg"
+            UI.getInstance().refresh()
         }
 
         window.onbeforeunload = (evt: BeforeUnloadEvent) => {

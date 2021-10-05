@@ -1,3 +1,4 @@
+import * as d3 from "d3";
 import { Climate, TerrainShaper } from "deepslate";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 
@@ -25,6 +26,95 @@ export class SplineDisplayManager {
     }
 
     refresh() {
+        let waterLevel = 0
+
+        const svg = d3.select("#splineDisplaySvg")
+        const width = parseInt(svg.style("width"), 10);
+        const height = parseInt(svg.style("height"), 10);
+
+        const xScale = d3.scaleLinear()
+            .domain([-1, 1])
+            .range([0, width])
+
+        const offsetScale = d3.scaleLinear()
+            .domain([-0.3, 1.2])
+            .range([height, 0])
+
+        const factorScale = d3.scaleLinear()
+            .domain([800, 0])
+            .range([height, 0])
+
+        const roughnessScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([height - 10, 0])
+
+        console.log(height)
+
+        const offsets: [number, number][] = []
+        const factors: [number, number][] = []
+        const roughnesses: [number, number][] = []
+        if (this.pos) {
+            for (let w = -1; w <= 1.01; w += 0.05) {
+                const point = TerrainShaper.point(this.pos.c, this.pos.e, w)
+                offsets.push([w, TerrainShaper.offset(point)])
+                factors.push([w, TerrainShaper.factor(point)])
+                roughnesses.push([w, TerrainShaper.peaks(point)])
+            }
+        } else {
+            waterLevel = -1.5
+        }
+
+        svg.select("rect.water")
+            .attr("x", 0)
+            .attr("y", offsetScale(waterLevel))
+            .attr("width", width)
+            .attr("height", height - offsetScale(waterLevel))
+
+        const terrain = d3.area()
+            .x(d => xScale(d[0]))
+            .y0(d => offsetScale(d[1]))
+            .y1(d => offsetScale(-1.5))
+            .curve(d3.curveCatmullRom.alpha(.5))
+
+        const factor = d3.line()
+            .x(d => xScale(d[0]))
+            .y(d => factorScale(d[1]))
+            .curve(d3.curveCatmullRom.alpha(.5))
+
+        const roughness = d3.line()
+            .x(d => xScale(d[0]))
+            .y(d => roughnessScale(d[1]))
+            .curve(d3.curveCatmullRom.alpha(.5))
+
+
+        svg.select("path.terrain")
+            .datum(offsets)
+            .attr('d', terrain)
+
+        svg.select("path.factor")
+            .datum(factors)
+            .attr('d', factor)
+
+        svg.select("path.roughness")
+            .datum(roughnesses)
+            .attr('d', roughness)
+
+        svg.select("g.weirdnesses")
+            .selectAll("rect")
+            .data(this.weirdnesses)
+            .join("rect")
+            .attr("x", w => xScale(w.min))
+            .attr("y", -5)
+            .attr("width", w => xScale(w.max) - xScale(w.min))
+            .attr("height", height + 10)
+
+        svg.select("line.weirdness")
+            .attr("x1", xScale(this.pos?.w ?? -2))
+            .attr("x2", xScale(this.pos?.w ?? -2))
+            .attr("y1", -5)
+            .attr("y2", height + 5)
+
+        /*
         const spline_ctx = this.splineCanvas.getContext('2d')
         const scw = this.splineCanvas.width
         const sch = this.splineCanvas.height
@@ -73,21 +163,21 @@ export class SplineDisplayManager {
         spline_ctx.lineWidth = 1
 
         this.weirdnesses.forEach(weirdness => {
-                spline_ctx.beginPath()
-                spline_ctx.rect((weirdness.min + 1) * 0.5 * scw, -2, (weirdness.max - weirdness.min) * 0.5 * scw, sch + 4)
-                spline_ctx.stroke()
-                spline_ctx.fill()
+            spline_ctx.beginPath()
+            spline_ctx.rect((weirdness.min + 1) * 0.5 * scw, -2, (weirdness.max - weirdness.min) * 0.5 * scw, sch + 4)
+            spline_ctx.stroke()
+            spline_ctx.fill()
         })
 
-        if (this.pos?.w){
+        if (this.pos?.w) {
             spline_ctx.strokeStyle = "rgb(255, 100, 255)"
             spline_ctx.lineWidth = 2
-            spline_ctx.setLineDash([1,0])
+            spline_ctx.setLineDash([1, 0])
             spline_ctx.beginPath()
             spline_ctx.moveTo((this.pos.w + 1) * 0.5 * scw, -2)
             spline_ctx.lineTo((this.pos.w + 1) * 0.5 * scw, sch + 4)
             spline_ctx.stroke()
-        }
+        }*/
     }
 
 }
