@@ -48,8 +48,6 @@ export class SplineDisplayManager {
             .domain([0, 100])
             .range([height - 10, 0])
 
-        console.log(height)
-
         const offsets: [number, number][] = []
         const factors: [number, number][] = []
         const roughnesses: [number, number][] = []

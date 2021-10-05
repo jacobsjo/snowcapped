@@ -18,6 +18,10 @@ export class SidebarManager {
     private bottom_spacer: HTMLElement
     private search_bar: HTMLInputElement
 
+    private dragType: string;
+    private dragKey: string;
+    private lastDragedOverDiv: HTMLElement;
+
     constructor(builder: BiomeBuilder) {
         this.sidebar = document.getElementById("sidebar_menu")
         this.builder = builder
@@ -74,7 +78,7 @@ export class SidebarManager {
 
         const hide_button = document.createElement("img") as HTMLImageElement
         hide_button.classList.add("button", "hide")
-        if (!this.builder.slices.every(s => !s.hidden)){
+        if (!this.builder.slices.every(s => !s.hidden)) {
             hide_button.classList.add("enabled")
         }
         hide_button.src = "eye.svg"
@@ -139,7 +143,7 @@ export class SidebarManager {
 
         const hide_layout_button = document.createElement("img") as HTMLImageElement
         hide_layout_button.classList.add("button", "hide")
-        if (!this.builder.layouts.every(s => !s.hidden)){
+        if (!this.builder.layouts.every(s => !s.hidden)) {
             hide_layout_button.classList.add("enabled")
         }
         hide_layout_button.src = "eye.svg"
@@ -189,7 +193,7 @@ export class SidebarManager {
 
         const hide_biome_button = document.createElement("img") as HTMLImageElement
         hide_biome_button.classList.add("button", "hide")
-        if (!this.builder.biomes.every(s => !s.hidden)){
+        if (!this.builder.biomes.every(s => !s.hidden)) {
             hide_biome_button.classList.add("enabled")
         }
         hide_biome_button.src = "eye.svg"
@@ -199,7 +203,7 @@ export class SidebarManager {
             UI.getInstance().refresh()
             evt.stopPropagation()
         }
-        biomeHeader.appendChild(hide_biome_button)        
+        biomeHeader.appendChild(hide_biome_button)
 
         this.sidebar.appendChild(biomeHeader)
 
@@ -349,7 +353,7 @@ export class SidebarManager {
 
             const hide_button = document.createElement("img") as HTMLImageElement
             hide_button.classList.add("button", "hide")
-            if (element.hidden){
+            if (element.hidden) {
                 hide_button.classList.add("enabled")
             }
             hide_button.src = "eye.svg"
@@ -402,8 +406,8 @@ export class SidebarManager {
         }
 
         element_div.ondragstart = (evt) => {
-            evt.dataTransfer.setData("type", c)
-            evt.dataTransfer.setData("key", element.getKey())
+            this.dragType = c
+            this.dragKey = element.getKey()
             element_div.classList.add("dragged")
         }
 
@@ -412,18 +416,18 @@ export class SidebarManager {
         }
 
         element_div.ondragover = (evt) => {
-            if (evt.dataTransfer.getData("type") === c && evt.dataTransfer.getData("key") !== element.getKey()) {
+            if (this.dragType === c && this.dragKey !== element.getKey()) {
                 var self_id, other_id
 
                 if (element instanceof Slice) {
                     self_id = this.builder.slices.indexOf(element)
-                    other_id = this.builder.slices.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                    other_id = this.builder.slices.findIndex(e => e.getKey() === this.dragKey)
                 } else if (element instanceof Layout) {
                     self_id = this.builder.layouts.indexOf(element)
-                    other_id = this.builder.layouts.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                    other_id = this.builder.layouts.findIndex(e => e.getKey() === this.dragKey)
                 } else if (element instanceof Biome) {
                     self_id = this.builder.biomes.indexOf(element)
-                    other_id = this.builder.biomes.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
+                    other_id = this.builder.biomes.findIndex(e => e.getKey() === this.dragKey)
                 }
 
                 if (self_id < other_id) {
@@ -432,33 +436,42 @@ export class SidebarManager {
                     element_div.classList.add("dragover_down")
                 }
 
+                if (this.lastDragedOverDiv != element_div) {
+                    this.lastDragedOverDiv?.classList?.remove("dragover_up", "dragover_down")
+                    this.lastDragedOverDiv = element_div
+                }
                 evt.preventDefault()
             }
         }
 
         element_div.ondragleave = (evt) => {
-            element_div.classList.remove("dragover_up", "dragover_down")
+            setTimeout(() => element_div.classList.remove("dragover_up", "dragover_down"), 20)
+            evt.preventDefault()
         }
 
         element_div.ondrop = (evt) => {
             element_div.classList.remove("dragover_up", "dragover_down")
 
-            var self_id, other_id
+            if (this.dragType === c && this.dragKey !== element.getKey()) {
+                var self_id, other_id
 
-            if (element instanceof Slice) {
-                self_id = this.builder.slices.indexOf(element)
-                other_id = this.builder.slices.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
-                this.builder.slices.splice(self_id, 0, this.builder.slices.splice(other_id, 1)[0])
-            } else if (element instanceof Layout) {
-                self_id = this.builder.layouts.indexOf(element)
-                other_id = this.builder.layouts.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
-                this.builder.layouts.splice(self_id, 0, this.builder.layouts.splice(other_id, 1)[0])
-            } else if (element instanceof Biome) {
-                self_id = this.builder.biomes.indexOf(element)
-                other_id = this.builder.biomes.findIndex(e => e.getKey() === evt.dataTransfer.getData("key"))
-                this.builder.biomes.splice(self_id, 0, this.builder.biomes.splice(other_id, 1)[0])
+                if (element instanceof Slice) {
+                    self_id = this.builder.slices.indexOf(element)
+                    other_id = this.builder.slices.findIndex(e => e.getKey() === this.dragKey)
+                    this.builder.slices.splice(self_id, 0, this.builder.slices.splice(other_id, 1)[0])
+                } else if (element instanceof Layout) {
+                    self_id = this.builder.layouts.indexOf(element)
+                    other_id = this.builder.layouts.findIndex(e => e.getKey() === this.dragKey)
+                    this.builder.layouts.splice(self_id, 0, this.builder.layouts.splice(other_id, 1)[0])
+                } else if (element instanceof Biome) {
+                    self_id = this.builder.biomes.indexOf(element)
+                    other_id = this.builder.biomes.findIndex(e => e.getKey() === this.dragKey)
+                    this.builder.biomes.splice(self_id, 0, this.builder.biomes.splice(other_id, 1)[0])
+                }
+                UI.getInstance().refresh()
+
+                evt.preventDefault()
             }
-            UI.getInstance().refresh()
         }
 
         element_div.onmousemove = () => {
