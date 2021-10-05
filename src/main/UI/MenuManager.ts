@@ -6,6 +6,7 @@ import { UI } from "./UI"
 
 export class MenuManager {
     private static loadVanillaButton: HTMLElement
+    private static loadEmptyButton: HTMLElement
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
     private static exportButton: HTMLElement
@@ -14,6 +15,7 @@ export class MenuManager {
 
     static createClickHandlers() {
         this.loadVanillaButton = document.getElementById('loadVanillaButton')
+        this.loadEmptyButton = document.getElementById('loadEmptyButton')
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
         this.exportButton = document.getElementById('exportButton')
@@ -26,13 +28,28 @@ export class MenuManager {
 
             UI.getInstance().builder.hasChanges = false
 
-            fetch('vanilla_overworld_biome_builder.json').then( r => r.text()).then(jsonString => {
+            fetch('minecraft_overworld.snowcapped.json').then( r => r.text()).then(jsonString => {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().visualizationManager.updateNoises()
                 UI.getInstance().openElement = "assign_slices"
                 UI.getInstance().refresh()
             })
         }
+
+        this.loadEmptyButton.onclick = (evt: Event) => {
+            if (!this.confirmUnsavedChanges())
+                return
+
+            UI.getInstance().builder.hasChanges = false
+
+            fetch('empty.snowcapped.json').then( r => r.text()).then(jsonString => {
+                UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
+                UI.getInstance().visualizationManager.updateNoises()
+                UI.getInstance().openElement = "assign_slices"
+                UI.getInstance().refresh()
+            })
+        }
+
 
         this.openButton.onclick = (evt: Event) => {
             if (!this.confirmUnsavedChanges())
@@ -42,6 +59,7 @@ export class MenuManager {
 
             const input = document.createElement('input') as HTMLInputElement
             input.type = 'file'
+            input.accept = '.snowcapped.json'
 
             input.onchange = (evt) => {
                 const file = (evt.target as HTMLInputElement).files[0]

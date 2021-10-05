@@ -49,24 +49,18 @@ export class BiomeBuilder{
     seed: bigint = BigInt("1")
     dimensionName: string = "minecraft:overworld"
 
-    constructor(continentalnesses: [string, Climate.Param][], erosions: [string,Climate.Param][], weirdnesses: [string,Climate.Param][], temperatures: [string,Climate.Param][], humidities: [string,Climate.Param][]){
-        this.continentalnesses = continentalnesses
-        this.erosions = erosions
-        this.weirdnesses = weirdnesses.map(w => [w[0], w[1], "unassigned", "A"])
-        this.temperatures = temperatures
-        this.humidities = humidities
-
+    constructor(json: any){
         this.renderedElements = new Map<string, LayoutElement | Slice>();
         this.layoutElements = new Map<string, LayoutElement>();
         this.vanillaBiomes = new Map<string, Biome>();
         this.slices = []
         this.layouts = []
         this.biomes = []
-
-
         
         this.layoutElementDummy = LayoutElementDummy.create(this)
         this.layoutElementUnassigned = LayoutElementUnassigned.create(this)
+
+        this.loadJSON(json)
     }
 
     loadJSON(json: any){

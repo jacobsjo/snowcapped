@@ -59,7 +59,7 @@ export class SplineDisplayManager {
                 roughnesses.push([w, TerrainShaper.peaks(point)])
             }
         } else {
-            waterLevel = -1.5
+            waterLevel = -0.3
         }
 
         svg.select("rect.water")

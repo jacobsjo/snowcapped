@@ -19,13 +19,18 @@ body:not(.light){
     --small-button-color: #264653;
     --small-button-border-color: rgb(12, 26, 65);
     --small-button-hover-color: #33667a;
+    --small-button-text-color: white;
 
     --main-text-color: white;
     --emph-text-color: #c9a038;
     --secondary-text-color: gray;
 
-    --input-color: var(--secondary-button-color);
-    --input-border-color: rgb(20, 20, 20);
+    --help-text-color: lightgray;
+    --help-emph-text-color: #8a743d;
+
+
+    --input-color: rgb(46, 46, 46);
+    --input-border-color: rgb(129, 129, 129);
 
     --water-color: rgb(123, 123, 255);
     --terrain-color: #838383;
@@ -56,10 +61,14 @@ body.light{
     --small-button-color: #264653;
     --small-button-border-color: rgb(12, 26, 65);
     --small-button-hover-color: #33667a;
+    --small-button-text-color: white;
 
     --main-text-color: black;
     --emph-text-color: #660000;
     --secondary-text-color: gray;
+
+    --help-text-color: white;
+    --help-emph-text-color: #dfaa9d;
 
     --input-color: white;
     --input-border-color: rgb(20, 20, 20);
@@ -102,14 +111,45 @@ body {
     background-color: var(--tertiary-bg-color);
 }
 
+#menu .logo{
+    color: white;
+    padding: 3pt;
+}
+
+#menu .logo img{
+    height: 20pt;
+}
+
 #menu .button {
     height: auto;
     background-color: var(--primary-button-color);
-    padding: 3pt 10pt;
+    border-color: var(--primary-button-border-color);
+    border-radius: 3pt;
+    padding: 3pt 5pt;
     margin: 3pt;
     color: var(--emph-text-color);
     cursor: pointer;
+    position: relative;
 }
+
+#menu .button .dropdown{
+    position: absolute;
+    z-index: 100000;
+    background-color: var(--tertiary-bg-color);
+    border-color: var(--secondary-border-color);
+    border-radius: 3pt;
+    top: 22pt;
+    left: 0pt;
+}
+
+#menu .button:not(:hover) .dropdown{
+    display: none;
+}
+
+#menu .button .dropdown .button{
+    white-space: nowrap;
+}
+
 
 #menu .button.open {
     background-color: var(--primary-button-open-color)
@@ -121,8 +161,12 @@ body {
 }
 
 #menu .button img{
-    width: 13pt;
-    height: 14pt;
+    width: 16pt;
+    height: 16pt;
+}
+
+body:not(.light) #menu .button img{
+    filter: invert();
 }
 
 #menu .help{
@@ -135,13 +179,13 @@ body {
 
 #menu .help .help-entry{
     white-space: nowrap;
-    color: lightgray;  /* TODO */
+    color: var(--help-text-color);  /* TODO */
     padding: 5pt;
     padding-right: 15pt;
 }
 
 #menu .help .help-entry .b{
-    color: rgb(156, 125, 90); /* TODO */
+    color: var(--help-emph-text-color); /* TODO */
 }
 
 /* Editor */
@@ -785,7 +829,7 @@ body {
     height: 20pt;
     padding-left: 5pt;
     padding-right: 5pt;
-    color: var(--main-text-color)
+    color: var(--small-button-text-color);
 }
 
 #settings button:hover {
@@ -796,11 +840,14 @@ body {
     width: 20pt;
     margin-right: 5pt;
     background-color: var(--small-button-color);
+    border-color: var(--input-border-color);
+    border-width: 2pt;
 
 }
 
 #settings .setting label button.delete{
     border-radius: 0pt 5pt 5pt 0pt;
+    border-left-width: 0pt;
 }
 
 

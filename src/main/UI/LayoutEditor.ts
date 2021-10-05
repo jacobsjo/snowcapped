@@ -20,7 +20,6 @@ export class LayoutEditor {
     private canvas: HTMLCanvasElement
 
     private mouse_position: { mouse_x: number, mouse_y: number }
-    private splineCanvas: HTMLCanvasElement
     layout: Layout | Slice
 
     constructor(builder: BiomeBuilder) {
@@ -28,7 +27,6 @@ export class LayoutEditor {
 
         this.title = document.getElementById("layoutName") as HTMLInputElement
         this.canvas = document.getElementById("layoutEditorCanvas") as HTMLCanvasElement
-        this.splineCanvas = document.getElementById("splineDisplayCanvas") as HTMLCanvasElement
 
         const tooltip = document.getElementById("layoutEditorTooltip")
         const tooltip_name = tooltip.getElementsByClassName("name")[0] as HTMLElement
@@ -46,8 +44,6 @@ export class LayoutEditor {
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, this.mouse_position.mouse_x, this.mouse_position.mouse_y)
             if (ids === undefined) {
                 tooltip.classList.add("hidden")
-                const spline_ctx = this.splineCanvas.getContext('2d')
-                spline_ctx.clearRect(0, 0, this.splineCanvas.width, this.splineCanvas.height);
                 MenuManager.toggleAction("paint", false)
                 MenuManager.toggleAction("paint-mode", false)
                 MenuManager.toggleAction("open", false)

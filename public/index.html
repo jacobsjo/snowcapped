@@ -20,11 +20,17 @@
 <body class="light">
     <div id="main">
         <div id="menu">
-            <div class="button" id="loadVanillaButton">Load Vanilla Overworld</div>
-            <div class="button" id="openButton">Open</div>
-            <div class="button" id="saveButton" >Save</div>
-            <div class="button" id="exportButton">Export</div>
-            <div class="button" id="settingsButton">Settings</div>
+            <div class="logo"><img src="header.svg" /></div>
+            <div class="button" id="newButton"><img label="New" src="blank-file.svg" />
+                <div class="dropdown">
+                    <div class="button" id="loadEmptyButton">New: Empty</div>
+                    <div class="button" id="loadVanillaButton">New: Vanilla Overworld</div>
+                </div>
+            </div>
+            <div class="button" id="openButton" title="Open"><img src="open-file-folder.svg" /></div>
+            <div class="button" id="saveButton" title="Save"><img src="save.svg" /></div>
+            <div class="button" id="exportButton" title="Export dimension.json"><img src="export-file.svg" /></div>
+            <div class="button" id="settingsButton" title="Settings"s><img src="settings-gear.svg" /></div>
             <div class="help" id="help"> 
                 <div class="help-entry hidden" id="select"><span class="b">[Left Click]</span> Select</div>
                 <div class="help-entry hidden" id="paint"><span class="b">[Left Click]</span> Paint</div>
