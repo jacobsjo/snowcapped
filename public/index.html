@@ -52,7 +52,33 @@
                 <div id="editor">
                     <div id="sidebar">
                         <div id="sidebar_menu">
-
+                            <div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices</div>
+                            <div class="spacer"></div>
+                            <div class="sidebar_header">
+                                <div class="name">Slices: </div>
+                                <img class="button" id="add_slices_button" title="Add Slice" src="add.svg">
+                                <img class="button hide" id="hide_all_slices_button" title="Hide/Show all Slices" src="eye.svg">
+                            </div>
+                            <div class="sidebar_entry_list" id="slices"></div>
+                            <div class="spacer"></div>
+                            <div class="sidebar_header">
+                                <div class="name">Layouts: </div>
+                                <img class="button" id="add_layout_button" title="Add Layout" src="add.svg">
+                                <img class="button" id="edit_layout_grid_button" title="Edit Layout Grid" src="grid.svg">
+                                <img class="button hide" id="hide_all_layouts_button" title="Hide/Show all Slices" src="eye.svg">
+                            </div>
+                            <div class="sidebar_entry_list" id="layouts"></div>
+                            <div class="spacer"></div>
+                            <div class="sidebar_header">
+                                <div class="name">Biomes: </div>
+                                <img class="button" id="add_biome_button" title="Add Biome" src="add.svg">
+                                <img class="button hide" id="hide_all_biomes_button" title="Hide/Show all Biomes" src="eye.svg">
+                            </div>
+                            <input type="text" placeholder="Seach..." class="search_bar" title="Seach for Biomes" id="biome_search_bar">
+                            <div class="sidebar_entry_list" id="biomes"></div>
+                            <div class="label">Unused Vanilla Biomes</div>                            
+                            <div class="sidebar_entry_list" id="vanilla_biomes"></div>
+                            <div class="spacer" id="sidebar_bottom_spacer" style="height: 0px;"></div>
                         </div>
                         <div class="closable vertical" id="splineDisplay">
                             <div class="button"></div>

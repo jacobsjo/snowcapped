@@ -1,493 +1,336 @@
+import * as d3 from "d3";
+
 import { Biome } from "../BuilderData/Biome"
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
 import { Layout } from "../BuilderData/Layout"
 import { LayoutElement } from "../BuilderData/LayoutElement"
 import { Slice } from "../BuilderData/Slice"
-import { LayoutEditor } from "./LayoutEditor"
-import { MenuManager } from "./MenuManager"
 import { UI } from "./UI"
 
-
-
 export class SidebarManager {
-    private sidebar: HTMLElement
     private builder: BiomeBuilder
-
-    private layout_divs: HTMLElement[]
-    private biome_divs: HTMLElement[]
-    private bottom_spacer: HTMLElement
-    private search_bar: HTMLInputElement
 
     private dragType: string;
     private dragKey: string;
     private lastDragedOverDiv: HTMLElement;
 
+    private openedElement: { type: string, key?: string } = { type: "assign_slices" };
+    private selectedElement: { type: string, key: string };
+
+
     constructor(builder: BiomeBuilder) {
-        this.sidebar = document.getElementById("sidebar_menu")
+        const sidebar = d3.select("#sidebar_menu")
         this.builder = builder
-    }
 
-    refresh() {
-        const lastSearch = (this.sidebar.getElementsByClassName("search_bar")?.[0] as HTMLInputElement)?.value ?? ""
+        sidebar.select("#assign_slices_button")
+            .on("click", (evt: Event) => {
+                this.openElement({ type: "assign_slices" })
+                evt.preventDefault()
+            })
+            .on("contextmenu", (evt: Event) => {
+                this.openElement({ type: "assign_slices" })
+                evt.preventDefault()
+            })
 
-        this.sidebar.innerHTML = ""
-        this.layout_divs = []
-        this.biome_divs = []
+        sidebar.select("#add_slices_button")
+            .on("click", (evt: Event) => {
+                const slice = Slice.create(this.builder, "New Slice", "unassigned")
+                this.builder.hasChanges = true
+                this.openElement({ type: "slice", key: slice.getKey() })
+                evt.stopPropagation()
+            })
 
-        // Add Assign splices Button
-        const assignSplicesButton = document.createElement("div")
-        assignSplicesButton.classList.add("sidebar_entry")
-        assignSplicesButton.classList.add("assign_slices_button")
-        if (UI.getInstance().openElement === "assign_slices") {
-            assignSplicesButton.classList.add("open")
-        }
-        assignSplicesButton.innerHTML = "Assign Slices"
-        assignSplicesButton.onclick = (evt: Event) => {
-            UI.getInstance().selectedElement = ""
-            UI.getInstance().openElement = "assign_slices"
-            UI.getInstance().refresh()
-            evt.preventDefault()
-        }
-        assignSplicesButton.oncontextmenu = assignSplicesButton.onclick
-        this.sidebar.appendChild(assignSplicesButton)
+        sidebar.select("#hide_all_slices_button")
+            .on("click", (evt: Event) => {
+                const h = this.builder.slices.every(s => !s.hidden)
+                this.builder.slices.forEach(s => s.hidden = h)
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            })
 
-        // Add spacer
-        const spacer0 = document.createElement("div")
-        spacer0.classList.add("spacer")
-        this.sidebar.appendChild(spacer0)
+        sidebar.select("#add_layout_button")
+            .on("click", (evt: Event) => {
+                const layout = Layout.create(this.builder, "New Layout")
+                this.builder.hasChanges = true
+                this.openElement({ type: "layout", key: layout.getKey() })
+                evt.stopPropagation()
+            })
 
-        const slicesHeader = document.createElement("div")
-        slicesHeader.classList.add("sidebar_header")
+        sidebar.select("#hide_all_layouts_button")
+            .on("click", (evt: Event) => {
+                const h = this.builder.layouts.every(s => !s.hidden)
+                this.builder.layouts.forEach(s => s.hidden = h)
+                this.builder.hasChanges = true
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            })
 
-        const slicesHeaderName = document.createElement("div")
-        slicesHeaderName.classList.add("name")
-        slicesHeaderName.innerHTML = "Slices: "
-        slicesHeader.appendChild(slicesHeaderName)
+        sidebar.select("#edit_layout_grid_button")
+            .on("click", (evt: Event) => {
+                this.openElement({ type: "modify_layout" })
+                this.builder.hasChanges = true
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            })
 
-        const addSlicesButton = document.createElement("img")
-        addSlicesButton.classList.add("button")
-        addSlicesButton.src = "add.svg"
-        addSlicesButton.onclick = (evt: Event) => {
-            const slice = Slice.create(this.builder, "New Slice", "unassigned")
-            this.builder.hasChanges = true
-            UI.getInstance().openElement = slice.getKey()
-            UI.getInstance().refresh()
-            this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
-        }
-        slicesHeader.appendChild(addSlicesButton)
+        sidebar.select("#add_biome_button")
+            .on("click", (evt: Event) => {
+                const biome_name = prompt("Input biome name:", "new:biome")
+                if (biome_name === null)
+                    return
+                const biome = Biome.create(this.builder, biome_name, "#888888")
+                this.builder.hasChanges = true
+                UI.getInstance().refresh()
+                this.resizeBottomSpacer(sidebar)
+                evt.stopPropagation()
+            })
 
-        const hide_button = document.createElement("img") as HTMLImageElement
-        hide_button.classList.add("button", "hide")
-        if (!this.builder.slices.every(s => !s.hidden)) {
-            hide_button.classList.add("enabled")
-        }
-        hide_button.src = "eye.svg"
-        hide_button.onclick = (evt) => {
-            const h = this.builder.slices.every(s => !s.hidden)
-            this.builder.slices.forEach(s => s.hidden = h)
-            UI.getInstance().refresh()
-            evt.stopPropagation()
-        }
-        slicesHeader.appendChild(hide_button)
+        sidebar.select("#hide_all_biomes_button")
+            .on("click", (evt: Event) => {
+                const h = this.builder.biomes.every(s => !s.hidden)
+                this.builder.biomes.forEach(s => s.hidden = h)
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            })
 
-        this.sidebar.appendChild(slicesHeader)
+        const search_bar = sidebar.select("#biome_search_bar")
+        search_bar.on("input", (evt: Event) => {
+            sidebar.select("#sidebar_bottom_spacer")
+                .style("height", "10000pt");
 
-        // Add Slices
-        this.builder.slices.forEach(slice => {
-            const s = this.createElementDiv(slice, "slice")
+            (sidebar.select(".sidebar_entry_list#biomes")
+                .selectAll(".sidebar_entry") as d3.Selection<d3.BaseType, Slice | LayoutElement, d3.BaseType, unknown>)
+                .data(this.builder.biomes, (d: Slice | LayoutElement) => d.getKey())
+                .classed("hidden", d => !d.name.includes(search_bar.property("value")));
 
+            (sidebar.select(".sidebar_entry_list#vanilla_biomes")
+                .selectAll(".sidebar_entry") as d3.Selection<d3.BaseType, Slice | LayoutElement, d3.BaseType, unknown>)
+                .data(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.layoutElements.has(b.getKey())), (d: Slice | LayoutElement) => d.getKey())
+                .classed("hidden", d => !d.name.includes(search_bar.property("value")))
 
-            this.layout_divs.push(s)
-        });
-
-        // Add spacer
-        const spacer1 = document.createElement("div")
-        spacer1.classList.add("spacer")
-        this.sidebar.appendChild(spacer1)
-
-        // Add Header
-        const layoutHeader = document.createElement("div")
-        layoutHeader.classList.add("sidebar_header")
-
-        const layoutHeaderName = document.createElement("div")
-        layoutHeaderName.classList.add("name")
-        layoutHeaderName.innerHTML = "Layouts: "
-        layoutHeader.appendChild(layoutHeaderName)
-
-        const addLayoutButton = document.createElement("img")
-        addLayoutButton.classList.add("button")
-        addLayoutButton.src = "add.svg"
-        addLayoutButton.onclick = (evt: Event) => {
-            const layout = Layout.create(this.builder, "New Layout")
-            this.builder.hasChanges = true
-            UI.getInstance().openElement = layout.getKey()
-            UI.getInstance().refresh()
-            this.sidebar.getElementsByClassName("open")[0].scrollIntoView(false)
-        }
-        layoutHeader.appendChild(addLayoutButton)
-
-
-        const modifyLayoutButton = document.createElement("img")
-        modifyLayoutButton.classList.add("button")
-        if (UI.getInstance().openElement === "modify_layout") {
-            modifyLayoutButton.classList.add("open")
-        }
-        modifyLayoutButton.classList.add("button")
-        modifyLayoutButton.src = "grid.svg"
-        modifyLayoutButton.onclick = (evt: Event) => {
-            UI.getInstance().selectedElement = ""
-            UI.getInstance().openElement = "modify_layout"
-            UI.getInstance().refresh()
-        }
-        layoutHeader.appendChild(modifyLayoutButton)
-
-        const hide_layout_button = document.createElement("img") as HTMLImageElement
-        hide_layout_button.classList.add("button", "hide")
-        if (!this.builder.layouts.every(s => !s.hidden)) {
-            hide_layout_button.classList.add("enabled")
-        }
-        hide_layout_button.src = "eye.svg"
-        hide_layout_button.onclick = (evt) => {
-            const h = this.builder.layouts.every(s => !s.hidden)
-            this.builder.layouts.forEach(s => s.hidden = h)
-            UI.getInstance().refresh()
-            evt.stopPropagation()
-        }
-        layoutHeader.appendChild(hide_layout_button)
-
-        this.sidebar.appendChild(layoutHeader)
-
-        // Layouts
-        this.builder.layouts.forEach(element => {
-            this.layout_divs.push(this.createElementDiv(element, "layout"))
-        });
-
-        // Add spacer
-        const spacer2 = document.createElement("div")
-        spacer2.classList.add("spacer")
-        this.sidebar.appendChild(spacer2)
-
-        // Add Header
-        const biomeHeader = document.createElement("div")
-        biomeHeader.classList.add("sidebar_header")
-
-        const biomeHeaderName = document.createElement("div")
-        biomeHeaderName.classList.add("name")
-        biomeHeaderName.innerHTML = "Biomes: "
-        biomeHeader.appendChild(biomeHeaderName)
-
-        const addBiomeButton = document.createElement("img")
-        addBiomeButton.classList.add("button")
-        addBiomeButton.src = "add.svg"
-        addBiomeButton.onclick = (evt: Event) => {
-            const biome_name = prompt("Input biome name:", "new:biome")
-            if (biome_name === null)
-                return
-            const biome = Biome.create(this.builder, biome_name, "#888888")
-            if (UI.getInstance().openElement !== "assign_slises")
-                UI.getInstance().selectedElement = biome.getKey()
-            this.builder.hasChanges = true
-            UI.getInstance().refresh()
-        }
-        biomeHeader.appendChild(addBiomeButton)
-
-        const hide_biome_button = document.createElement("img") as HTMLImageElement
-        hide_biome_button.classList.add("button", "hide")
-        if (!this.builder.biomes.every(s => !s.hidden)) {
-            hide_biome_button.classList.add("enabled")
-        }
-        hide_biome_button.src = "eye.svg"
-        hide_biome_button.onclick = (evt) => {
-            const h = this.builder.biomes.every(s => !s.hidden)
-            this.builder.biomes.forEach(s => s.hidden = h)
-            UI.getInstance().refresh()
-            evt.stopPropagation()
-        }
-        biomeHeader.appendChild(hide_biome_button)
-
-        this.sidebar.appendChild(biomeHeader)
-
-        // Add seachBar
-        this.search_bar = document.createElement("input") as HTMLInputElement
-        this.search_bar.type = "text"
-        this.search_bar.placeholder = "Seach..."
-        this.search_bar.value = lastSearch
-        this.search_bar.classList.add("search_bar")
-        this.search_bar.oninput = (evt: Event) => {
-            this.updateBiomeSearch()
-        }
-        this.sidebar.appendChild(this.search_bar)
-
-        // Biomes
-        this.builder.biomes.forEach(element => {
-            const div = this.createElementDiv(element, "biome")
-            this.biome_divs.push(div)
-        });
-
-        const vanilla_label = document.createElement("div") as HTMLElement
-        vanilla_label.innerHTML = "Unused Vanilla Biomes"
-        vanilla_label.classList.add("label")
-        this.sidebar.appendChild(vanilla_label)
-
-        // Vanilla Biomes
-        this.builder.vanillaBiomes.forEach(element => {
-            if (this.builder.layoutElements.has(element.getKey()))
-                return
-
-            const div = this.createElementDiv(element, "vanilla_biome")
-            this.biome_divs.push(div)
-        });
-
-
-        // Add bottom spacer
-        this.bottom_spacer = document.createElement("div")
-        this.bottom_spacer.classList.add("spacer")
-        this.sidebar.appendChild(this.bottom_spacer)
-
-        this.sidebar.onscroll = (evt: Event) => {
-            const bottom_spacer_pos = this.bottom_spacer.getBoundingClientRect().top - this.sidebar.getBoundingClientRect().top
-            const bottom_spacer_height = Math.max((this.sidebar.clientHeight - bottom_spacer_pos - 20), 0)
-            this.bottom_spacer.style.height = bottom_spacer_height + "px"
-        }
-
-        this.updateBiomeSearch()
-    }
-
-    private updateBiomeSearch() {
-        this.bottom_spacer.style.height = "10000pt"
-
-        this.biome_divs.forEach(div => {
-            if (div.getAttribute("key").includes(this.search_bar.value)) {
-                div.classList.remove("hidden")
-            } else {
-                div.classList.add("hidden")
-            }
+            this.resizeBottomSpacer(sidebar)
         })
 
-        const bottom_spacer_pos = this.bottom_spacer.getBoundingClientRect().top - this.sidebar.getBoundingClientRect().top
-        const bottom_spacer_height = Math.max((this.sidebar.clientHeight - bottom_spacer_pos - 20), 0)
-        this.bottom_spacer.style.height = bottom_spacer_height + "px"
+        sidebar.on("scroll", (evt) => {
+            this.resizeBottomSpacer(sidebar)
+        })
 
     }
 
-    private createElementDiv(element: LayoutElement | Slice, c: string): HTMLElement {
-        const element_div = document.createElement("div")
-        element_div.classList.add("sidebar_entry")
-        element_div.classList.add(c)
-        element_div.draggable = (c !== "vanilla_biome")
+    private resizeBottomSpacer(sidebar: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>){
+        const bottom_spacer = sidebar.select("#sidebar_bottom_spacer")
+        const bottom_spacer_pos = (bottom_spacer.node() as HTMLElement).getBoundingClientRect().top - (sidebar.node() as HTMLElement).getBoundingClientRect().top
+        const bottom_spacer_height = Math.max(((sidebar.node() as HTMLElement).clientHeight - bottom_spacer_pos - 20), 0)
+        bottom_spacer.style("height", bottom_spacer_height + "px")
+    }
 
-        if (element.getKey() === UI.getInstance()?.selectedElement) {
-            element_div.classList.add("selected")
-        }
+    private openElement(openElement?: { type: string, key?: string }) {
+        if (openElement.type === "biome" || openElement.type === "vanilla_biome")
+            return
 
-        if (element.getKey() === UI.getInstance()?.openElement) {
-            element_div.classList.add("open")
-        }
+        this.openedElement = openElement ?? this.openedElement
+
+        if ((this.openedElement.type === "assign_slices" && this.selectedElement?.type !== "slice") ||
+            (this.openedElement.type !== "assign_slices" && this.selectedElement?.type === "slice") ||
+            (this.openedElement.type === "modify_layout"))
+            this.selectedElement = undefined
+
+        UI.getInstance().openElement = openElement.type === "assign_slices" || openElement.type === "modify_layout" ? openElement.type : openElement.key
+        UI.getInstance().selectedElement = this.selectedElement?.key ?? ""
+
+        UI.getInstance().refresh()
+    }
+
+    private selectElement(selectElement?: { type: string, key: string }) {
+        if ((this.openedElement.type === "assign_slices" && selectElement.type !== "slice") ||
+            (this.openedElement.type !== "assign_slices" && selectElement.type === "slice") ||
+            (this.openedElement.type === "modify_layout"))
+            return
+
+        this.selectedElement = selectElement
+
+        UI.getInstance().selectedElement = this.selectedElement?.key
+        UI.getInstance().refresh()
+
+    }
 
 
-        element_div.setAttribute("key", element.name)
+    refresh() {
+        const sidebar = d3.select("#sidebar_menu")
 
-        if (element instanceof Biome) {
-            const color_input = document.createElement("input") as HTMLInputElement
-            color_input.classList.add("color_selector")
-            color_input.type = "color"
-            color_input.value = element.color
-            color_input.disabled = c === "vanilla_biome"
-            
-            color_input.onchange = (evt: Event) => {
-                element.color = color_input.value
-                this.builder.hasChanges = true
-                UI.getInstance().refresh()
+        sidebar.select("#assign_slices_button")
+            .classed("open", UI.getInstance().openElement === "assign_slices")
+
+        sidebar.select("#hide_all_slices_button")
+            .classed("enabled", !this.builder.slices.every(s => !s.hidden))
+
+        sidebar.select("#hide_all_layouts_button")
+            .classed("enabled", !this.builder.layouts.every(s => !s.hidden))
+
+        sidebar.select("#edit_layout_grid_button")
+            .classed("open", this.openedElement.type === "modify_layout")
+
+        sidebar.select("#hide_all_biomes_button")
+            .classed("enabled", !this.builder.biomes.every(s => !s.hidden))
+
+
+        this.handleElementDivs(this.builder.slices, "slice", sidebar.select(".sidebar_entry_list#slices"), false, false)
+        this.handleElementDivs(this.builder.layouts, "layout", sidebar.select(".sidebar_entry_list#layouts"), false, false)
+        this.handleElementDivs(this.builder.biomes, "biome", sidebar.select(".sidebar_entry_list#biomes"), false, true)
+        this.handleElementDivs(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.layoutElements.has(b.getKey())), "vanilla_biome", sidebar.select(".sidebar_entry_list#vanilla_biomes"), true, true)
+    }
+
+    handleElementDivs(list: (Slice | LayoutElement)[], c: string, selection: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>, fixed: boolean, use_color_picker: boolean) {
+        const slices_divs = (selection.selectAll(".sidebar_entry") as d3.Selection<d3.BaseType, Slice | LayoutElement, d3.BaseType, unknown>)
+            .data(list, (d: Slice | LayoutElement) => d.getKey())
+            .join(enter => {
+                const div = enter.append("div").classed("sidebar_entry", true).classed(c, true)
+
+                if (use_color_picker){
+                    div.append("input").attr("type", "color").classed("color_selector", true)
+                        .attr("disabled", fixed ? "" : undefined)
+                        .property("value", (d : Biome) => d.color)
+                        .on("change", function(evt, d ){
+                            (d as Biome).color = this.value
+                            UI.getInstance().refresh()
+                        })
+                } else {
+                    div.append("canvas")
+                        .classed("grid", true)
+                        .attr("width", 100)
+                        .attr("height", 100)
+                        .each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))
+                }
+                div.append("span").classed("name", true)
+
+                div.attr("draggable", !fixed)
+
+                if (!fixed) {
+                    div.filter(d => d.allowEdit).append("img").classed("button", true).classed("edit", true).attr("src", "edit-pen.svg").attr("title", "Rename")
+                        .on("click", (evt, d) => {
+                            const new_name = prompt("Edit name of " + d.constructor.name, d.name)
+                            if (new_name === null) return
+                            d.name = new_name;
+                            UI.getInstance().refresh()
+                            evt.stopPropagation()
+                        })
+
+                    div.append("img").classed("button", true).classed("delete", true).attr("src", "trash-bin.svg").attr("title", "Delete")
+                        .on("click", (evt, d) => {
+                            if (!confirm("Deleting " + d.constructor.name + " \"" + d.name + "\""))
+                                return
+
+                            this.builder.hasChanges = true
+                            if (d instanceof Slice) {
+                                this.builder.removeSlice(d)
+                            } else {
+                                this.builder.removeLayoutElement(d)
+                            }
+                            UI.getInstance().refresh()
+                            evt.stopPropagation()
+                        })
+
+                    div.append("img").classed("button", true).classed("hide", true).attr("src", "eye.svg").attr("title", "Hide/Show")
+                        .on("click", (evt, d) => {
+                            d.hidden = !d.hidden
+                            UI.getInstance().refresh()
+                            evt.stopPropagation()
+                        })
+                }
+
+                div.on("click", (evt, d) => {
+                    this.selectElement({ type: c, key: d.getKey() })
+
+                })
+
+                div.on("dblclick", (evt, d) => {
+                    this.openElement({ type: c, key: d.getKey() })
+                    evt.preventDefault()
+                })
+
+
+                div.on("contextmenu", (evt, d) => {
+                    this.openElement({ type: c, key: d.getKey() })
+                    evt.preventDefault()
+                })
+
+                if (!fixed) {
+                    const self = this
+
+                    div.on("dragstart", function (evt, d) {
+                        self.dragType = c
+                        self.dragKey = d.getKey()
+                        this.classList.add("dragged")
+                    })
+
+                    div.on("dragend", function (evt, d) {
+                        self.dragType = undefined
+                        self.dragKey = undefined
+                        this.classList.remove("dragged")
+                    })
+
+                    div.on("dragover", function (evt, d) {
+                        if (self.dragover(this, c, list, d))
+                            evt.preventDefault()
+                    })
+
+                    div.on("dragleave", function (evt, d) {
+                        setTimeout(() => this.classList.remove("dragover_up", "dragover_down"), 20)
+                        evt.preventDefault()
+                    })
+
+                    div.on("drop", function (evt, d) {
+                        if (self.drop(this, c, list, d)) {
+                            evt.preventDefault()
+                            UI.getInstance().refresh()
+                        }
+                    })
+                }
+
+                return div
+            })
+
+        slices_divs.classed("open", d => UI.getInstance().openElement === d.getKey())
+        slices_divs.classed("selected", d => UI.getInstance().selectedElement === d.getKey())
+        slices_divs.attr("title", d=>d.name)
+
+        slices_divs.select("canvas.grid").filter(d => d.getKey() === this.openedElement.key).each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))
+        slices_divs.select("span.name").text(d => d.name)
+        slices_divs.select("img.button.hide").classed("enabled", d => d.hidden)
+    }
+
+    dragover<T extends Slice | LayoutElement>(element: HTMLElement, c: string, list: T[], d: T): boolean {
+        if (this.dragType === c && this.dragKey !== d.getKey()) {
+            const self_id = list.indexOf(d)
+            const other_id = list.findIndex(e => e.getKey() === this.dragKey)
+
+            if (self_id < other_id) {
+                element.classList.add("dragover_up")
+            } else {
+                element.classList.add("dragover_down")
             }
-            element_div.appendChild(color_input)
+
+            if (this.lastDragedOverDiv != element) {
+                this.lastDragedOverDiv?.classList?.remove("dragover_up", "dragover_down")
+                this.lastDragedOverDiv = element
+            }
+            return true
         } else {
-            const layout_canvas = document.createElement("canvas") as HTMLCanvasElement
-            layout_canvas.classList.add("grid")
-            layout_canvas.width = 100
-            layout_canvas.height = 100
-            element.getRenderer().draw(layout_canvas.getContext("2d"), 0, 0, 100, 100, -1, -1, false, true)
-            element_div.appendChild(layout_canvas)
+            return false
         }
+    }
 
-        const layout_name = document.createElement("span")
-        layout_name.innerHTML = element.name
-        layout_name.classList.add("name")
-        element_div.appendChild(layout_name)
+    drop<T extends Slice | LayoutElement>(element: HTMLElement, c: string, list: T[], d: T): boolean {
+        element.classList.remove("dragover_up", "dragover_down")
 
-
-        if (element.allowEdit) {
-
-            const edit_name_button = document.createElement("img") as HTMLImageElement
-            edit_name_button.classList.add("button", "edit")
-            edit_name_button.src = "edit-pen.svg"
-            edit_name_button.onclick = (evt) => {
-
-                const new_name = prompt("Edit name of " + element.constructor.name, element.name)
-                if (new_name === null) return
-                element.name = new_name;
-                UI.getInstance().refresh()
-                evt.stopPropagation()
-            }
-            element_div.appendChild(edit_name_button)
-
+        if (this.dragType === c && this.dragKey !== d.getKey()) {
+            const self_id = list.indexOf(d)
+            const other_id = list.findIndex(e => e.getKey() === this.dragKey)
+            list.splice(self_id, 0, list.splice(other_id, 1)[0])
+            return true;
+        } else {
+            return false;
         }
-
-        if (c !== "vanilla_biome") {
-            const db = document.createElement("img") as HTMLImageElement
-            db.classList.add("button", "delete")
-            db.src = "trash-bin.svg"
-            db.onclick = (evt) => {
-                if (!confirm("Deleting " + element.constructor.name + " \"" + element.name + "\""))
-                    return
-
-                this.builder.hasChanges = true
-                if (element instanceof Slice) {
-                    this.builder.removeSlice(element)
-                } else {
-                    this.builder.removeLayoutElement(element)
-                }
-                UI.getInstance().refresh()
-                evt.stopPropagation()
-            }
-            element_div.appendChild(db)
-
-            const hide_button = document.createElement("img") as HTMLImageElement
-            hide_button.classList.add("button", "hide")
-            if (element.hidden) {
-                hide_button.classList.add("enabled")
-            }
-            hide_button.src = "eye.svg"
-            hide_button.onclick = (evt) => {
-                element.hidden = !element.hidden
-                UI.getInstance().refresh()
-                evt.stopPropagation()
-            }
-            element_div.appendChild(hide_button)
-        }
-
-
-        if (element instanceof Layout || element instanceof Slice) {
-            element_div.oncontextmenu = (evt) => {
-                if (UI.getInstance().openElement === "assign_slices") {
-                    UI.getInstance().selectedElement = ""
-                }
-
-                UI.getInstance().openElement = element.getKey()
-
-                if (UI.getInstance().selectedElement === element.getKey()) {
-                    UI.getInstance().selectedElement = ""
-                }
-
-                UI.getInstance().refresh()
-
-                evt.preventDefault()
-            }
-
-            element_div.ondblclick = element_div.oncontextmenu
-        } else if (element instanceof Biome && element.allowEdit) {
-
-        }
-
-        element_div.onclick = (evt) => {
-            if ((UI.getInstance().openElement === "assign_slices") !== (element instanceof Slice))
-                return
-
-            UI.getInstance().selectedElement = element.getKey()
-
-            UI.getInstance().refresh()
-            /*
-            this.layout_divs.forEach(div => {
-                div.classList.toggle("selected", div.getAttribute("key") === UI.getInstance().selectedElement)
-            });
-
-            this.biome_divs.forEach(div => {
-                div.classList.toggle("selected", div.getAttribute("key") === UI.getInstance().selectedElement)
-            });*/
-        }
-
-        element_div.ondragstart = (evt) => {
-            this.dragType = c
-            this.dragKey = element.getKey()
-            element_div.classList.add("dragged")
-        }
-
-        element_div.ondragend = (evt) => {
-            element_div.classList.remove("dragged")
-        }
-
-        element_div.ondragover = (evt) => {
-            if (this.dragType === c && this.dragKey !== element.getKey()) {
-                var self_id, other_id
-
-                if (element instanceof Slice) {
-                    self_id = this.builder.slices.indexOf(element)
-                    other_id = this.builder.slices.findIndex(e => e.getKey() === this.dragKey)
-                } else if (element instanceof Layout) {
-                    self_id = this.builder.layouts.indexOf(element)
-                    other_id = this.builder.layouts.findIndex(e => e.getKey() === this.dragKey)
-                } else if (element instanceof Biome) {
-                    self_id = this.builder.biomes.indexOf(element)
-                    other_id = this.builder.biomes.findIndex(e => e.getKey() === this.dragKey)
-                }
-
-                if (self_id < other_id) {
-                    element_div.classList.add("dragover_up")
-                } else {
-                    element_div.classList.add("dragover_down")
-                }
-
-                if (this.lastDragedOverDiv != element_div) {
-                    this.lastDragedOverDiv?.classList?.remove("dragover_up", "dragover_down")
-                    this.lastDragedOverDiv = element_div
-                }
-                evt.preventDefault()
-            }
-        }
-
-        element_div.ondragleave = (evt) => {
-            setTimeout(() => element_div.classList.remove("dragover_up", "dragover_down"), 20)
-            evt.preventDefault()
-        }
-
-        element_div.ondrop = (evt) => {
-            element_div.classList.remove("dragover_up", "dragover_down")
-
-            if (this.dragType === c && this.dragKey !== element.getKey()) {
-                var self_id, other_id
-
-                if (element instanceof Slice) {
-                    self_id = this.builder.slices.indexOf(element)
-                    other_id = this.builder.slices.findIndex(e => e.getKey() === this.dragKey)
-                    this.builder.slices.splice(self_id, 0, this.builder.slices.splice(other_id, 1)[0])
-                } else if (element instanceof Layout) {
-                    self_id = this.builder.layouts.indexOf(element)
-                    other_id = this.builder.layouts.findIndex(e => e.getKey() === this.dragKey)
-                    this.builder.layouts.splice(self_id, 0, this.builder.layouts.splice(other_id, 1)[0])
-                } else if (element instanceof Biome) {
-                    self_id = this.builder.biomes.indexOf(element)
-                    other_id = this.builder.biomes.findIndex(e => e.getKey() === this.dragKey)
-                    this.builder.biomes.splice(self_id, 0, this.builder.biomes.splice(other_id, 1)[0])
-                }
-                UI.getInstance().refresh()
-
-                evt.preventDefault()
-            }
-        }
-
-        element_div.onmousemove = () => {
-            MenuManager.toggleAction("open", true)
-            MenuManager.toggleAction("reorder", c !== "vanilla_biome")
-            MenuManager.toggleAction("select", (UI.getInstance().openElement === "assign_slices") === (c === "slice"))
-        }
-
-        element_div.onmouseleave = () => {
-            MenuManager.toggleAction("open", false)
-            MenuManager.toggleAction("reorder", false)
-            MenuManager.toggleAction("select", false)
-        }
-
-        this.sidebar.appendChild(element_div)
-        return element_div
     }
 
 }
