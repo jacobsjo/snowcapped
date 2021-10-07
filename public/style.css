@@ -329,6 +329,7 @@ body:not(.light) #menu .button img{
 #sidebar #sidebar_menu {
     overflow-y: scroll;
     overflow-x: hidden;
+    flex-grow: 1;
 }
 
 #sidebar #splineDisplay #splineDisplaySvg {
@@ -421,6 +422,11 @@ body:not(.light) #menu .button img{
 #sidebar .sidebar_entry.layout .grid {
     height: 40pt;
 }
+
+#sidebar .sidebar_entry.biome .grid, #sidebar .sidebar_entry.vanilla_biome .grid {
+    height: 22pt;
+}
+
 
 #sidebar .sidebar_entry.biome .color_selector, #sidebar .sidebar_entry.vanilla_biome .color_selector {
     height: 25pt;
