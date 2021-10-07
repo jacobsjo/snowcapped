@@ -193,7 +193,7 @@ export class SidebarManager {
                 div.select("canvas.grid").each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))
 
                 if (!fixed) {
-                    div.filter(d => d.allowEdit).append("img").classed("button", true).classed("edit", true).attr("src", "edit-pen.svg")
+                    div.filter(d => d.allowEdit).append("img").classed("button", true).classed("edit", true).attr("src", "edit-pen.svg").attr("title", "Rename")
                         .on("click", (evt, d) => {
                             const new_name = prompt("Edit name of " + d.constructor.name, d.name)
                             if (new_name === null) return
@@ -202,7 +202,7 @@ export class SidebarManager {
                             evt.stopPropagation()
                         })
 
-                    div.append("img").classed("button", true).classed("delete", true).attr("src", "trash-bin.svg")
+                    div.append("img").classed("button", true).classed("delete", true).attr("src", "trash-bin.svg").attr("title", "Delete")
                         .on("click", (evt, d) => {
                             if (!confirm("Deleting " + d.constructor.name + " \"" + d.name + "\""))
                                 return
@@ -217,7 +217,7 @@ export class SidebarManager {
                             evt.stopPropagation()
                         })
 
-                    div.append("img").classed("button", true).classed("hide", true).attr("src", "eye.svg")
+                    div.append("img").classed("button", true).classed("hide", true).attr("src", "eye.svg").attr("title", "Hide/Show")
                         .on("click", (evt, d) => {
                             d.hidden = !d.hidden
                             UI.getInstance().refresh()
@@ -279,6 +279,7 @@ export class SidebarManager {
 
         slices_divs.classed("open", d => UI.getInstance().openElement === d.getKey())
         slices_divs.classed("selected", d => UI.getInstance().selectedElement === d.getKey())
+        slices_divs.attr("title", d=>d.name)
 
         slices_divs.select("canvas.grid").filter(d => d.getKey() === this.openedElement.key).each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))
         slices_divs.select("span.name").text(d => d.name)
