@@ -77,7 +77,7 @@ export class VanillaBiomes{
         },
         {
             key: "minecraft:snowy_tundra",
-            name: "minecraft:snowy_tundra",
+            name: "minecraft:snowy_plains",
             color: "#ffffff"
         },
         {
@@ -107,12 +107,12 @@ export class VanillaBiomes{
         },
         {
             key: "minecraft:giant_spruce_taiga",
-            name: "minecraft:giant_spruce_taiga",
+            name: "minecraft:old_growth_spruce_taiga",
             color: "#345011"
         },
         {
             key: "minecraft:giant_tree_taiga",
-            name: "minecraft:giant_tree_taiga",
+            name: "minecraft:old_growth_pine_taiga",
             color: "#444d00"
         },
         {
@@ -132,7 +132,7 @@ export class VanillaBiomes{
         },
         {
             key: "minecraft:tall_birch_forest",
-            name: "minecraft:tall_birch_forest",
+            name: "minecraft:old_growth_birch_forest",
             color: "#59e45a"
         },
         {
@@ -162,12 +162,12 @@ export class VanillaBiomes{
         },
         {
             key: "minecraft:wooded_badlands_plateau",
-            name: "minecraft:wooded_badlands_plateau",
+            name: "minecraft:wooded_badlands",
             color: "#db8b00"
         },
         {
             key: "minecraft:stone_shore",
-            name: "minecraft:stone_shore",
+            name: "minecraft:stony_shore",
             color: "#666666"
         },
         {
@@ -187,12 +187,12 @@ export class VanillaBiomes{
         },
         {
             key: "minecraft:shattered_savanna",
-            name: "minecraft:shattered_savanna",
+            name: "minecraft:windswept_savanna",
             color: "#abdb51"
         },
         {
             key: "minecraft:jungle_edge",
-            name: "minecraft:jungle_edge",
+            name: "minecraft:sparse_jungle",
             color: "#80ff00"
         },
         {
@@ -212,17 +212,17 @@ export class VanillaBiomes{
         },
         {
             key: "minecraft:gravelly_hills",
-            name: "minecraft:gravelly_mountains",
+            name: "minecraft:windswept_gravelly_hills",
             color: "#819698"
         },
         {
             key: "minecraft:extreme_hills",
-            name: "minecraft:mountains",
+            name: "minecraft:windswept_hills",
             color: "#698e91"
         },
         {
             key: "minecraft:wooded_mountains",
-            name: "minecraft:wooded_mountains",
+            name: "minecraft:windswept_forest",
             color: "#427b5f"
         },
         {
@@ -232,12 +232,12 @@ export class VanillaBiomes{
         },
         {
             key: "minecraft:lofty_peaks",
-            name: "minecraft:lofty_peaks",
+            name: "minecraft:jagged_peaks",
             color: "#d7acd3"
         },
         {
             key: "minecraft:snowcapped_peaks",
-            name: "minecraft:snowcapped_peaks",
+            name: "minecraft:frozen_peaks",
             color: "#dedede"
         },
         {
@@ -265,33 +265,7 @@ export class VanillaBiomes{
         {key: "minecraft:the_void", name: "minecraft:the_void", r: 0, g: 0, b: 0},
 
         {key: "minecraft:lush_caves", name: "minecraft:lush_caves", r: 112, g: 255, b: 79},
-        {key: "minecraft:dripstone_caves", name: "minecraft:dripstone_caves", r: 140, g: 124, b: 0},
-
-        {key: "minecraft:snowy_mountains", name: "minecraft:snowy_mountains", r: 239, g: 255, b: 235},
-        {key: "minecraft:mushroom_field_shore", name: "minecraft:mushroom_field_shore", r: 240, g: 187, b: 252},
-        {key: "minecraft:desert_hills", name: "minecraft:desert_hills", r: 181, g: 174, b: 33},
-        {key: "minecraft:wooded_hills", name: "minecraft:wooded_hills", r: 17, g: 69, b: 18},
-        {key: "minecraft:taiga_hills", name: "minecraft:taiga_hills", r: 30, g: 69, b: 8},
-        {key: "minecraft:mountain_edge", name: "minecraft:mountain_edge", r: 110, g: 109, b: 109},
-        {key: "minecraft:jungle_hills", name: "minecraft:jungle_hills", r: 33, g: 184, b: 0},
-        {key: "minecraft:birch_forest_hills", name: "minecraft:birch_forest_hills", r: 28, g: 97, b: 29},
-        {key: "minecraft:snowy_taiga_hills", name: "minecraft:snowy_taiga_hills", r: 103, g: 117, b: 95},
-        {key: "minecraft:giant_tree_taiga_hills", name: "minecraft:giant_tree_taiga_hills", r: 23, g: 15, b: 3},
-        {key: "minecraft:badlands_plateau", name: "minecraft:badlands_plateau", r: 120, g: 83, b: 42},
-        {key: "minecraft:desert_lakes", name: "minecraft:desert_lakes", r: 97, g: 179, b: 186},
-        {key: "minecraft:taiga_mountains", name: "minecraft:taiga_mountains", r: 46, g: 30, b: 8},
-        {key: "minecraft:swamp_hills", name: "minecraft:swamp_hills", r: 32, g: 66, b: 50},
-        {key: "minecraft:modified_jungle", name: "minecraft:modified_jungle", r: 11, g: 227, b: 37},
-        {key: "minecraft:modified_jungle_edge", name: "minecraft:modified_jungle_edge", r: 71, g: 237, b: 91},
-        {key: "minecraft:tall_birch_hills", name: "minecraft:tall_birch_hills", r: 4, g: 74, b: 6},
-        {key: "minecraft:dark_forest_hills", name: "minecraft:dark_forest_hills", r: 0, g: 31, b: 1},
-        {key: "minecraft:snowy_taiga_mountains", name: "minecraft:snowy_taiga_mountains", r: 74, g: 99, b: 74},
-        {key: "minecraft:giant_spruce_taiga_hills", name: "minecraft:giant_spruce_taiga_hills", r: 13, g: 36, b: 7},
-        {key: "minecraft:modified_gravelly_mountains", name: "minecraft:modified_gravelly_mountains", r: 82, g: 89, b: 99},
-        {key: "minecraft:shattered_savanna_plateau", name: "minecraft:shattered_savanna_plateau", r: 124, g: 158, b: 60},
-        {key: "minecraft:modified_wooded_badlands_plateau", name: "minecraft:modified_wooded_badlands_plateau", r: 128, g: 98, b: 54},
-        {key: "minecraft:modified_badlands_plateau", name: "minecraft:modified_badlands_plateau", r: 145, g: 101, b: 600},
-        {key: "minecraft:bamboo_jungle_hills", name: "minecraft:bamboo_jungle_hills", r: 98, g: 140, b: 49}
+        {key: "minecraft:dripstone_caves", name: "minecraft:dripstone_caves", r: 140, g: 124, b: 0}
     ]
 
     static registerVanillaBiomes(builder: BiomeBuilder){

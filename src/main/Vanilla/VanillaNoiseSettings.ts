@@ -43,7 +43,7 @@ export class VanillaNoiseSettings {
                 ]
             },
             "temperature": {
-                "firstOctave": -9,
+                "firstOctave": -10,
                 "amplitudes": [
                     1.5,
                     0.0,
@@ -54,7 +54,7 @@ export class VanillaNoiseSettings {
                 ]
             },
             "humidity": {
-                "firstOctave": -7,
+                "firstOctave": -8,
                 "amplitudes": [
                     1.0,
                     1.0,

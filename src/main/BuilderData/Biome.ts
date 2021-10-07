@@ -46,7 +46,7 @@ export class Biome implements LayoutElement{
                 vanillaBiome.color = json.color
             }
         } else {
-            const biome = new Biome(json.name, json.color, json.key, false)
+            const biome = new Biome(json.name, json.color ?? "#888888", json.key, false)
             builder.registerLayoutElement(biome);
             return biome
         }
