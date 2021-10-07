@@ -174,23 +174,36 @@ export class SidebarManager {
             .classed("enabled", !this.builder.biomes.every(s => !s.hidden))
 
 
-        this.handleElementDivs(this.builder.slices, "slice", sidebar.select(".sidebar_entry_list#slices"), false)
-        this.handleElementDivs(this.builder.layouts, "layout", sidebar.select(".sidebar_entry_list#layouts"), false)
-        this.handleElementDivs(this.builder.biomes, "biome", sidebar.select(".sidebar_entry_list#biomes"), false)
-        this.handleElementDivs(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.layoutElements.has(b.getKey())), "vanilla_biome", sidebar.select(".sidebar_entry_list#vanilla_biomes"), true)
+        this.handleElementDivs(this.builder.slices, "slice", sidebar.select(".sidebar_entry_list#slices"), false, false)
+        this.handleElementDivs(this.builder.layouts, "layout", sidebar.select(".sidebar_entry_list#layouts"), false, false)
+        this.handleElementDivs(this.builder.biomes, "biome", sidebar.select(".sidebar_entry_list#biomes"), false, true)
+        this.handleElementDivs(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.layoutElements.has(b.getKey())), "vanilla_biome", sidebar.select(".sidebar_entry_list#vanilla_biomes"), true, true)
     }
 
-    handleElementDivs(list: (Slice | LayoutElement)[], c: string, selection: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>, fixed: boolean) {
+    handleElementDivs(list: (Slice | LayoutElement)[], c: string, selection: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>, fixed: boolean, use_color_picker: boolean) {
         const slices_divs = (selection.selectAll(".sidebar_entry") as d3.Selection<d3.BaseType, Slice | LayoutElement, d3.BaseType, unknown>)
             .data(list, (d: Slice | LayoutElement) => d.getKey())
             .join(enter => {
                 const div = enter.append("div").classed("sidebar_entry", true).classed(c, true)
-                div.append("canvas").classed("grid", true).attr("width", 100).attr("height", 100)
+
+                if (use_color_picker){
+                    div.append("input").attr("type", "color").classed("color_selector", true)
+                        .attr("disabled", fixed ? "" : undefined)
+                        .property("value", (d : Biome) => d.color)
+                        .on("change", function(evt, d ){
+                            (d as Biome).color = this.value
+                            UI.getInstance().refresh()
+                        })
+                } else {
+                    div.append("canvas")
+                        .classed("grid", true)
+                        .attr("width", 100)
+                        .attr("height", 100)
+                        .each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))
+                }
                 div.append("span").classed("name", true)
 
                 div.attr("draggable", !fixed)
-
-                div.select("canvas.grid").each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))
 
                 if (!fixed) {
                     div.filter(d => d.allowEdit).append("img").classed("button", true).classed("edit", true).attr("src", "edit-pen.svg").attr("title", "Rename")
