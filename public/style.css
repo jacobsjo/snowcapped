@@ -434,6 +434,7 @@ body:not(.light) #menu .button img{
     border-left-style: hidden;
     border-bottom-style: hidden;   
     background-color: rgba(0,0,0,0); 
+    z-index: 200;
 }
 
 #sidebar .sidebar_header {

@@ -293,7 +293,7 @@ export class SidebarManager {
             color_input.type = "color"
             color_input.value = element.color
             color_input.disabled = c === "vanilla_biome"
-
+            
             color_input.onchange = (evt: Event) => {
                 element.color = color_input.value
                 this.builder.hasChanges = true
