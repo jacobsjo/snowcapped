@@ -79,11 +79,11 @@ export class VisualizationManger{
             return
 
           if (lookup.layout !== undefined && evt.originalEvent.ctrlKey){
-            UI.getInstance().openElement = lookup.layout.getKey()
+            UI.getInstance().sidebarManager.openElement({type:"layout", key:lookup.layout.getKey()})
             UI.getInstance().layoutEditor.highlight(idxs.idx.t_idx, idxs.idx.h_idx)
             UI.getInstance().refresh()
           } else{
-            UI.getInstance().openElement = lookup.slice.getKey()
+            UI.getInstance().sidebarManager.openElement({type:"slice", key:lookup.slice.getKey()})
             UI.getInstance().layoutEditor.highlight(idxs.idx.c_idx, idxs.idx.e_idx)
             UI.getInstance().refresh()
           }

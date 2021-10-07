@@ -74,7 +74,7 @@ export class AssignSlicesManager {
 
             row.onclick = (evt) => {
                 if (evt.altKey) {
-                    UI.getInstance().selectedElement = this.builder.weirdnesses[w_idx][2]
+                    UI.getInstance().sidebarManager.selectElement({type: "slice", key: this.builder.weirdnesses[w_idx][2]})
                     UI.getInstance().refresh()
                 } else {
                     if (UI.getInstance().selectedElement !== "" && this.builder.weirdnesses[w_idx][2] !== UI.getInstance().selectedElement) {
@@ -88,7 +88,7 @@ export class AssignSlicesManager {
 
             row.oncontextmenu = (evt) => {
                 if (this.builder.weirdnesses[w_idx][2] !== "unassigned"){
-                    UI.getInstance().openElement = this.builder.weirdnesses[w_idx][2]
+                    UI.getInstance().sidebarManager.openElement({type: "slice", key: this.builder.weirdnesses[w_idx][2]})
                     UI.getInstance().refresh()
                 }
                 evt.preventDefault()

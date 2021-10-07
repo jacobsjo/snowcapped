@@ -31,7 +31,7 @@ export class MenuManager {
             fetch('minecraft_overworld.snowcapped.json').then( r => r.text()).then(jsonString => {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().visualizationManager.updateNoises()
-                UI.getInstance().openElement = "assign_slices"
+                UI.getInstance().sidebarManager.openElement({type: "assign_slices"})
                 UI.getInstance().refresh()
             })
         }
@@ -45,7 +45,7 @@ export class MenuManager {
             fetch('empty.snowcapped.json').then( r => r.text()).then(jsonString => {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().visualizationManager.updateNoises()
-                UI.getInstance().openElement = "assign_slices"
+                UI.getInstance().sidebarManager.openElement({type: "assign_slices"})
                 UI.getInstance().refresh()
             })
         }
@@ -71,7 +71,7 @@ export class MenuManager {
                     const jsonString = evt.target.result as string
                     UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                     UI.getInstance().visualizationManager.updateNoises()
-                    UI.getInstance().openElement = "assign_slices"
+                    UI.getInstance().sidebarManager.openElement({type: "assign_slices"})
                     UI.getInstance().refresh()
                 }
 

@@ -209,7 +209,7 @@ export class LayoutEditor {
         }
 
         if (action === "pick") {
-            UI.getInstance().selectedElement = exact_element.getKey()
+            UI.getInstance().sidebarManager.selectElement({type: exact_element instanceof Layout ? "layout" : "biome", key: selectedElement = exact_element.getKey()})
             UI.getInstance().refresh()
         } else if ((action === "add" || action === "add_alt") && selectedElement !== "") {
             //Cycle Check
@@ -261,7 +261,7 @@ export class LayoutEditor {
             // open
 
             if (exact_element instanceof Layout) {
-                UI.getInstance().openElement = exact_element.getKey()
+                UI.getInstance().sidebarManager.openElement({type:"layout", key: exact_element.getKey()})
                 UI.getInstance().refresh()
             }
         }

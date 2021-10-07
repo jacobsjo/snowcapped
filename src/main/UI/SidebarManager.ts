@@ -124,7 +124,7 @@ export class SidebarManager {
         bottom_spacer.style("height", bottom_spacer_height + "px")
     }
 
-    private openElement(openElement?: { type: string, key?: string }) {
+    public openElement(openElement?: { type: string, key?: string }) {
         if (openElement.type === "biome" || openElement.type === "vanilla_biome")
             return
 
@@ -141,7 +141,7 @@ export class SidebarManager {
         UI.getInstance().refresh()
     }
 
-    private selectElement(selectElement?: { type: string, key: string }) {
+    public selectElement(selectElement?: { type: string, key: string }) {
         if ((this.openedElement.type === "assign_slices" && selectElement.type !== "slice") ||
             (this.openedElement.type !== "assign_slices" && selectElement.type === "slice") ||
             (this.openedElement.type === "modify_layout"))
