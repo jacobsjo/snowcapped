@@ -33,6 +33,14 @@ export class SettingsManager {
             this.builder.seed = BigInt(seedInput.value)
         }
 
+        const legacyInput = document.getElementById("useLegacyRandom") as HTMLInputElement;
+        legacyInput.checked = this.builder.useLegacyRandom;
+        legacyInput.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.useLegacyRandom = legacyInput.checked
+            console.log("Checked")
+        }
+
         this.createNoiseSettingFields(document.getElementById("continentalness_setting"), "Continentalness", this.builder.noiseSettings.continentalness)
         this.createNoiseSettingFields(document.getElementById("erosion_setting"), "Erosion", this.builder.noiseSettings.erosion)
         this.createNoiseSettingFields(document.getElementById("weirdness_setting"), "Weirdness", this.builder.noiseSettings.weirdness)

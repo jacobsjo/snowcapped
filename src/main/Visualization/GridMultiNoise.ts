@@ -1,4 +1,4 @@
-import { BiomeSource, NoiseParams, NoiseSampler, NormalNoise, TerrainShaper, WorldgenRandom } from "deepslate";
+import { BiomeSource, NoiseParameters, NoiseSampler, NormalNoise, TerrainShaper, LegacyRandom } from "deepslate";
 import { uniqueId } from "lodash";
 import { Biome } from "../BuilderData/Biome";
 import { BiomeBuilder, MultiNoiseParameters } from "../BuilderData/BiomeBuilder";
@@ -39,6 +39,6 @@ export class GridMultiNoise {
 	}
 
 	updateNoiseSettings(){
-		this.worker.postMessage({ task: "updateNoiseSettings", seed: this.builder.seed, params: this.builder.noiseSettings})
+		this.worker.postMessage({ task: "updateNoiseSettings", seed: this.builder.seed, params: this.builder.noiseSettings, useLegacyRandom: this.builder.useLegacyRandom})
 	}
 }

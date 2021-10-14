@@ -812,6 +812,10 @@ body:not(.light) #menu .button img{
     flex-grow: 1;
 }
 
+#settings .setting label input[type=checkbox]{
+    flex-grow: 0;
+}
+
 #settings .setting label input[type=number]::-webkit-inner-spin-button,
 #settings .setting label input[type=number]::-webkit-outer-spin-button{
     -webkit-appearance: none;

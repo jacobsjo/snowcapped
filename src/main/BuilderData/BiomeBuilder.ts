@@ -48,6 +48,7 @@ export class BiomeBuilder{
 
     seed: bigint = BigInt("1")
     dimensionName: string = "minecraft:overworld"
+    useLegacyRandom: boolean = false;
 
     constructor(json: any){
         this.renderedElements = new Map<string, LayoutElement | Slice>();
@@ -67,6 +68,7 @@ export class BiomeBuilder{
         this.dimensionName = json.dimensionName??"minecraft:overworld"
         this.seed = BigInt(json.seed ?? "1")
         this.noiseSettings = json.noiseSettings ?? VanillaNoiseSettings.default()
+        this.useLegacyRandom = json.useLegacyRandom ?? false;
 
         this.continentalnesses = json.continentalnesses
         this.erosions = json.erosions
@@ -101,6 +103,7 @@ export class BiomeBuilder{
             dimensionName: this.dimensionName,
             seed: this.seed.toString(),
             noiseSettings: this.noiseSettings,
+            useLegacyRandom: this.useLegacyRandom,
 
             continentalnesses: this.continentalnesses,
             erosions: this.erosions,

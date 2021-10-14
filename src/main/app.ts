@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { Climate, NormalNoise, Random, WorldgenRandom } from 'deepslate';
+import { Climate, NormalNoise, Random, LegacyRandom } from 'deepslate';
 
 import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { Layout } from './BuilderData/Layout';
