@@ -124,7 +124,7 @@ export class AssignSlicesManager {
         this.div.focus()
 
         this.div.onkeydown = (evt: KeyboardEvent) => {
-            if (evt.key === "z" && evt.ctrlKey && this.undoActions.length > 0){
+            if (evt.key === "z" && (evt.ctrlKey || evt.metaKey) && this.undoActions.length > 0){
                 const action = this.undoActions.pop()
                 this.builder.weirdnesses[action.w_idx][2] = action.value
                 UI.getInstance().refresh()

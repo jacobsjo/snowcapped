@@ -118,7 +118,7 @@ export class LayoutEditor {
                 return
             }
 
-            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, evt.ctrlKey ? "add_alt" : evt.altKey ? "pick" : "add")
+            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, evt.ctrlKey || evt.metaKey ? "add_alt" : evt.altKey ? "pick" : "add")
         }
 
         this.canvas.onauxclick = (evt: MouseEvent) => {
@@ -150,7 +150,7 @@ export class LayoutEditor {
         }
 
         this.canvas.onkeydown = (evt: KeyboardEvent) => {
-            if (evt.key === "z" && evt.ctrlKey) {
+            if (evt.key === "z" && (evt.ctrlKey || evt.metaKey)) {
                 this.undo()
                 UI.getInstance().refresh()
             }

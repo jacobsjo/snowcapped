@@ -78,7 +78,7 @@ export class VisualizationManger{
           if (lookup.slice === undefined || lookup.slice instanceof LayoutElementUnassigned)
             return
 
-          if (lookup.layout !== undefined && evt.originalEvent.ctrlKey){
+          if (lookup.layout !== undefined && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)){
             UI.getInstance().sidebarManager.openElement({type:"layout", key:lookup.layout.getKey()})
             UI.getInstance().layoutEditor.highlight(idxs.idx.t_idx, idxs.idx.h_idx)
             UI.getInstance().refresh()
@@ -136,8 +136,7 @@ export class VisualizationManger{
         })
 
         this.map.addEventListener("keydown", (evt: L.LeafletKeyboardEvent) => {
-          if (evt.originalEvent.key === "c" && evt.originalEvent.ctrlKey){
-  
+          if (evt.originalEvent.key === "c" && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)){
             navigator.clipboard.writeText("/execute in " + builder.dimensionName + " run tp @s " + lastPos.x.toFixed(0) + " " + (lastY + 10).toFixed(0) + " " + lastPos.y.toFixed(0))
           }
         })
