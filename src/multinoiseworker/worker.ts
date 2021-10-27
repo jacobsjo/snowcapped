@@ -52,12 +52,12 @@ class MultiNoiseCalculator {
   }, useLegacyRandom: boolean) {
     if (!useLegacyRandom) {
       const random = XoroshiroRandom.create(seed).fork()
-      this.temperature = new NormalNoise(random.forkWithHashOf("temperature"), params.temperature)
-      this.humidity = new NormalNoise(random.forkWithHashOf("vegetation"), params.humidity)
-      this.continentalness = new NormalNoise(random.forkWithHashOf("continentalness"), params.continentalness)
-      this.erosion = new NormalNoise(random.forkWithHashOf("erosion"), params.erosion)
-      this.weirdness = new NormalNoise(random.forkWithHashOf("ridge"), params.weirdness)
-      this.shift = new NormalNoise(random.forkWithHashOf("offset"), params.shift)
+      this.temperature = new NormalNoise(random.forkWithHashOf("minecraft:temperature"), params.temperature)
+      this.humidity = new NormalNoise(random.forkWithHashOf("nubecraft:vegetation"), params.humidity)
+      this.continentalness = new NormalNoise(random.forkWithHashOf("minecraft:continentalness"), params.continentalness)
+      this.erosion = new NormalNoise(random.forkWithHashOf("minecraft:erosion"), params.erosion)
+      this.weirdness = new NormalNoise(random.forkWithHashOf("minecraft:ridge"), params.weirdness)
+      this.shift = new NormalNoise(random.forkWithHashOf("minecraft:offset"), params.shift)
     } else {
       this.temperature = new NormalNoise(new LegacyRandom(seed), params.temperature)
       this.humidity = new NormalNoise(new LegacyRandom(seed + BigInt(1)), params.humidity)
