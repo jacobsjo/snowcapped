@@ -26,11 +26,6 @@ export class VanillaBiomes{
             color: "#03009e"
         },
         {
-            key: "minecraft:deep_warm_ocean",
-            name: "minecraft:deep_warm_ocean",
-            color: "#4100a3"
-        },
-        {
             key: "minecraft:deep_lukewarm_ocean",
             name: "minecraft:deep_lukewarm_ocean",
             color: "#26008f"
