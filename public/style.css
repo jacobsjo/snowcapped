@@ -458,6 +458,18 @@ body:not(.light) #menu .button img{
     flex-grow: 1;
 }
 
+#sidebar .sidebar_header .beta_icon {
+    display: inline-block;
+    position: relative;
+    font-size: 11;
+    color: var(--secondary-bg-color);
+    background-color: var(--emph-text-color);
+    border-radius: 10pt;
+    padding: 2pt 5pt 2pt 5pt;
+    flex-grow: 1;
+    top: 7pt;
+    left: -8pt
+}
 
 
 #sidebar .sidebar_header .button {
