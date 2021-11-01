@@ -33,7 +33,7 @@ export class ContourLayer extends L.GridLayer {
                 tile.classList.add('leaflet-tile-loaded')
             }
 
-            const offsets = nv.values.map(row => row.map(values => TerrainShaper.offset(TerrainShaper.point(values.continentalness, values.erosion, values.weirdness))))
+            const offsets = nv.values.map(row => row.map(values => this.builder.splines['offset'].apply(values.continentalness, values.erosion, values.weirdness)))
             const isoValueCount = 14
             const isoValueStep = 0.15
             const isoValues = Array(isoValueCount).fill(0).map((_, idx) => (idx - (isoValueCount / 2)) * isoValueStep)
