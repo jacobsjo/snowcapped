@@ -92,8 +92,8 @@ export class GridEditor {
                 const size_x = 0.93 * width
                 const size_y = 0.93 * height
 
-                const erosion = this.hoverHandle?.handle_type === "edit_spline" ? this.xs[this.hoverHandle.id[0]] : (((mouse_pos.mouse_x - cx_min) / size_x) - 0.5) * 2.4
-                const continentalness = this.hoverHandle?.handle_type === "edit_spline" ? this.ys[this.hoverHandle.id[1]] : (((mouse_pos.mouse_y - cy_min) / size_y) - 0.5) * 2.4
+                const erosion = (((mouse_pos.mouse_x - cx_min) / size_x) - 0.5) * 2.4
+                const continentalness = (((mouse_pos.mouse_y - cy_min) / size_y) - 0.5) * 2.4
 
                 UI.getInstance().splineDisplayManager.setPos({ c: continentalness, e: erosion })
                 UI.getInstance().splineDisplayManager.refresh()
@@ -441,6 +441,8 @@ export class GridEditor {
     refresh() {
         this.canvas.parentElement.classList.remove("hidden")
         this.title.readOnly = false
+
+        UI.getInstance().splineDisplayManager.setWeirdnesses([])
 
         if (UI.getInstance().sidebarManager.openedElement.key === "slice") {
             this.title.value = "Slice Grid"

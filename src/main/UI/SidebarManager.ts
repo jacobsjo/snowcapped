@@ -161,6 +161,8 @@ export class SidebarManager {
             this.openedElement.type.startsWith("modify_") || this.openedElement.type === "spline" || this.openedElement.type === "spline_grid" )
             this.selectedElement = undefined
 
+        UI.getInstance().splineEditor.zoom = 0.01
+
 //        UI.getInstance().openElement = openElement.type === "assign_slices" || openElement.type.startsWith("modify_") ? openElement.type : openElement.key
 //        UI.getInstance().selectedElement = this.selectedElement?.key ?? ""
 

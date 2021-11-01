@@ -11,6 +11,13 @@ export class SimpleSpline {
 		this.order()
 	}
 
+	public toJSON(){
+		return {
+			coordinate: "weirdness",
+			points: this.points
+		}
+	}
+
 	public static fromJSON(json: any): SimpleSpline {
 		if (json.coordinate !== "ridges" && json.coordinate !== "weirdness") {
 			console.warn("Trying to create SimpleSpline from non weirdness parameter")

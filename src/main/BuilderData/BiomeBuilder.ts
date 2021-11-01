@@ -30,11 +30,7 @@ export class BiomeBuilder{
 
     splines: {
         [key: string] : GridSpline,
-    } = {
-        offset: new GridSpline([-1.1, -1.02, -0.51, -0.44, -0.18, -0.16, -0.15, -0.1, 0.25, 1.0], [-0.85, -0.7, -0.4, -0.35, -0.1, 0.2, 0.4, 0.45, 0.55, 0.58, 0.7]),
-        factor: new GridSpline([-0.19, -0.15, -0.1, 0.03, 0.06], [-0.6, -0.5, -0.35, -0.25, -0.1, 0.03, 0.35, 0.45, 0.55, 0.62]),
-        jaggedness:  new GridSpline([-0.11, 0.03, 0.65], [-1.0, -0.78, -0.5775, -0.375])
-    }
+    } = {}
 
     renderedElements: Map<string, LayoutElement | Slice>
     layoutElements: Map<string, LayoutElement>
@@ -73,9 +69,6 @@ export class BiomeBuilder{
         this.layoutElementUnassigned = LayoutElementUnassigned.create(this)
 
         this.loadJSON(json)
-        this.splines.offset = GridSpline.fromJSON(VanillaSpline.offset);
-        this.splines.factor = GridSpline.fromJSON(VanillaSpline.factor);
-        this.splines.jaggedness = GridSpline.fromJSON(VanillaSpline.jaggedness);
     }
 
     loadJSON(json: any){
@@ -110,6 +103,16 @@ export class BiomeBuilder{
         json.biomes?.forEach((biome : any) => {
             Biome.fromJSON(this, biome)
         });
+
+        if (json.splines){
+            this.splines.offset = GridSpline.fromJSON(json.splines.offset)
+            this.splines.factor = GridSpline.fromJSON(json.splines.factor)
+            this.splines.jaggedness = GridSpline.fromJSON(json.splines.jaggedness)
+        } else {
+            this.splines.offset = GridSpline.fromMinecraftJSON(VanillaSpline.offset);
+            this.splines.factor = GridSpline.fromMinecraftJSON(VanillaSpline.factor);
+            this.splines.jaggedness = GridSpline.fromMinecraftJSON(VanillaSpline.jaggedness);
+        }
     }
 
     toJSON(){
@@ -129,7 +132,13 @@ export class BiomeBuilder{
             humidities: this.humidities,
             layouts: this.layouts,
             slices: this.slices,
-            biomes: this.biomes
+            biomes: this.biomes,
+
+            splines: {
+                offset: this.splines.offset.toJSON(),
+                factor: this.splines.factor.toJSON(),
+                jaggedness: this.splines.jaggedness.toJSON()
+            }
         }
     }
     

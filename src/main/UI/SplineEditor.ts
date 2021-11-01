@@ -9,7 +9,7 @@ export class SplineEditor {
     private builder: BiomeBuilder
     private title: HTMLInputElement
 
-    private zoom: number;
+    public zoom: number;
 
     constructor(builder: BiomeBuilder) {
         this.builder = builder
@@ -33,10 +33,7 @@ export class SplineEditor {
             const zoom_x = (div.property("scrollTop") + 0.5 * width) / this.zoom
             const zoom_y = (div.property("scrollLeft") + 0.5 * height) / this.zoom
 
-            this.zoom = Math.max(this.zoom + (evt.wheelDelta / 300), 1)
-
-            const t = d3.transition().duration(1000).ease(d3.easeLinear)
-            d3.select("#splineEditorDiv .zoomDiv").style("width", width * this.zoom).style("height", height * this.zoom)
+            this.zoom = Math.max(this.zoom + (evt.wheelDelta / 300), 0.01)
 
             this.refresh()
 
@@ -64,8 +61,16 @@ export class SplineEditor {
         const e_count = this.builder.splines[spline_name].erosions.length
         const c_count = this.builder.splines[spline_name].continentalnesses.length
 
-        const div = d3.select("#splineEditorDiv .zoomDiv")
-        const size = Math.min(parseInt(div.style("width"), 10) / e_count - 10, (parseInt(div.style("height"), 10) - 20) / c_count - 10);
+        const main_div = d3.select("#splineEditorDiv")
+        const div = main_div.select(".zoomDiv")
+
+        const min_zoom = Math.min(parseInt(main_div.style("width"), 10) / e_count - 10, (parseInt(main_div.style("height"), 10)) / c_count - 10) / 50
+        if (this.zoom < min_zoom)
+            this.zoom = min_zoom
+
+        const size = 50 * this.zoom
+        d3.select("#splineEditorDiv .zoomDiv").style("width", (size + 10) * e_count).style("height", (size + 10) * c_count)
+
 
         const xScale = d3.scaleLinear()
             .domain([-1, 1])
@@ -461,6 +466,9 @@ export class SplineEditor {
         this.title.readOnly = true
         this.title.value = UI.getInstance().sidebarManager.openedElement.key === "offset" ? "Offset Spline" : UI.getInstance().sidebarManager.openedElement.key === "factor" ? "Factor Spline" : "Jaggedness Spline"
         d3.select("#splineEditorDiv").attr("hidden", undefined)
+
+        UI.getInstance().splineDisplayManager.setWeirdnesses([])
+        UI.getInstance().splineDisplayManager.setPos(undefined)
 
         this.draw()
     }

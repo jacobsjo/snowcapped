@@ -25,25 +25,25 @@ export class GridSpline {
     }
 
     public apply(c: number, e: number, w: number) {
-		const c_id = binarySearch(0, this.continentalnesses.length, n => c < this.continentalnesses[n]) - 1
+        const c_id = binarySearch(0, this.continentalnesses.length, n => c < this.continentalnesses[n]) - 1
 
         const c_last = this.continentalnesses.length - 1
-        if (c_id === -1){
-			return this.applyErosion(0, e, w)
-        } else if (c_id === c_last){
-			return this.applyErosion(c_last, e, w)
+        if (c_id === -1) {
+            return this.applyErosion(0, e, w)
+        } else if (c_id === c_last) {
+            return this.applyErosion(c_last, e, w)
         } else {
-            return GridSpline.interpolateZeroGrad((c - this.continentalnesses[c_id])/(this.continentalnesses[c_id+1] - this.continentalnesses[c_id]), this.applyErosion(c_id, e, w), this.applyErosion(c_id+1, e, w))
+            return GridSpline.interpolateZeroGrad((c - this.continentalnesses[c_id]) / (this.continentalnesses[c_id + 1] - this.continentalnesses[c_id]), this.applyErosion(c_id, e, w), this.applyErosion(c_id + 1, e, w))
         }
 
-	}
+    }
 
-    private applyErosion(c_id: number, e: number, w: number){
+    private applyErosion(c_id: number, e: number, w: number) {
         var e_last: number
         var e_next: number
         for (var ei = 0; ei < this.erosions.length; ei++) {
             if (this.splines[c_id][ei]) {
-                if (this.erosions[ei] < e ){
+                if (this.erosions[ei] < e) {
                     e_last = ei
                 } else {
                     e_next = ei
@@ -54,21 +54,45 @@ export class GridSpline {
 
         if (e_last === undefined && e_next === undefined) {
             return undefined
-        } else if (e_last === undefined){
-			return this.splines[c_id][e_next].apply(w)
-        } else if (e_next === undefined){
-			return this.splines[c_id][e_last].apply(w)
+        } else if (e_last === undefined) {
+            return this.splines[c_id][e_next].apply(w)
+        } else if (e_next === undefined) {
+            return this.splines[c_id][e_last].apply(w)
         } else {
-            return GridSpline.interpolateZeroGrad((e - this.erosions[e_last])/(this.erosions[e_next] - this.erosions[e_last]), this.splines[c_id][e_last].apply(w), this.splines[c_id][e_next].apply(w))
+            return GridSpline.interpolateZeroGrad((e - this.erosions[e_last]) / (this.erosions[e_next] - this.erosions[e_last]), this.splines[c_id][e_last].apply(w), this.splines[c_id][e_next].apply(w))
         }
     }
 
-    private static interpolateZeroGrad(alpha: number, a: number, b: number){
-		return lerp(alpha, a, b) + alpha * (1.0 - alpha) * lerp(alpha, a-b, b-a)
+    private static interpolateZeroGrad(alpha: number, a: number, b: number) {
+        return lerp(alpha, a, b) + alpha * (1.0 - alpha) * lerp(alpha, a - b, b - a)
     }
-    
 
-    public static fromJSON(json: any): GridSpline {
+    public toJSON() {
+        return {
+            continentalnesses: this.continentalnesses,
+            erosions: this.erosions,
+            splines: this.splines.map(row => row.map(spline => {
+                if (spline) {
+                    return spline.toJSON()
+                } else {
+                    return undefined
+                }
+            }))
+        }
+    }
+
+    public static fromJSON(json: any) {
+        return new GridSpline(json.continentalnesses, json.erosions, json.splines.map((row: any) => row.map((spline: any) => {
+            if (spline){
+                return SimpleSpline.fromJSON(spline)
+            } else {
+                return undefined
+            }
+        }
+        )))
+    }
+
+    public static fromMinecraftJSON(json: any): GridSpline {
         if (json.coordinate !== "continents") {
             console.warn("Spline order not suppored")
             return undefined
@@ -85,7 +109,7 @@ export class GridSpline {
             }
         });
 
-        const erosions = Array.from(erosionSet).sort((a, b) => a-b)
+        const erosions = Array.from(erosionSet).sort((a, b) => a - b)
 
         const splines: SimpleSpline[][] = []
         for (let c = 0; c < continentalnesses.length; c++) {
@@ -97,12 +121,12 @@ export class GridSpline {
 
         json.points.forEach((p: { location: any; value: { coordinate: string; points: any[]; }; }) => {
             const c_id = continentalnesses.findIndex(c => c === p.location)
-            if (typeof p.value === "number"){
+            if (typeof p.value === "number") {
                 splines[c_id][0] = new SimpleSpline([{ location: 0, value: p.value, derivative: 0 }])
             } else if (p.value.coordinate === "erosion") {
                 p.value.points.forEach((pp: { location: any; value: any; }) => {
                     const e_id = erosions.findIndex(e => e === pp.location)
-                    if (typeof pp.value === "number"){
+                    if (typeof pp.value === "number") {
                         splines[c_id][e_id] = new SimpleSpline([{ location: 0, value: pp.value, derivative: 0 }])
                     } else {
                         splines[c_id][e_id] = SimpleSpline.fromJSON(pp.value)
