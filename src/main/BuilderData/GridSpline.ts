@@ -25,17 +25,35 @@ export class GridSpline {
     }
 
     public apply(c: number, e: number, w: number) {
-        const c_id = binarySearch(0, this.continentalnesses.length, n => c < this.continentalnesses[n]) - 1
-
-        const c_last = this.continentalnesses.length - 1
-        if (c_id === -1) {
-            return this.applyErosion(0, e, w)
-        } else if (c_id === c_last) {
-            return this.applyErosion(c_last, e, w)
-        } else {
-            return GridSpline.interpolateZeroGrad((c - this.continentalnesses[c_id]) / (this.continentalnesses[c_id + 1] - this.continentalnesses[c_id]), this.applyErosion(c_id, e, w), this.applyErosion(c_id + 1, e, w))
+        var c_last: number
+        var c_next: number
+        for (var ci = 0; ci < this.continentalnesses.length; ci++) {
+            var ok = false;
+            for (var ei = 0; ei < this.erosions.length; ei++) {
+                if (this.splines[ci][ei] !== undefined){
+                    ok = true
+                    break
+                }
+            }
+            if (ok) {
+                if (this.continentalnesses[ci] < c) {
+                    c_last = ci
+                } else {
+                    c_next = ci
+                    break
+                }
+            }
         }
 
+        if (c_last === undefined && c_next === undefined) {
+            return undefined
+        } else if (c_last === undefined) {
+            return this.applyErosion(c_next, e, w)
+        } else if (c_next === undefined) {
+            return this.applyErosion(c_last, e, w)
+        } else {
+            return GridSpline.interpolateZeroGrad((c - this.continentalnesses[c_last]) / (this.continentalnesses[c_next] - this.continentalnesses[c_last]), this.applyErosion(c_last, e, w), this.applyErosion(c_next, e, w))
+        }
     }
 
     private applyErosion(c_id: number, e: number, w: number) {

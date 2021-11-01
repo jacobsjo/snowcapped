@@ -114,12 +114,18 @@ export class GridEditor {
                     builder.splitParam(this.x_param, handle.id)
                 } else {
                     this.xs.splice(handle.id + 1, 0, (this.xs[handle.id] + this.xs[handle.id + 1]) / 2)
+                    this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.forEach(row=>row.splice(handle.id + 1, 0, undefined))
                 }
             } else if (handle.handle_type === "add_y") {
                 if (this.y_array) {
                     builder.splitParam(this.y_param, handle.id)
                 } else {
                     this.ys.splice(handle.id + 1, 0, (this.ys[handle.id] + this.ys[handle.id + 1]) / 2)
+                    const splines = [];
+                    for (let i = 0 ; i < this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].erosions.length ; i++){
+                        splines.push(undefined)
+                    }
+                    this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.splice(handle.id + 1, 0, splines)
                 }
             }
 
@@ -175,7 +181,9 @@ export class GridEditor {
                     }
                     else {
                         if (this.xs[draggingHandle.id] === min_value || this.xs[draggingHandle.id] === max_value) {
-                            this.xs.splice(draggingHandle.id, 1)
+                            const id: number = draggingHandle.id
+                            this.xs.splice(id, 1)
+                            this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.forEach(row=>row.splice(id, 1))
                         }
                     }
 
@@ -212,7 +220,9 @@ export class GridEditor {
                     }
                     else {
                         if (this.ys[draggingHandle.id] === min_value || this.ys[draggingHandle.id] === max_value) {
-                            this.ys.splice(draggingHandle.id, 1)
+                            const id: number = draggingHandle.id
+                            this.ys.splice(id, 1)
+                            this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.splice(id, 1)
                         }
                     }
 
