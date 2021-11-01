@@ -73,10 +73,10 @@ export class SplineEditor {
 
 
         const xScale = d3.scaleLinear()
-            .domain([-1, 1])
+            .domain([-1.5, 1.5])
             .range([0, size])
 
-        const xFactor = 2 / size
+        const xFactor = 3 / size
 
         var yScale: d3.ScaleLinear<number, number, never>;
         var yFactor: number
@@ -166,7 +166,7 @@ export class SplineEditor {
             .data(d => {
                 const points: [number, number][] = []
                 if (d.spline){
-                    for (let w = -1.2; w <= 1.2001; w += 0.05) {
+                    for (let w = -1.5; w <= 1.5001; w += 0.05) {
                         points.push([w, d.spline.apply(w)])
                     }
                     for (let w of d.spline.points){

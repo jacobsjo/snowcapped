@@ -92,6 +92,36 @@ export class GridSpline {
         )))
     }
 
+    public export() {
+        const contitent_points = []
+        for (let c_id = 0 ; c_id < this.continentalnesses.length ; c_id ++){
+            const erosion_points = []
+            for (let e_id = 0 ; e_id < this.erosions.length ; e_id ++){
+                if (this.splines[c_id][e_id]){
+                    erosion_points.push({
+                        location: this.erosions[e_id],
+                        derivative: 0,
+                        value: this.splines[c_id][e_id].toJSON()
+                    })
+                }
+            }
+
+            contitent_points.push({
+                location: this.continentalnesses[c_id],
+                derivative: 0,
+                value: {
+                    coordinate: "erosion",
+                    points: erosion_points
+                }
+            })
+        }
+
+        return {
+            coordinate: "continents",
+            points: contitent_points
+        }
+    }
+
     public static fromMinecraftJSON(json: any): GridSpline {
         if (json.coordinate !== "continents") {
             console.warn("Spline order not suppored")

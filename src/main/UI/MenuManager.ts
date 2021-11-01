@@ -9,7 +9,8 @@ export class MenuManager {
     private static loadEmptyButton: HTMLElement
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
-    private static exportButton: HTMLElement
+    private static exportDimensionButton: HTMLElement
+    private static exportSplinesButton: HTMLElement
     private static settingsButton: HTMLElement
     private static toggleDarkmodeButton: HTMLElement
 
@@ -18,7 +19,8 @@ export class MenuManager {
         this.loadEmptyButton = document.getElementById('loadEmptyButton')
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
-        this.exportButton = document.getElementById('exportButton')
+        this.exportDimensionButton = document.getElementById('exportDimensionButton')
+        this.exportSplinesButton = document.getElementById('exportSplinesButton')
         this.settingsButton = document.getElementById('settingsButton')
         this.toggleDarkmodeButton = document.getElementById('toggleDarkmodeButton')
 
@@ -92,7 +94,7 @@ export class MenuManager {
             UI.getInstance().builder.hasChanges = false
         }
 
-        this.exportButton.onclick = (evt: Event) => {
+        this.exportDimensionButton.onclick = (evt: Event) => {
             const exporter = new Exporter(UI.getInstance().builder)
             const jsonString = exporter.export()
             const bb = new Blob([jsonString], {type: 'text/plain'})
@@ -102,6 +104,23 @@ export class MenuManager {
             a.href = window.URL.createObjectURL(bb)
             a.click()
         }
+
+        this.exportSplinesButton.onclick = (evt: Event) => {
+            const json = {
+                offset: UI.getInstance().builder.splines.offset.export(),
+                factor: UI.getInstance().builder.splines.factor.export(),
+                jaggedness: UI.getInstance().builder.splines.jaggedness.export()
+            }
+            const jsonString = "\"terrain_shaper\": " + JSON.stringify(json)
+
+            const bb = new Blob([jsonString], {type: 'text/plain'})
+            const a = document.createElement('a')
+            const name = UI.getInstance().builder.dimensionName.split(new RegExp(":|\/")).reverse()[0] + "_terrain_shaper.json"
+            a.download = name
+            a.href = window.URL.createObjectURL(bb)
+            a.click()
+        }
+
 
         this.settingsButton.onclick = (evt: Event) => {
             const settingsOpen = !document.getElementById("settings").classList.toggle("hidden")

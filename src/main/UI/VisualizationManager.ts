@@ -101,7 +101,7 @@ export class VisualizationManger{
             tooltip_mode.src = "mode_" + lookup?.mode + ".png"
 
           const pos = this.getPos(evt.latlng);
-          const y = idxs ? (TerrainShaper.offset(TerrainShaper.point(idxs.values.continentalness, idxs.values.erosion, idxs.values.weirdness)) * 128 + 64) : undefined
+          const y = idxs ? (builder.splines.offset.apply(idxs.values.continentalness, idxs.values.erosion, idxs.values.weirdness) * 128 + 64) : undefined
           tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0) + (y?(" -> Y: " + y.toFixed(0)):"")
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"

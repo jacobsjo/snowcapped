@@ -57,7 +57,7 @@ export class SimpleSpline {
 		if (ridge > 1 || ridge < -1) return { weirdnesses: [], derivative_factors: [] }
 
 		const a = ridge / 3.0 - 0.33333334
-		if (a - 0.6666667 < -1) {
+		if (a - 0.6666667 < -1.5) {
 			return { weirdnesses: [-a - 0.6666667, a + 0.6666667], derivative_factors: [-3, 3] }
 		} else {
 			return { weirdnesses: [a - 0.6666667, -a - 0.6666667, a + 0.6666667, -a + 0.6666667], derivative_factors: [3, -3, 3, -3] }

@@ -33,7 +33,7 @@ export class SplineDisplayManager {
         const height = parseInt(svg.style("height"), 10);
 
         const xScale = d3.scaleLinear()
-            .domain([-1, 1])
+            .domain([-1.5, 1.5])
             .range([0, width])
 
         const offsetScale = d3.scaleLinear()
@@ -41,18 +41,18 @@ export class SplineDisplayManager {
             .range([height, 0])
 
         const factorScale = d3.scaleLinear()
-            .domain([800, 0])
+            .domain([8, 0])
             .range([height, 0])
 
         const roughnessScale = d3.scaleLinear()
-            .domain([0, 100])
+            .domain([0, 1])
             .range([height - 10, 0])
 
         const offsets: [number, number][] = []
         const factors: [number, number][] = []
         const roughnesses: [number, number][] = []
         if (this.pos) {
-            for (let w = -1; w <= 1.01; w += 0.05) {
+            for (let w = -1.5; w <= 1.51; w += 0.05) {
                 offsets.push([w, this.builder.splines['offset'].apply(this.pos.c, this.pos.e, w)])
                 factors.push([w, this.builder.splines['factor'].apply(this.pos.c, this.pos.e, w)])
                 roughnesses.push([w, this.builder.splines['jaggedness'].apply(this.pos.c, this.pos.e, w)])
