@@ -19,6 +19,7 @@ for (let i = 0 ; i < close_elements.length ; i++){
         if ((close_elements[i] as any).onopenchange !== undefined)
             (close_elements[i] as any).onopenchange()
         close_elements[i].classList.toggle("closed")
+        UI.getInstance().refresh()
     }
 }
 

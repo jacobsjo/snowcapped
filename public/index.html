@@ -30,8 +30,8 @@
             <div class="button" id="openButton" title="Open"><img src="open-file-folder.svg" /></div>
             <div class="button" id="saveButton" title="Save"><img src="save.svg" /></div>
             <div class="button" id="exportButton" title="Export dimension.json"><img src="export-file.svg" /></div>
-            <div class="button" id="settingsButton" title="Settings"s><img src="settings-gear.svg" /></div>
-            <div class="help" id="help"> 
+            <div class="button" id="settingsButton" title="Settings" s><img src="settings-gear.svg" /></div>
+            <div class="help" id="help">
                 <div class="help-entry hidden" id="select"><span class="b">[Left Click]</span> Select</div>
                 <div class="help-entry hidden" id="paint"><span class="b">[Left Click]</span> Paint</div>
                 <div class="help-entry hidden" id="open-slice"><span class="b">[Left Click]</span> Open Slice</div>
@@ -52,31 +52,62 @@
                 <div id="editor">
                     <div id="sidebar">
                         <div id="sidebar_menu">
-                            <div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices</div>
+                            <div class="sidebar_header">
+                                <div class="name">Splines: </div>
+                            </div>
+                            <div class="sidebar_entry_list" id="splines">
+                                <div class="sidebar_entry spline" id="offset" title="Offset">
+                                    <img class="grid" src="offset-icon.svg">
+                                    <span class="name">Offset</span>
+                                    <img class="button edit edit_grid_button" src="grid.svg" title="Edit Grid" />
+                                </div>
+                                <div class="sidebar_entry spline" id="factor" title="Factor">
+                                    <img class="grid" src="factor-icon.svg">
+                                    <span class="name">Factor</span>
+                                    <img class="button edit edit_grid_button" src="grid.svg" title="Edit Grid" />
+                                </div>
+                                <div class="sidebar_entry spline" id="jaggedness" title="Jaggedness">
+                                    <img class="grid" src="jaggedness-icon.svg">
+                                    <span class="name">Jaggedness</span>
+                                    <img class="button edit edit_grid_button" src="grid.svg" title="Edit Grid" />
+                                </div>
+                            </div>
+                            <!--<div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices
+                            </div>-->
                             <div class="spacer"></div>
                             <div class="sidebar_header">
                                 <div class="name">Slices: </div>
                                 <img class="button" id="add_slices_button" title="Add Slice" src="add.svg">
-                                <img class="button hide" id="hide_all_slices_button" title="Hide/Show all Slices" src="eye.svg">
+                                <img class="button" id="assign_slices_button" title="Assign Slices"
+                                    src="assign.svg">
+                                <img class="button" id="edit_slices_grid_button" title="Edit Slices Grid"
+                                    src="grid.svg">
+                                <!--<img class="button" id="edit_splines_button" title="Edit Splines" src="spline.svg">-->
+                                <img class="button hide" id="hide_all_slices_button" title="Hide/Show all Slices"
+                                    src="eye.svg">
                             </div>
                             <div class="sidebar_entry_list" id="slices"></div>
                             <div class="spacer"></div>
                             <div class="sidebar_header">
                                 <div class="name">Layouts: </div>
                                 <img class="button" id="add_layout_button" title="Add Layout" src="add.svg">
-                                <img class="button" id="edit_layout_grid_button" title="Edit Layout Grid" src="grid.svg">
-                                <img class="button hide" id="hide_all_layouts_button" title="Hide/Show all Slices" src="eye.svg">
+                                <img class="button" id="edit_layout_grid_button" title="Edit Layout Grid"
+                                    src="grid.svg">
+                                <img class="button hide" id="hide_all_layouts_button" title="Hide/Show all Slices"
+                                    src="eye.svg">
                             </div>
                             <div class="sidebar_entry_list" id="layouts"></div>
                             <div class="spacer"></div>
                             <div class="sidebar_header">
                                 <div class="name">Biomes: </div>
                                 <img class="button" id="add_biome_button" title="Add Biome" src="add.svg">
-                                <img class="button hide" id="hide_all_biomes_button" title="Hide/Show all Biomes" src="eye.svg">
+                                <img class="button hide" id="hide_all_biomes_button" title="Hide/Show all Biomes"
+                                    src="eye.svg">
                             </div>
-                            <input type="text" placeholder="Seach..." class="search_bar" title="Seach for Biomes" id="biome_search_bar">
+                            <input type="text" placeholder="Seach..." class="search_bar" title="Seach for Biomes"
+                                id="biome_search_bar">
                             <div class="sidebar_entry_list" id="biomes"></div>
-                            <div class="label">Unused Vanilla Biomes</div>                            
+                            <div class="label">Unused Vanilla Biomes</div>
                             <div class="sidebar_entry_list" id="vanilla_biomes"></div>
                             <div class="spacer" id="sidebar_bottom_spacer" style="height: 0px;"></div>
                         </div>
@@ -104,6 +135,8 @@
                         <div id="gridEditorDiv">
                             <canvas tabindex='1' id="gridEditorCanvas" width="1300" height="1300"></canvas>
                         </div>
+                        <div id="splineEditorDiv">
+                        </div>
 
                     </div>
                     <div class="tooltip hidden" id="layoutEditorTooltip">
@@ -118,8 +151,8 @@
                                 id="dimension_name" /></label></div>
                     <div class="setting"> <label><span class="description">Seed:</span><input type="number" step=1
                                 id="seed" /></label></div>
-                    <div class="setting"> <label><span class="description">Use Legacy Random:</span><input type="checkbox"
-                        id="useLegacyRandom" /></label></div>
+                    <div class="setting"> <label><span class="description">Use Legacy Random:</span><input
+                                type="checkbox" id="useLegacyRandom" /></label></div>
                     <div class="setting">
                         <label id="continentalness_setting"><span class="description">Continentalness:</span>
                         </label><br />

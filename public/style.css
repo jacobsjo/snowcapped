@@ -415,6 +415,10 @@ body:not(.light) #menu .button img{
     display: block;
 }
 
+#sidebar .sidebar_entry.spline .grid {
+    height: 40pt;
+}
+
 #sidebar .sidebar_entry.slice .grid {
     height: 60pt;
 }
@@ -588,6 +592,16 @@ body:not(.light) #menu .button img{
     background-color: var(--primary-button-hover-delete-color);
 }
 
+#sidebar .sidebar_entry .button.open {
+    background-color: var(--primary-button-open-color);
+    display: block;
+}
+
+#sidebar .sidebar_entry .button.open:hover {
+    background-color: var(--primary-button-open-color);
+}
+
+
 #sidebar .spacer {
     width: 222pt;
     height: 5pt;
@@ -711,6 +725,90 @@ body:not(.light) #menu .button img{
     outline: 0;
     flex-shrink: 2;
 }
+
+
+#layoutEditor #splineEditorDiv{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#layoutEditor #splineEditorDiv #splineEditorSvg{
+    width: calc(100% - 20pt);
+    height: calc(100% - 20pt);
+}
+
+#layoutEditor #splineEditorDiv svg{
+    margin: 3pt;
+    background-color: var(--secondary-bg-color);
+}
+
+
+#layoutEditor #splineEditorDiv .water{
+    fill: var(--water-color);
+}
+
+#layoutEditor #splineEditorDiv .water{
+    fill: var(--water-color);
+}
+
+#layoutEditor #splineEditorDiv .hide{
+    display: none;
+}
+
+#layoutEditor #splineEditorDiv .add{
+    width: 100%;
+}
+
+
+#layoutEditor #splineEditorDiv .spline.area{
+    fill: var(--terrain-color);
+    stroke: none;
+}
+
+#layoutEditor #splineEditorDiv .spline:not(.area){
+    fill: none;
+    stroke: var(--main-text-color);
+}
+
+#layoutEditor #splineEditorDiv .spline_pointer{
+    fill: none;
+    stroke: var(--emph-text-color);
+    stroke-width: 3pt;
+    stroke-opacity: 0.0;
+}
+
+#layoutEditor #splineEditorDiv svg:not(:hover) .handle{
+    display: none;
+}
+
+#layoutEditor #splineEditorDiv .handle circle{
+    fill: var(--emph-text-color);
+}
+
+
+#layoutEditor #splineEditorDiv #square{
+    fill: var(--emph-text-color);
+}
+
+#layoutEditor #splineEditorDiv .handle line.handle_line{
+    fill: none;
+    stroke: var(--emph-text-color);
+    stroke-width: 1pt;
+}
+
+#layoutEditor #splineEditorDiv .handle:not(:hover):not(.dragged) line.handle_line{
+    display: none;
+}
+
+#layoutEditor #splineEditorDiv .handle line.handle_line_pointer{
+    fill: none;
+    stroke: var(--emph-text-color);
+    stroke-opacity: 0.0;
+    stroke-width: 5pt;
+}
+
+
 
 
 .hidden {

@@ -14,13 +14,33 @@ export class SidebarManager {
     private dragKey: string;
     private lastDragedOverDiv: HTMLElement;
 
-    private openedElement: { type: string, key?: string } = { type: "assign_slices" };
-    private selectedElement: { type: string, key: string };
-
+    public openedElement: { type: string, key?: string } = { type: "assign_slices" };
+    public selectedElement: { type: string, key: string };
 
     constructor(builder: BiomeBuilder) {
         const sidebar = d3.select("#sidebar_menu")
         this.builder = builder
+
+        const self=this
+        sidebar.selectAll<HTMLElement, unknown>(".sidebar_entry_list#splines .sidebar_entry.spline")
+            .on("click", function(evt: Event) {
+                self.openElement({ type: "spline", key: this.id })
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            })
+            .on("contextmenu", function(evt: Event) {
+                self.openElement({ type: "spline", key: this.id })
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+                evt.preventDefault()
+            })
+            .selectAll<HTMLElement, unknown>(".edit_grid_button")
+            .on("click", function(evt: Event) {
+                self.openElement({ type: "grid", key: this.parentElement.id })
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            })
+
 
         sidebar.select("#assign_slices_button")
             .on("click", (evt: Event) => {
@@ -32,6 +52,13 @@ export class SidebarManager {
                 evt.preventDefault()
             })
 
+        sidebar.select("#edit_slices_grid_button")
+            .on("click", (evt: Event) => {
+                this.openElement({ type: "grid", key: "slice" })
+                UI.getInstance().refresh()
+                evt.stopPropagation()
+            })
+            
         sidebar.select("#add_slices_button")
             .on("click", (evt: Event) => {
                 const slice = Slice.create(this.builder, "New Slice", "unassigned")
@@ -67,8 +94,7 @@ export class SidebarManager {
 
         sidebar.select("#edit_layout_grid_button")
             .on("click", (evt: Event) => {
-                this.openElement({ type: "modify_layout" })
-                this.builder.hasChanges = true
+                this.openElement({ type: "grid", key: "layout" })
                 UI.getInstance().refresh()
                 evt.stopPropagation()
             })
@@ -132,11 +158,11 @@ export class SidebarManager {
 
         if ((this.openedElement.type === "assign_slices" && this.selectedElement?.type !== "slice") ||
             (this.openedElement.type !== "assign_slices" && this.selectedElement?.type === "slice") ||
-            (this.openedElement.type === "modify_layout"))
+            this.openedElement.type.startsWith("modify_") || this.openedElement.type === "spline" || this.openedElement.type === "spline_grid" )
             this.selectedElement = undefined
 
-        UI.getInstance().openElement = openElement.type === "assign_slices" || openElement.type === "modify_layout" ? openElement.type : openElement.key
-        UI.getInstance().selectedElement = this.selectedElement?.key ?? ""
+//        UI.getInstance().openElement = openElement.type === "assign_slices" || openElement.type.startsWith("modify_") ? openElement.type : openElement.key
+//        UI.getInstance().selectedElement = this.selectedElement?.key ?? ""
 
         UI.getInstance().refresh()
     }
@@ -144,12 +170,11 @@ export class SidebarManager {
     public selectElement(selectElement?: { type: string, key: string }) {
         if ((this.openedElement.type === "assign_slices" && selectElement.type !== "slice") ||
             (this.openedElement.type !== "assign_slices" && selectElement.type === "slice") ||
-            (this.openedElement.type === "modify_layout"))
+            this.openedElement.type.startsWith("modify_"))
             return
 
         this.selectedElement = selectElement
 
-        UI.getInstance().selectedElement = this.selectedElement?.key
         UI.getInstance().refresh()
 
     }
@@ -158,17 +183,30 @@ export class SidebarManager {
     refresh() {
         const sidebar = d3.select("#sidebar_menu")
 
+        const self=this
+        sidebar.selectAll<HTMLElement, unknown>(".sidebar_entry_list#splines .sidebar_entry.spline")
+            .classed("open", function(){
+                return self.openedElement.type === "spline" && this.id === self.openedElement.key
+            })
+            .selectAll<HTMLElement, unknown>(".edit_grid_button")
+            .classed("open", function(){
+                return self.openedElement.type === "grid" && this.parentElement.id === self.openedElement.key
+            })
+
         sidebar.select("#assign_slices_button")
-            .classed("open", UI.getInstance().openElement === "assign_slices")
+            .classed("open", this.openedElement.type === "assign_slices")
 
         sidebar.select("#hide_all_slices_button")
             .classed("enabled", !this.builder.slices.every(s => !s.hidden))
+
+        sidebar.select("#edit_slices_grid_button")
+            .classed("open", this.openedElement.type === "grid" && this.openedElement.key === "slice")
 
         sidebar.select("#hide_all_layouts_button")
             .classed("enabled", !this.builder.layouts.every(s => !s.hidden))
 
         sidebar.select("#edit_layout_grid_button")
-            .classed("open", this.openedElement.type === "modify_layout")
+            .classed("open", this.openedElement.type === "grid" && this.openedElement.key === "layout")
 
         sidebar.select("#hide_all_biomes_button")
             .classed("enabled", !this.builder.biomes.every(s => !s.hidden))
@@ -290,8 +328,8 @@ export class SidebarManager {
                 return div
             })
 
-        slices_divs.classed("open", d => UI.getInstance().openElement === d.getKey())
-        slices_divs.classed("selected", d => UI.getInstance().selectedElement === d.getKey())
+        slices_divs.classed("open", d => this.openedElement?.key === d.getKey())
+        slices_divs.classed("selected", d => this.selectedElement?.key === d.getKey())
         slices_divs.attr("title", d=>d.name)
 
         slices_divs.select("canvas.grid").filter(d => d.getKey() === this.openedElement.key).each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))

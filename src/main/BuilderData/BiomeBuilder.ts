@@ -2,12 +2,15 @@ import { Climate } from "deepslate"
 import { UnassignedRenderer } from "../UI/Renderer/ElementRenderer"
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes"
 import { VanillaNoiseSettings } from "../Vanilla/VanillaNoiseSettings"
+import { VanillaSpline } from "../Vanilla/VanillaSplines"
 import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
+import { GridSpline } from "./GridSpline"
 import { Layout } from "./Layout"
 import { LayoutElement } from "./LayoutElement"
 import { LayoutElementDummy } from "./LayoutElementDummy"
 import { LayoutElementUnassigned } from "./LayoutElementUnassigned"
+import { SimpleSpline } from "./SimpleSpline"
 
 import { Slice } from "./Slice"
 
@@ -24,6 +27,14 @@ export class BiomeBuilder{
     weirdnesses: [string,Climate.Param, string, "A"|"B"][]
     temperatures: [string,Climate.Param][]
     humidities: [string,Climate.Param][]
+
+    splines: {
+        [key: string] : GridSpline,
+    } = {
+        offset: new GridSpline([-1.1, -1.02, -0.51, -0.44, -0.18, -0.16, -0.15, -0.1, 0.25, 1.0], [-0.85, -0.7, -0.4, -0.35, -0.1, 0.2, 0.4, 0.45, 0.55, 0.58, 0.7]),
+        factor: new GridSpline([-0.19, -0.15, -0.1, 0.03, 0.06], [-0.6, -0.5, -0.35, -0.25, -0.1, 0.03, 0.35, 0.45, 0.55, 0.62]),
+        jaggedness:  new GridSpline([-0.11, 0.03, 0.65], [-1.0, -0.78, -0.5775, -0.375])
+    }
 
     renderedElements: Map<string, LayoutElement | Slice>
     layoutElements: Map<string, LayoutElement>
@@ -62,6 +73,9 @@ export class BiomeBuilder{
         this.layoutElementUnassigned = LayoutElementUnassigned.create(this)
 
         this.loadJSON(json)
+        this.splines.offset = GridSpline.fromJSON(VanillaSpline.offset);
+        this.splines.factor = GridSpline.fromJSON(VanillaSpline.factor);
+        this.splines.jaggedness = GridSpline.fromJSON(VanillaSpline.jaggedness);
     }
 
     loadJSON(json: any){
@@ -256,8 +270,13 @@ export class BiomeBuilder{
             } else {
                 this.temperatures.splice(id, 1)
             }
-        } else { 
-
+        } else if (param === "continentalness" || param === "erosion"){ 
+            this.slices.forEach(slice => slice.deleteParam(param, id))
+            if (param === "continentalness"){
+                this.continentalnesses.splice(id, 1)
+            } else {
+                this.erosions.splice(id, 1)
+            }
         }
     }
 
@@ -279,8 +298,23 @@ export class BiomeBuilder{
 
                 this.temperatures.splice(id, 1, ["d", newTemp1], ["d", newTemp2])
             }
-        } else { 
+        } else if (param === "continentalness" || param === "erosion"){ 
+            this.slices.forEach(slice => slice.splitParam(param, id))
+            if (param === "continentalness"){
+                const midPoint = (this.continentalnesses[id][1].min + this.continentalnesses[id][1].max)/2
 
+                const newCont1 = new Climate.Param(this.continentalnesses[id][1].min, midPoint)
+                const newCont2 = new Climate.Param(midPoint, this.continentalnesses[id][1].max)
+
+                this.continentalnesses.splice(id, 1, ["d", newCont1], ["d", newCont2])
+            } else {
+                const midPoint = (this.erosions[id][1].min + this.erosions[id][1].max)/2
+
+                const newEro1 = new Climate.Param(this.erosions[id][1].min, midPoint)
+                const newEro2 = new Climate.Param(midPoint, this.erosions[id][1].max)
+
+                this.erosions.splice(id, 1, ["d", newEro1], ["d", newEro2])
+            }
         }
     }
 

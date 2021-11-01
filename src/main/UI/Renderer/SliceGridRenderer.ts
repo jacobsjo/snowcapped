@@ -21,8 +21,8 @@ export class SliceGridRenderer {
 
         const elementSize = Math.min(maxElementSizeX, maxElementSizeY)
 
-        const xOffset = (elementSize * size[1] - sizeX) / 2 + minX
-        const yOffset = (elementSize * size[0] - sizeY) / 2 + minY
+        const xOffset = -(elementSize * size[1] - sizeX) / 2 + minX
+        const yOffset = -(elementSize * size[0] - sizeY) / 2 + minY
 
         ctx.clearRect(minX, minY, sizeX, sizeY)
 

@@ -53,10 +53,9 @@ export class SplineDisplayManager {
         const roughnesses: [number, number][] = []
         if (this.pos) {
             for (let w = -1; w <= 1.01; w += 0.05) {
-                const point = TerrainShaper.point(this.pos.c, this.pos.e, w)
-                offsets.push([w, TerrainShaper.offset(point)])
-                factors.push([w, TerrainShaper.factor(point)])
-                roughnesses.push([w, TerrainShaper.jaggedness(point)])
+                offsets.push([w, this.builder.splines['offset'].apply(this.pos.c, this.pos.e, w)])
+                factors.push([w, this.builder.splines['factor'].apply(this.pos.c, this.pos.e, w)])
+                roughnesses.push([w, this.builder.splines['jaggedness'].apply(this.pos.c, this.pos.e, w)])
             }
         } else {
             waterLevel = -0.3

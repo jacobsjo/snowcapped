@@ -172,7 +172,7 @@ export class LayoutEditor {
     }
 
     highlight(x_idx: number, y_idx: number){
-        const element = this.builder.getRenderedElement(UI.getInstance().openElement)
+        const element = this.builder.getRenderedElement(UI.getInstance().sidebarManager.openedElement.key)
         if (element instanceof Slice || element instanceof Layout)
             this.layout = element
         this.layout.getRenderer().setHighlight(x_idx, y_idx)
@@ -201,7 +201,7 @@ export class LayoutEditor {
             }
         }
 
-        var selectedElement = UI.getInstance().selectedElement;
+        var selectedElement = UI.getInstance().sidebarManager.selectedElement.key;
 
         if (action === "remove") {
             selectedElement = "unassigned"
@@ -274,7 +274,7 @@ export class LayoutEditor {
     refresh() {
         this.canvas.parentElement.classList.remove("hidden")
         this.title.readOnly = false
-        const element = this.builder.getRenderedElement(UI.getInstance().openElement)
+        const element = this.builder.getRenderedElement(UI.getInstance().sidebarManager.openedElement.key)
         if (element instanceof Slice || element instanceof Layout)
             this.layout = element
         this.title.value = this.layout.name

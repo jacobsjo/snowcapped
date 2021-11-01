@@ -66,6 +66,22 @@ export class Slice{
         }
     }
 
+    deleteParam(param: "continentalness"|"erosion", id: number){
+        if (param === "continentalness"){
+            this.array.splice(id, 1)
+        } else {
+            this.array.forEach(row => row.splice(id, 1))
+        }
+    }
+
+    splitParam(param: "continentalness"|"erosion", id: number){
+        if (param === "continentalness"){
+            this.array.splice(id, 0, Array.from(this.array[id]))
+        } else {
+            this.array.forEach(row => row.splice(id, 0, row[id]))
+        }
+    }
+
     lookupKey(continentalnessIndex: number, erosionIndex: number): string{
         return this.array[continentalnessIndex][erosionIndex]
     }
