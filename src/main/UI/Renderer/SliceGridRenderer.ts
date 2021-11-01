@@ -85,13 +85,13 @@ export class SliceGridRenderer {
         const t_idx = Math.floor((y - yOffset) / elementSize)
         const h_idx = Math.floor((x - xOffset) / elementSize)
 
-        const localX = x - xOffset - (t_idx * elementSize)
-        const localY = y - yOffset - (h_idx * elementSize)
+        const localX = x - xOffset - (h_idx * elementSize)
+        const localY = y - yOffset - (t_idx * elementSize)
         const mode = localX > elementSize - localY ? "B" : "A"
 
-        return {t_idx: t_idx, h_idx: h_idx, local_t: localX / elementSize, local_h: localY / elementSize, mode: mode}
+        return {t_idx: t_idx, h_idx: h_idx, local_h: localX / elementSize, local_t: localY / elementSize, mode: mode}
     }
-    
+
     public setHighlight(c_idx: number, e_idx: number){
         this.highlight_c = c_idx
         this.highlight_e = e_idx
