@@ -23,6 +23,7 @@ body:not(.light){
 
     --main-text-color: white;
     --emph-text-color: #c9a038;
+    --emph-hover-text-color: #f1c861;
     --secondary-text-color: gray;
 
     --help-text-color: lightgray;
@@ -65,6 +66,7 @@ body.light{
 
     --main-text-color: black;
     --emph-text-color: #660000;
+    --emph-hover-text-color: #a82929;
     --secondary-text-color: gray;
 
     --help-text-color: white;
@@ -786,7 +788,7 @@ body:not(.light) #menu .button img{
 #layoutEditor #splineEditorDiv .spline_pointer{
     fill: none;
     stroke: var(--emph-text-color);
-    stroke-width: 3pt;
+    stroke-width: 5pt;
     stroke-opacity: 0.0;
 }
 
@@ -798,18 +800,18 @@ body:not(.light) #menu .button img{
     fill: var(--emph-text-color);
 }
 
-
-#layoutEditor #splineEditorDiv #square{
-    fill: var(--emph-text-color);
+#layoutEditor #splineEditorDiv .handle:hover circle{
+    fill: var(--emph-hover-text-color);
 }
+
 
 #layoutEditor #splineEditorDiv .handle line.handle_line{
     fill: none;
-    stroke: var(--emph-text-color);
+    stroke: var(--emph-hover-text-color);
     stroke-width: 1pt;
 }
 
-#layoutEditor #splineEditorDiv .handle:not(:hover):not(.dragged) line.handle_line{
+#layoutEditor #splineEditorDiv .handle:not(:hover):not(.dragged) line{
     display: none;
 }
 
@@ -817,7 +819,7 @@ body:not(.light) #menu .button img{
     fill: none;
     stroke: var(--emph-text-color);
     stroke-opacity: 0.0;
-    stroke-width: 5pt;
+    stroke-width: 10pt;
 }
 
 

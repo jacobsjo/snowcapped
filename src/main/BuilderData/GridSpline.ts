@@ -170,12 +170,12 @@ export class GridSpline {
         json.points.forEach((p: { location: any; value: { coordinate: string; points: any[]; }; }) => {
             const c_id = continentalnesses.findIndex(c => c === p.location)
             if (typeof p.value === "number") {
-                splines[c_id][0] = new SimpleSpline([{ location: 0, value: p.value, derivative: 0 }])
+                splines[c_id][0] = new SimpleSpline([{ location: 0, value: p.value, derivative_left: 0, derivative_right: 0 }])
             } else if (p.value.coordinate === "erosion") {
                 p.value.points.forEach((pp: { location: any; value: any; }) => {
                     const e_id = erosions.findIndex(e => e === pp.location)
                     if (typeof pp.value === "number") {
-                        splines[c_id][e_id] = new SimpleSpline([{ location: 0, value: pp.value, derivative: 0 }])
+                        splines[c_id][e_id] = new SimpleSpline([{ location: 0, value: pp.value, derivative_left: 0, derivative_right: 0 }])
                     } else {
                         splines[c_id][e_id] = SimpleSpline.fromJSON(pp.value)
                     }
@@ -187,7 +187,7 @@ export class GridSpline {
     }
 
     createSpline(c_id: number, e_id: number) {
-        this.splines[c_id][e_id] = new SimpleSpline([{ location: 0, value: 0, derivative: 0 }])
+        this.splines[c_id][e_id] = new SimpleSpline([{ location: 0, value: 0, derivative_left: 0, derivative_right: 0 }])
         /*
         var e_last: number
         for (var e = e_id - 1; e >= 0; e_id--) {

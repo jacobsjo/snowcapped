@@ -53,7 +53,7 @@ class MultiNoiseCalculator {
     if (!useLegacyRandom) {
       const random = XoroshiroRandom.create(seed).fork()
       this.temperature = new NormalNoise(random.forkWithHashOf("minecraft:temperature"), params.temperature)
-      this.humidity = new NormalNoise(random.forkWithHashOf("nubecraft:vegetation"), params.humidity)
+      this.humidity = new NormalNoise(random.forkWithHashOf("minecraft:vegetation"), params.humidity)
       this.continentalness = new NormalNoise(random.forkWithHashOf("minecraft:continentalness"), params.continentalness)
       this.erosion = new NormalNoise(random.forkWithHashOf("minecraft:erosion"), params.erosion)
       this.weirdness = new NormalNoise(random.forkWithHashOf("minecraft:ridge"), params.weirdness)
