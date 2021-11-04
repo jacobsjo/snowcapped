@@ -80,21 +80,6 @@ export class SplineEditor {
             this.snapModeLocation = "none"
             this.snapModeValue = "none"
 
-            if (neighbor_location){
-                location = neighbor_location.location
-                this.snapModeLocation = "neighbor"
-
-                const neighbor_point = (spline.col > 0 ? this.builder.splines[spline_name].splines[spline.row][spline.col-1]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
-                ?? (spline.col < this.builder.splines[spline_name].erosions.length - 1 ? this.builder.splines[spline_name].splines[spline.row][spline.col+1]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
-                ?? (spline.row > 0 ? this.builder.splines[spline_name].splines[spline.row-1][spline.col]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
-                ?? (spline.row < this.builder.splines[spline_name].continentalnesses.length - 1 ? this.builder.splines[spline_name].splines[spline.row+1][spline.col]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
-
-                if (neighbor_point){
-                    value = neighbor_point.value
-                    this.snapModeValue = "neighbor"
-                }                    
-            }
-
             if (mirrored_point){
                 location = -mirrored_point.location
                 this.snapModeLocation = "self"
@@ -104,6 +89,22 @@ export class SplineEditor {
                 value = similar_value_point.value
                 this.snapModeValue = "self"
             }
+
+            if (neighbor_location && !(this.snapModeLocation !== "none" && this.snapModeValue !== "none")){
+                location = neighbor_location.location
+                this.snapModeLocation = "neighbor"
+
+                const neighbor_point = (spline.col > 0 ? this.builder.splines[spline_name].splines[spline.row][spline.col-1]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.05) : undefined)
+                    ?? (spline.col < this.builder.splines[spline_name].erosions.length - 1 ? this.builder.splines[spline_name].splines[spline.row][spline.col+1]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.05) : undefined)
+                    ?? (spline.row > 0 ? this.builder.splines[spline_name].splines[spline.row-1][spline.col]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.05) : undefined)
+                    ?? (spline.row < this.builder.splines[spline_name].continentalnesses.length - 1 ? this.builder.splines[spline_name].splines[spline.row+1][spline.col]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.05) : undefined)
+
+                if (neighbor_point){
+                    value = neighbor_point.value
+                    this.snapModeValue = "neighbor"
+                }                    
+            }
+
 
         }
 
