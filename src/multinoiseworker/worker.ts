@@ -32,7 +32,7 @@ class MultiNoiseCalculator {
     const continentalness = this.continentalness.sample(xx, 0, zz)
     const erosion = this.erosion.sample(xx, 0, zz)
     const weirdness = this.weirdness.sample(xx, 0, zz)
-    const offset = TerrainShaper.offset(TerrainShaper.point(continentalness, erosion, weirdness))
+    //const offset = TerrainShaper.offset(TerrainShaper.point(continentalness, erosion, weirdness))
     const depth = 0;//NoiseSampler.computeDimensionDensity (1, -0.51875, y * 4) + offset
 
     return { temperature: temperature, humidity: humidity, continentalness: continentalness, erosion: erosion, weirdness: weirdness, depth: depth }
