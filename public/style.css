@@ -774,6 +774,11 @@ body:not(.light) #menu .button img{
     width: 100%;
 }
 
+#layoutEditor #splineEditorDiv .snap_indicator{
+    stroke: var(--emph-text-color);
+    stroke-width: 2pt;
+    stroke-dasharray: 5 5;
+}
 
 #layoutEditor #splineEditorDiv .spline.area{
     fill: var(--terrain-color);

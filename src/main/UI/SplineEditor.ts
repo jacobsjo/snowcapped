@@ -11,6 +11,14 @@ export class SplineEditor {
 
     public zoom: number;
 
+    private snapModeValue: "none" | "self" | "neighbor" 
+    private snapModeLocation: "none" | "self" | "neighbor" 
+
+    private dragRow: number
+    private dragCol: number
+    private dragValue: number
+    private dragLocation: number
+
     constructor(builder: BiomeBuilder) {
         this.builder = builder
 
@@ -54,6 +62,65 @@ export class SplineEditor {
             })
         )
             .on("contextmenu", (evt => evt.preventDefault()))
+    }
+
+    private dragLocationValue(location: number, value: number, drag_mirror: boolean, do_snap: boolean, spline_point: {location: number, value: number}, mirror_point: {location: number, value: number}, spline: { spline: SimpleSpline, row: number, col: number }){
+        const spline_name = UI.getInstance().sidebarManager.openedElement.key
+
+        if (do_snap){
+            const mirrored_point = !drag_mirror ? spline.spline.points.find(p => Math.abs(p.location + location) < 0.1) : undefined
+
+            const neighbor_location = (spline.col > 0 ? this.builder.splines[spline_name].splines[spline.row][spline.col-1]?.points?.find(p => Math.abs(p.location - location) < 0.1) : undefined)
+                ?? (spline.col < this.builder.splines[spline_name].erosions.length - 1 ? this.builder.splines[spline_name].splines[spline.row][spline.col+1]?.points?.find(p => Math.abs(p.location - location) < 0.1) : undefined)
+                ?? (spline.row > 0 ? this.builder.splines[spline_name].splines[spline.row-1][spline.col]?.points?.find(p => Math.abs(p.location - location) < 0.1) : undefined)
+                ?? (spline.row < this.builder.splines[spline_name].continentalnesses.length - 1 ? this.builder.splines[spline_name].splines[spline.row+1][spline.col]?.points?.find(p => Math.abs(p.location - location) < 0.1) : undefined)
+
+            const similar_value_point = spline.spline.points.find(p => Math.abs(p.value - value) < 0.05 && p !== spline_point && (!drag_mirror || p !== mirror_point))
+
+            this.snapModeLocation = "none"
+            this.snapModeValue = "none"
+
+            if (neighbor_location){
+                location = neighbor_location.location
+                this.snapModeLocation = "neighbor"
+
+                const neighbor_point = (spline.col > 0 ? this.builder.splines[spline_name].splines[spline.row][spline.col-1]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
+                ?? (spline.col < this.builder.splines[spline_name].erosions.length - 1 ? this.builder.splines[spline_name].splines[spline.row][spline.col+1]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
+                ?? (spline.row > 0 ? this.builder.splines[spline_name].splines[spline.row-1][spline.col]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
+                ?? (spline.row < this.builder.splines[spline_name].continentalnesses.length - 1 ? this.builder.splines[spline_name].splines[spline.row+1][spline.col]?.points?.find(p => p.location === location && Math.abs(p.value - value) < 0.1) : undefined)
+
+                if (neighbor_point){
+                    value = neighbor_point.value
+                    this.snapModeValue = "neighbor"
+                }                    
+            }
+
+            if (mirrored_point){
+                location = -mirrored_point.location
+                this.snapModeLocation = "self"
+            } 
+
+            if (similar_value_point){
+                value = similar_value_point.value
+                this.snapModeValue = "self"
+            }
+
+        }
+
+        spline_point.location = location
+        spline_point.value = value
+
+        this.dragValue = value
+        this.dragLocation = location
+        this.dragCol = spline.col
+        this.dragRow = spline.row
+
+        if (mirror_point && drag_mirror) {
+            mirror_point.location = -location
+            mirror_point.value = value
+        }
+
+        spline.spline.order()
     }
 
     draw(pos?: { row: number, col: number }) {
@@ -109,13 +176,10 @@ export class SplineEditor {
             .x(d => xScale(d[0]))
             .y0(d => yScale(-0.3))
             .y1(d => yScale(d[1]))
-            .curve(d3.curveCatmullRom.alpha(.5))
-
 
         const splineCurve = d3.line()
             .x(d => xScale(d[0]))
             .y(d => yScale(d[1]))
-            .curve(d3.curveCatmullRom.alpha(.5))
 
         const waterLevel = 0
 
@@ -135,6 +199,9 @@ export class SplineEditor {
                 const splines = svg.append("g").classed("splines", true)
                 splines.append("path").classed("spline", true)
                 splines.append("path").classed("spline_pointer", true)
+                svg.append("line").classed("value_indicator", true).classed("snap_indicator", true)
+                svg.append("line").classed("location_indicator", true).classed("snap_indicator", true)
+                svg.append("line").classed("mirror_location_indicator", true).classed("snap_indicator", true)
                 svg.append("g").classed("spline_points", true)
                 return svg
             })
@@ -153,7 +220,7 @@ export class SplineEditor {
             .attr("width", size).attr("height", size)
 
         var newDrag: { location: number, value: number, derivative_left: number, derivative_right: number }
-        var newDragMirror: { location: number, value: number, derivative_left: number, derivative_right: number }
+        var dragMirrorPoint: { location: number, value: number, derivative_left: number, derivative_right: number }
         var drag_mirror: boolean
 
         svgs.on("click", (evt, d) => {
@@ -207,29 +274,45 @@ export class SplineEditor {
                     spline.points.push(newDrag)
 
                     if (drag_mirror) {
-                        newDragMirror = {
+                        dragMirrorPoint = {
                             location: -newDrag.location,
                             value: newDrag.value,
                             derivative_left: 0,
                             derivative_right: 0
                         }
-                        spline.points.push(newDragMirror)
+                        spline.points.push(dragMirrorPoint)
                     }
 
                     spline.order()
                 })
                 .on("drag", function (evt, d) {
-                    const spline = (d3.select(this.parentElement.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
+                    const spline = (d3.select(this.parentElement.parentElement).datum() as { spline: SimpleSpline, row: number, col: number })
+                    const do_snap = !evt.sourceEvent.altKey
 
-                    newDrag.location = xScale.invert(evt.x)
-                    newDrag.value = yScale.invert(evt.y)
+                    const location = xScale.invert(evt.x)
+                    const value = yScale.invert(evt.y)
 
-                    if (drag_mirror) {
-                        newDragMirror.location = -newDrag.location
-                        newDragMirror.value = newDrag.value
+                    self.dragLocationValue(location, value, drag_mirror, do_snap, newDrag, dragMirrorPoint, spline)
+                    self.refresh()
+                })
+                .on("end", function (evt, d) {
+                    self.snapModeLocation = "none"
+                    self.snapModeValue = "none"
+
+                    if (newDrag.location === 0 && drag_mirror){
+                        const spline = (d3.select(this.parentElement.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
+
+                        const selfId = spline.points.indexOf(newDrag)
+                        const mirrorId = spline.points.indexOf(dragMirrorPoint)
+
+                        if (selfId > mirrorId)
+                            newDrag.derivative_left = dragMirrorPoint.derivative_left
+                        else 
+                            newDrag.derivative_right = dragMirrorPoint.derivative_right
+
+                        spline.points.splice(mirrorId, 1)
                     }
-
-                    spline.order()
+                    
                     self.refresh()
                 })
             )
@@ -254,7 +337,7 @@ export class SplineEditor {
             .on("contextmenu", function (evt, d) {
                 const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number })
 
-                const id = spline.spline.points.findIndex(p => p.location === d.location)
+                const id = spline.spline.points.indexOf(d)
                 spline.spline.points.splice(id, 1)
 
                 const mirror_point_id = spline.spline.points.findIndex(p => p.location === -d.location && p.value === d.value && p.derivative_left === -d.derivative_right && p.derivative_right === -d.derivative_left)
@@ -285,50 +368,51 @@ export class SplineEditor {
                     if (Math.pow(xScale(d.location) - evt.x, 2) + Math.pow(yScale(d.value) - evt.y, 2) < 25){
                         dragmode = "value"
 
-                        const mirror_point = spline.points.findIndex(p => p.location === -d.location && p.value === d.value)
-                        drag_mirror = (mirror_point > -1 && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey)
+                        if (!evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey){
+                            if (d.location === 0){
+                                dragMirrorPoint = {
+                                    location: 0,
+                                    value: d.value,
+                                    derivative_left: d.derivative_right,
+                                    derivative_right: d.derivative_right
+                                }
+                                spline.points.push(dragMirrorPoint)
+                                d.derivative_right = d.derivative_left
+                                drag_mirror = true
+                            } else {
+                                dragMirrorPoint = spline.points.find(p => p.location === -d.location && p.value === d.value)
+                                drag_mirror = (dragMirrorPoint !== undefined)
+                            }
+                        } else {
+                            drag_mirror = false
+                            dragMirrorPoint = undefined
+                        }
                     } else if (d.derivative_left === d.derivative_right && !evt.sourceEvent.shiftKey){ 
                         dragmode = "derivative"
 
-                        const mirror_point = spline.points.findIndex(p => p.location === -d.location && p.value === d.value && p.derivative_left === -d.derivative_right && p.derivative_right === -d.derivative_left)
-                        drag_mirror = (mirror_point > -1 && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey)
+                        dragMirrorPoint = spline.points.find(p => p.location === -d.location && p.value === d.value && p.derivative_left === -d.derivative_right && p.derivative_right === -d.derivative_left)
+                        drag_mirror = (dragMirrorPoint && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey)
                     } else if (xScale(d.location) > evt.x) {
                         dragmode = "derivative_left"
 
-                        const mirror_point = spline.points.findIndex(p => p.location === -d.location && p.value === d.value && p.derivative_right === -d.derivative_left)
-                        drag_mirror = (mirror_point > -1 && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey)
+                        dragMirrorPoint = spline.points.find(p => p.location === -d.location && p.value === d.value && p.derivative_right === -d.derivative_left)
+                        drag_mirror = (dragMirrorPoint && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey)
                     } else {
                         dragmode = "derivative_right"
 
-                        const mirror_point = spline.points.findIndex(p => p.location === -d.location && p.value === d.value && p.derivative_left === -d.derivative_right)
-                        drag_mirror = (mirror_point > -1 && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey)
+                        dragMirrorPoint = spline.points.find(p => p.location === -d.location && p.value === d.value && p.derivative_left === -d.derivative_right)
+                        drag_mirror = (dragMirrorPoint && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey)
                     }
                 })
                 .on("drag", function (evt, d) {
-                    const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
-                    const mirror_point = spline.points.find(p => p.location === -d.location)
+                    const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number })
+
+                    const do_snap = !evt.sourceEvent.altKey
 
                     if (dragmode === "value") {
-                        var location = (drag_mirror && d.location === 0) ? 0 : xScale.invert(evt.x)
+                        var location = xScale.invert(evt.x)
                         var value = yScale.invert(evt.y)
-
-                        if (!drag_mirror){
-                            const mirrored_point = spline.points.find(p => Math.pow(p.location + location,2) + Math.pow(p.value - value,2) < 0.01)
-                            if (mirrored_point){
-                                location = -mirrored_point.location
-                                value = mirrored_point.value
-                            }
-                        }
-
-                        d.location = location
-                        d.value = value
-
-                        if (mirror_point && drag_mirror) {
-                            mirror_point.location = -location
-                            mirror_point.value = value
-                        }
-
-                        spline.order()
+                        self.dragLocationValue(location, value, drag_mirror, do_snap, d, dragMirrorPoint, spline)
                     } else {
                         const x = xScale.invert(evt.x) - d.location
                         const y = yScale.invert(evt.y) - d.value
@@ -341,30 +425,30 @@ export class SplineEditor {
                             if (dragmode === "derivative_left"){
                                 if (Math.abs(derivative - d.derivative_right) < 0.2)
                                     derivative = d.derivative_right
-                                else if (!drag_mirror && Math.abs(derivative + mirror_point?.derivative_right) < 0.2)
-                                    derivative = -mirror_point.derivative_right
+                                else if (!drag_mirror && Math.abs(derivative + dragMirrorPoint?.derivative_right) < 0.2)
+                                    derivative = -dragMirrorPoint.derivative_right
                             } else if (dragmode === "derivative_right") {
                                 if (Math.abs(derivative - d.derivative_left) < 0.2)
                                     derivative = d.derivative_left
-                                else if (!drag_mirror && Math.abs(derivative + mirror_point?.derivative_left) < 0.2)
-                                    derivative = -mirror_point.derivative_left
+                                else if (!drag_mirror && Math.abs(derivative + dragMirrorPoint?.derivative_left) < 0.2)
+                                    derivative = -dragMirrorPoint.derivative_left
                             } else if (dragmode === "derivative"){
-                                if (!drag_mirror && Math.abs(derivative - mirror_point?.derivative_left) < 0.2)
-                                    derivative = -mirror_point.derivative_left
-                                else if (!drag_mirror && Math.abs(derivative + mirror_point?.derivative_right) < 0.2)
-                                    derivative = -mirror_point.derivative_right
+                                if (!drag_mirror && Math.abs(derivative - dragMirrorPoint?.derivative_left) < 0.2)
+                                    derivative = -dragMirrorPoint.derivative_left
+                                else if (!drag_mirror && Math.abs(derivative + dragMirrorPoint?.derivative_right) < 0.2)
+                                    derivative = -dragMirrorPoint.derivative_right
                             }
 
                             if (dragmode !== "derivative_right") {
                                 d.derivative_left = derivative
-                                if (mirror_point && drag_mirror)
-                                    mirror_point.derivative_right = -derivative
+                                if (dragMirrorPoint && drag_mirror)
+                                    dragMirrorPoint.derivative_right = -derivative
                             }
 
                             if (dragmode !== "derivative_left") {
                                 d.derivative_right = derivative
-                                if (mirror_point && drag_mirror)
-                                    mirror_point.derivative_left = -derivative
+                                if (dragMirrorPoint && drag_mirror)
+                                    dragMirrorPoint.derivative_left = -derivative
                             }
                         }
 
@@ -373,6 +457,24 @@ export class SplineEditor {
                 })
                 .on("end", function (evt, d) {
                     d3.select(this).classed("dragged", false)
+                    self.snapModeLocation = "none"
+                    self.snapModeValue = "none"
+
+                    if (d.location === 0 && drag_mirror && dragmode === "value"){
+                        const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
+
+                        const selfId = spline.points.indexOf(d)
+                        const mirrorId = spline.points.indexOf(dragMirrorPoint)
+
+                        if (selfId > mirrorId)
+                            d.derivative_left = dragMirrorPoint.derivative_left
+                        else 
+                            d.derivative_right = dragMirrorPoint.derivative_right
+
+                        spline.points.splice(mirrorId, 1)
+                    }
+
+                    self.refresh()
                 })
             )
 
@@ -407,173 +509,31 @@ export class SplineEditor {
         .attr("x2", d => xScale(d.location))
             .attr("y2", d => yScale(d.value))
 
+        svgs.select(".value_indicator")
+                .style("visibility", d=>d.spline && ((this.snapModeValue !== "none" && d.col === this.dragCol && d.row === this.dragRow) || 
+                        (this.snapModeLocation === "neighbor" && Math.abs(d.col - this.dragCol) + Math.abs(d.row - this.dragRow) === 1 && d.spline.points.findIndex(p => p.location === this.dragLocation && p.value === this.dragValue)>=0)) ? "visible" : "hidden")
 
-        /*
-    svg.select("g.spline_points")
-        .selectAll<SVGCircleElement, {
-            location: number,
-            value: number,
-            derivative: number
-        }>("circle")
-        .call(d3.drag<SVGCircleElement, {
-            location: number,
-            value: number,
-            derivative: number
-        }>()
-            .on("drag", (evt, d) => {
-                d.location = xScale.invert(evt.x)
-                d.value = yScale.invert(evt.y)
-                this.spline.order()
-                this.refresh()
-            }))
- 
- 
-    const xdivy_2 = xFactor * xFactor / yFactor / yFactor
- 
-    svg.select("g.spline_point_lines")
-        .selectAll("line")
-        .data(this.spline.points)
-        .attr("x1", d => xScale(d.location) - 0.1 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .attr("y1", d => yScale(d.value) - 0.1 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .attr("x2", d => xScale(d.location) + 0.1 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .attr("y2", d => yScale(d.value) + 0.1 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .join("line")
- 
-    svg.select("g.spline_point_handles")
-        .selectAll("line")
-        .data(this.spline.points)
-        .attr("x1", d => xScale(d.location) - 0.11 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .attr("y1", d => yScale(d.value) - 0.11 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .attr("x2", d => xScale(d.location) + 0.11 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .attr("y2", d => yScale(d.value) + 0.11 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-        .join("line")
- 
-    svg.select("g.spline_point_handles")
-        .selectAll<SVGLineElement, {
-            location: number,
-            value: number,
-            derivative: number
-        }>("line")
-        .call(d3.drag<SVGLineElement, {
-            location: number,
-            value: number,
-            derivative: number
-        }>()
-            .on("drag", (evt, d) => {
-                const x = xScale.invert(evt.x) - d.location
-                const y = yScale.invert(evt.y) - d.value
-                if (Math.abs(x) > 1e-3)
-                    d.derivative = y/x
- 
-                if (Math.abs(d.derivative) < 0.1)
-                    d.derivative = 0
-                this.refresh()
-            })
-        )
+                .attr("x1", 0)
+                .attr("x2", size)
+                .attr("y1", yScale(this.dragValue))
+                .attr("y2", yScale(this.dragValue))
 
-    return svg*/
+        svgs.select(".location_indicator")
+            .style("visibility", d=>d.spline &&((this.snapModeLocation === "self" && d.col === this.dragCol && d.row === this.dragRow) ||
+                    (this.snapModeLocation === "neighbor" && Math.abs(d.col - this.dragCol) + Math.abs(d.row - this.dragRow) <= 1 && d.spline.points.findIndex(p => p.location === this.dragLocation)>=0)) ? "visible" : "hidden")
 
-        /*
-        const points: [number, number][] = []
-        for (let w = -1.2; w <= 1.2001; w += 0.01) {
-            points.push([w, this.spline.apply(w)])
-        }
+            .attr("x1", xScale(this.dragLocation))
+            .attr("x2", xScale(this.dragLocation))
+            .attr("y1", 0)
+            .attr("y2", size)
 
-        let waterLevel = 0
-        svg.select("rect.water")
-            .attr("x", 0)
-            .attr("y", yScale(waterLevel))
-            .attr("width", width)
-            .attr("height", height - yScale(waterLevel))
+        svgs.select(".mirror_location_indicator")
+            .style("visibility", d=>d.spline && (this.snapModeLocation === "self" && d.col === this.dragCol && d.row === this.dragRow) ? "visible" : "hidden")
+            .attr("x1", xScale(-this.dragLocation))
+            .attr("x2", xScale(-this.dragLocation))
+            .attr("y1", 0)
+            .attr("y2", size)
 
-        const splineCurve = d3.line()
-            .x(d => xScale(d[0]))
-            .y(d => yScale(d[1]))
-            .curve(d3.curveCatmullRom.alpha(.5))
-
-        svg.select("path.spline")
-            .datum(points)
-            .attr('d', splineCurve)
-
-        svg.select("g.spline_points")
-            .selectAll("circle")
-            .data(this.spline.points)
-            .attr("cx", d => xScale(d.location))
-            .attr("cy", d => yScale(d.value))
-            .on("contextmenu", (evt, d) => {
-                if (this.spline.points.length > 1) {
-                    const id = this.spline.points.findIndex(p => p.location === d.location)
-                    this.spline.points.splice(id, 1)
-                    this.refresh()
-                }
-                evt.preventDefault()
-            })
-            .join("circle")
-            .attr("r", width / 60)
-
-        svg.select("g.spline_points")
-            .selectAll<SVGCircleElement, {
-                location: number,
-                value: number,
-                derivative: number
-            }>("circle")
-            .call(d3.drag<SVGCircleElement, {
-                location: number,
-                value: number,
-                derivative: number
-            }>()
-                .on("drag", (evt, d) => {
-                    d.location = xScale.invert(evt.x)
-                    d.value = yScale.invert(evt.y)
-                    this.spline.order()
-                    this.refresh()
-                }))
-
-
-        const xdivy_2 = xFactor * xFactor / yFactor / yFactor
-
-        svg.select("g.spline_point_lines")
-            .selectAll("line")
-            .data(this.spline.points)
-            .attr("x1", d => xScale(d.location) - 0.1 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .attr("y1", d => yScale(d.value) - 0.1 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .attr("x2", d => xScale(d.location) + 0.1 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .attr("y2", d => yScale(d.value) + 0.1 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .join("line")
-
-        svg.select("g.spline_point_handles")
-            .selectAll("line")
-            .data(this.spline.points)
-            .attr("x1", d => xScale(d.location) - 0.11 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .attr("y1", d => yScale(d.value) - 0.11 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .attr("x2", d => xScale(d.location) + 0.11 * width / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .attr("y2", d => yScale(d.value) + 0.11 * width * d.derivative * xFactor / yFactor / Math.sqrt(d.derivative * d.derivative * xdivy_2 + 1))
-            .join("line")
-
-        svg.select("g.spline_point_handles")
-            .selectAll<SVGLineElement, {
-                location: number,
-                value: number,
-                derivative: number
-            }>("line")
-            .call(d3.drag<SVGLineElement, {
-                location: number,
-                value: number,
-                derivative: number
-            }>()
-                .on("drag", (evt, d) => {
-                    const x = xScale.invert(evt.x) - d.location
-                    const y = yScale.invert(evt.y) - d.value
-                    if (Math.abs(x) > 1e-3)
-                        d.derivative = y/x
-
-                    if (Math.abs(d.derivative) < 0.1)
-                        d.derivative = 0
-                    this.refresh()
-                })
-            )
-
-            */
     }
 
     refresh() {
