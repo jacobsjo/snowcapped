@@ -41,7 +41,6 @@ export class SidebarManager {
                 evt.stopPropagation()
             })
 
-
         sidebar.select("#splines_grid_view_button")
             .on("click", (evt: Event) => {
                 const isCompact = !sidebar.select('#splines').classed("compact")
@@ -251,6 +250,8 @@ export class SidebarManager {
     }
 
     handleElementDivs(list: (Slice | LayoutElement)[], c: string, selection: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>, fixed: boolean, use_color_picker: boolean) {
+        const tooltip = d3.select('#layoutEditorTooltip')
+
         const slices_divs = (selection.selectAll(".sidebar_entry") as d3.Selection<d3.BaseType, Slice | LayoutElement, d3.BaseType, unknown>)
             .data(list, (d: Slice | LayoutElement) => d.getKey())
             .join(enter => {
@@ -324,10 +325,26 @@ export class SidebarManager {
                     evt.preventDefault()
                 })
 
+                div.on("mouseover", function(evt, d) {
+                    if (selection.classed("compact")){
+                        const bb = this.getBoundingClientRect()
+                        tooltip.select(".name").text(d.name)
+                        tooltip.style("left", bb.left)
+                        tooltip.style("top", bb.bottom)
+                        tooltip.classed("hidden", false)
+                    }
+                })
+
+                div.on("mouseleave", function(evt, d) {
+                    tooltip.classed("hidden", true)
+                })
+
+
                 if (!fixed) {
                     const self = this
 
                     div.on("dragstart", function (evt, d) {
+                        tooltip.classed("hidden", true)
                         self.dragType = c
                         self.dragKey = d.getKey()
                         this.classList.add("dragged")
@@ -362,7 +379,7 @@ export class SidebarManager {
 
         slices_divs.classed("open", d => this.openedElement?.key === d.getKey())
         slices_divs.classed("selected", d => this.selectedElement?.key === d.getKey())
-        slices_divs.attr("title", d=>d.name)
+        //slices_divs.attr("title", d=>d.name)
 
         slices_divs.select("canvas.grid").filter(d => d.getKey() === this.openedElement.key).each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, -1, -1, false, true))
         slices_divs.select("span.name").text(d => d.name)

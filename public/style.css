@@ -435,9 +435,9 @@ body:not(.light) #menu .button img{
 
 
 #sidebar .sidebar_entry.biome .color_selector, #sidebar .sidebar_entry.vanilla_biome .color_selector {
-    height: 25pt;
-    width: 25pt;
-    min-width: 25pt;
+    height: 22pt;
+    width: 22pt;
+    min-width: 22pt;
     border: 0;
     margin: 0;
     padding: 0;
@@ -635,20 +635,14 @@ body:not(.light) #menu .button img{
     bottom: 0;
 }
 
-#sidebar .sidebar_entry_list.compact .sidebar_entry.dragover_up{
-    margin-left: 10pt;
-}
-
 #sidebar .sidebar_entry_list.compact .sidebar_entry.dragover_up::before {
-    left: -10pt;
-}
-
-#sidebar .sidebar_entry_list.compact .sidebar_entry.dragover_down {
-    margin-right: 10pt;
+    border-left: 3pt solid var(--emph-text-color);
+    left: -5pt;
 }
 
 #sidebar .sidebar_entry_list.compact .sidebar_entry.dragover_down::before {
-    right: -10pt;
+    border-right: 3pt solid var(--emph-text-color);
+    right: -5pt;
 }
 
 
