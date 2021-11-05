@@ -33,13 +33,13 @@ export class SettingsManager {
             this.builder.seed = BigInt(seedInput.value)
         }
 
-        const legacyInput = document.getElementById("useLegacyRandom") as HTMLInputElement;
+        /* const legacyInput = document.getElementById("useLegacyRandom") as HTMLInputElement;
         legacyInput.checked = this.builder.useLegacyRandom;
         legacyInput.onchange = (evt) => {
             this.builder.hasChanges = true
             this.builder.useLegacyRandom = legacyInput.checked
             console.log("Checked")
-        }
+        }*/
 
         this.createNoiseSettingFields(document.getElementById("continentalness_setting"), "Continentalness", this.builder.noiseSettings.continentalness)
         this.createNoiseSettingFields(document.getElementById("erosion_setting"), "Erosion", this.builder.noiseSettings.erosion)
@@ -60,6 +60,12 @@ export class SettingsManager {
             navigator.clipboard.writeText("\"octaves\": " + JSON.stringify(this.builder.noiseSettings))
         }
 
+        this.handleFixNoiseSetting(document.getElementById("fix_continentalness_setting"), "continentalness")
+        this.handleFixNoiseSetting(document.getElementById("fix_erosion_setting"), "erosion")
+        this.handleFixNoiseSetting(document.getElementById("fix_weirdness_setting"), "weirdness")
+        this.handleFixNoiseSetting(document.getElementById("fix_temperature_setting"), "temperature")
+        this.handleFixNoiseSetting(document.getElementById("fix_humidity_setting"), "humidity")
+
         const updateButton = document.getElementById("update")
         updateButton.onclick = (evt) => {
             UI.getInstance().visualizationManager.updateNoises()
@@ -67,6 +73,30 @@ export class SettingsManager {
         }
     }
 
+    private handleFixNoiseSetting(div: HTMLElement, name: string){
+        const enabledCheckbox = (div.getElementsByClassName("enabled")[0] as HTMLInputElement)
+        const rangeElement = (div.getElementsByClassName("range")[0] as HTMLInputElement)
+        const displayElement = (div.getElementsByClassName("display")[0] as HTMLInputElement)
+
+        enabledCheckbox.checked = this.builder.fixedNoises[name] !== undefined
+        rangeElement.disabled = this.builder.fixedNoises[name] === undefined
+        displayElement.value = this.builder.fixedNoises[name]?.toFixed(2) ?? "0.00"
+        rangeElement.value = this.builder.fixedNoises[name]?.toString() ?? "0"
+        
+        enabledCheckbox.oninput = (evt: Event) => {
+            rangeElement.disabled = !enabledCheckbox.checked
+            if (enabledCheckbox.checked)
+                this.builder.fixedNoises[name] = parseFloat(rangeElement.value)
+            else 
+                this.builder.fixedNoises[name] = undefined
+
+        }
+
+        rangeElement.oninput = (evt:Event) => {
+            this.builder.fixedNoises[name] = parseFloat(rangeElement.value)
+            displayElement.value = this.builder.fixedNoises[name].toFixed(2)
+        }
+    }
 
     private createNoiseSettingFields(div: HTMLElement, name: string, noiseSettings: NoiseSetting) {
         div.innerHTML = ""
@@ -80,7 +110,8 @@ export class SettingsManager {
 
         const firstOctaveDescription = document.createElement("div")
         firstOctaveDescription.classList.add("description", "minor")
-        firstOctaveDescription.innerHTML = "First Octave:"
+        firstOctaveDescription.innerHTML = "FO:"
+        firstOctaveDescription.title = "First Octave"
         firstOctaveLabel.appendChild(firstOctaveDescription)
 
         const firstOctaveInput = document.createElement("input")
@@ -96,8 +127,7 @@ export class SettingsManager {
         }
 
         firstOctaveInput.onchange = (evt) => {
-            const value = Math.min(parseInt(firstOctaveInput.value), 1 - noiseSettings.amplitudes.length)
-            noiseSettings.firstOctave = value
+            noiseSettings.firstOctave = parseInt(firstOctaveInput.value)
             firstOctaveInput.value = noiseSettings.firstOctave.toString()
             this.builder.hasChanges = true
         }
@@ -109,7 +139,8 @@ export class SettingsManager {
         const amplitudesLabel = document.createElement("label")
         const amplitudesDescription = document.createElement("div")
         amplitudesDescription.classList.add("description", "minor")
-        amplitudesDescription.innerHTML = "Amplitudes:"
+        amplitudesDescription.innerHTML = "A:"
+        amplitudesDescription.title = "Amplitudes"
         amplitudesLabel.appendChild(amplitudesDescription)
 
         for (let aidx = 0; aidx < noiseSettings.amplitudes.length; aidx++) {
@@ -160,8 +191,7 @@ export class SettingsManager {
         addButton.onclick = (evt) => {
             noiseSettings.amplitudes[noiseSettings.amplitudes.length] = 0
 
-            const value = Math.min(parseInt(firstOctaveInput.value), 1 - noiseSettings.amplitudes.length)
-            noiseSettings.firstOctave = value
+            noiseSettings.firstOctave = parseInt(firstOctaveInput.value)
             firstOctaveInput.value = noiseSettings.firstOctave.toString()
 
             this.builder.hasChanges = true

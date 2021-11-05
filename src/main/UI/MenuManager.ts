@@ -107,9 +107,9 @@ export class MenuManager {
 
         this.exportSplinesButton.onclick = (evt: Event) => {
             const json = {
-                offset: UI.getInstance().builder.splines.offset.export(),
-                factor: UI.getInstance().builder.splines.factor.export(),
-                jaggedness: UI.getInstance().builder.splines.jaggedness.export()
+                offset: UI.getInstance().builder.splines.offset.export(UI.getInstance().builder.fixedNoises),
+                factor: UI.getInstance().builder.splines.factor.export(UI.getInstance().builder.fixedNoises),
+                jaggedness: UI.getInstance().builder.splines.jaggedness.export(UI.getInstance().builder.fixedNoises)
             }
             const jsonString = "\"terrain_shaper\": " + JSON.stringify(json)
 

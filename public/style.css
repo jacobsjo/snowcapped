@@ -939,6 +939,9 @@ body:not(.light) #menu .button img{
 #settings .setting label .description{
     display: inline-block;
     color: var(--main-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #settings .setting label .description:not(.minor){
@@ -962,11 +965,18 @@ body:not(.light) #menu .button img{
 
 #settings .setting label input[type=checkbox]{
     flex-grow: 0;
+    margin-right: 10pt;
 }
 
 #settings .setting label input[type=number]::-webkit-inner-spin-button,
 #settings .setting label input[type=number]::-webkit-outer-spin-button{
     -webkit-appearance: none;
+}
+
+#settings .setting label output{
+    width: 50pt;
+    margin-left: 10pt;
+    height: 100%;
 }
 
 #settings .setting label input.small{

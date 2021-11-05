@@ -53,6 +53,8 @@ export class BiomeBuilder{
         "shift": NoiseSetting
     } = VanillaNoiseSettings.default()
 
+    fixedNoises: {[key: string] : number} = {}
+
     seed: bigint = BigInt("1")
     dimensionName: string = "minecraft:overworld"
     useLegacyRandom: boolean = false;

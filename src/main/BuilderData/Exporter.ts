@@ -1,3 +1,4 @@
+import { Climate } from "deepslate";
 import { Biome } from "./Biome";
 import { BiomeBuilder } from "./BiomeBuilder";
 import { LayoutElementUnassigned } from "./LayoutElementUnassigned";
@@ -11,11 +12,23 @@ export class Exporter {
         this.builder = builder
     }
 
+    private findIdx(value: number, params: Climate.Param[]){
+        if (value < params[0].min) return 0
+        if (value > params[params.length-1].max) return params.length-1
+        return params.findIndex(r => r.min < value && value < r.max)
+    }
+
     public export(): string {
         const array: { biome: string, done: boolean }[][][][][] = []
 
+        const fixed_w_idx = this.builder.fixedNoises["weirdness"] ? this.findIdx(this.builder.fixedNoises["weirdnesses"], this.builder.weirdnesses.map(w=>w[1])) : undefined
+        const fixed_c_idx = this.builder.fixedNoises["continentalness"] ? this.findIdx(this.builder.fixedNoises["continentalness"], this.builder.continentalnesses.map(w=>w[1])) : undefined
+        const fixed_e_idx = this.builder.fixedNoises["erosion"] ? this.findIdx(this.builder.fixedNoises["erosion"], this.builder.erosions.map(w=>w[1])) : undefined
+        const fixed_t_idx = this.builder.fixedNoises["temperature"] ? this.findIdx(this.builder.fixedNoises["temperature"], this.builder.temperatures.map(w=>w[1])) : undefined
+        const fixed_h_idx = this.builder.fixedNoises["humidity"] ? this.findIdx(this.builder.fixedNoises["humidity"], this.builder.humidities.map(w=>w[1])) : undefined
+
         for (let w_idx = 0; w_idx < this.builder.weirdnesses.length; w_idx++) {
-            const slice = this.builder.getSlice(this.builder.weirdnesses[w_idx][2])
+            const slice = this.builder.getSlice(this.builder.weirdnesses[fixed_w_idx ?? w_idx][2])
             const mode = this.builder.weirdnesses[w_idx][3]
 
             array[w_idx] = []
@@ -24,12 +37,13 @@ export class Exporter {
                 array[w_idx][c_idx] = []
                 for (let e_idx = 0; e_idx < this.builder.erosions.length; e_idx++) {
                     array[w_idx][c_idx][e_idx] = []
-                    const layout = slice?.lookup(c_idx, e_idx)
+                    console.log(fixed_c_idx)
+                    const layout = slice?.lookup(fixed_c_idx ?? c_idx, fixed_e_idx ?? e_idx)
 
                     for (let t_idx = 0; t_idx < this.builder.temperatures.length; t_idx++) {
                         array[w_idx][c_idx][e_idx][t_idx] = []
                         for (let h_idx = 0; h_idx < this.builder.humidities.length; h_idx++) {
-                            const biome = layout?.lookupRecursive(t_idx, h_idx, mode)
+                            const biome = layout?.lookupRecursive(fixed_t_idx ?? t_idx, fixed_h_idx ?? h_idx, mode)
                             if (biome === undefined || biome instanceof LayoutElementUnassigned) {
                                 array[w_idx][c_idx][e_idx][t_idx][h_idx] = { biome: "", done: true }
                             } else if (biome instanceof Biome) {

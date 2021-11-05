@@ -1,5 +1,5 @@
 import { BiomeSource, NoiseParameters, NoiseSampler, NormalNoise, TerrainShaper, LegacyRandom } from "deepslate";
-import { uniqueId } from "lodash";
+import { template, uniqueId } from "lodash";
 import { Biome } from "../BuilderData/Biome";
 import { BiomeBuilder, MultiNoiseParameters } from "../BuilderData/BiomeBuilder";
 import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
@@ -33,7 +33,16 @@ export class GridMultiNoise {
 
 		return new Promise<{weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]>(resolve => {
 			this.messageHandlers.set(key, (values:  {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]) => {
-				resolve(values)
+				resolve(values.map(row=>row.map(value => {
+					return {
+						weirdness: this.builder.fixedNoises["weirdness"] ?? value.weirdness,
+						continentalness: this.builder.fixedNoises["continentalness"] ??value.continentalness,
+						erosion: this.builder.fixedNoises["erosion"] ??value.erosion,
+						humidity: this.builder.fixedNoises["humidity"] ??value.humidity,
+						temperature: this.builder.fixedNoises["temperature"] ??value.temperature,
+						depth: this.builder.fixedNoises["depth"] ??value.depth
+					}
+				})))
 			})
 		})
 	}
