@@ -19,6 +19,16 @@ export class SplineEditor {
     private dragValue: number
     private dragLocation: number
 
+    private undoStack: string[] = []
+
+    private hover: {
+        spline: SimpleSpline;
+        row: number;
+        col: number;
+    }
+
+    private copy: SimpleSpline;
+
     constructor(builder: BiomeBuilder) {
         this.builder = builder
 
@@ -228,6 +238,8 @@ export class SplineEditor {
             if (d.spline)
                 return
 
+            self.builder.splines[spline_name].addUndoStep()
+
             this.builder.splines[spline_name].createSpline(d.row, d.col)
             this.refresh()
         })
@@ -263,6 +275,8 @@ export class SplineEditor {
                 })
                 .on("start", function (evt, d) {
                     const spline = (d3.select(this.parentElement.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
+
+                    self.builder.splines[spline_name].addUndoStep()
 
                     drag_mirror = Math.abs(spline.apply(xScale.invert(evt.x)) - spline.apply(-xScale.invert(evt.x))) < 1e-5 && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey
 
@@ -338,6 +352,8 @@ export class SplineEditor {
             .on("contextmenu", function (evt, d) {
                 const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number })
 
+                self.builder.splines[spline_name].addUndoStep()
+
                 const id = spline.spline.points.indexOf(d)
                 spline.spline.points.splice(id, 1)
 
@@ -365,6 +381,8 @@ export class SplineEditor {
                 .on("start", function (evt, d) {
                     d3.select(this).classed("dragged", true)
                     const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
+
+                    self.builder.splines[spline_name].addUndoStep()
 
                     if (Math.pow(xScale(d.location) - evt.x, 2) + Math.pow(yScale(d.value) - evt.y, 2) < 25){
                         dragmode = "value"
@@ -535,6 +553,27 @@ export class SplineEditor {
             .attr("y1", 0)
             .attr("y2", size)
 
+        svgs.on("mouseover", (evt, d) => this.hover = d)
+        svgs.on("mouseout", (evt, d) => this.hover = undefined)
+
+        d3.select("body").on("keydown", (evt) => {
+            if (this.hover){
+                if (evt.key === "Delete"){
+                    self.builder.splines[spline_name].addUndoStep()
+                    self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = undefined
+                    this.refresh()
+                } else if (evt.code === "KeyC" && (evt.ctrlKey || evt.metaKey)){
+                    this.copy = this.hover.spline
+                } else if (evt.code === "KeyV" && (evt.ctrlKey || evt.metaKey) && this.copy){
+                    self.builder.splines[spline_name].addUndoStep()
+                    self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = new SimpleSpline(this.copy.points)
+                    this.refresh()
+                } else if (evt.code === "KeyZ" && (evt.ctrlKey || evt.metaKey)){
+                    self.builder.splines[spline_name].undo()
+                    this.refresh()
+                }
+            }
+        })
     }
 
     refresh() {

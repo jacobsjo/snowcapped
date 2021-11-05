@@ -6,6 +6,8 @@ export class GridSpline {
     erosions: number[]
     splines: SimpleSpline[][]
 
+    private undoSteps : string[] = []
+
     constructor(continentalnesses: number[], erosions: number[], splines?: SimpleSpline[][]) {
         this.continentalnesses = continentalnesses;
         this.erosions = erosions
@@ -54,6 +56,31 @@ export class GridSpline {
         } else {
             return GridSpline.interpolateZeroGrad((c - this.continentalnesses[c_last]) / (this.continentalnesses[c_next] - this.continentalnesses[c_last]), this.applyErosion(c_last, e, w), this.applyErosion(c_next, e, w))
         }
+    }
+
+    undo(){
+        if (this.undoSteps.length > 0){
+            this.splines = JSON.parse(this.undoSteps.pop()).map((row: any) => row.map((spline: any) => {
+                if (spline){
+                    return SimpleSpline.fromJSON(spline)
+                } else {
+                    return undefined
+                }
+            }))
+        }
+    }
+
+    addUndoStep(){
+        this.undoSteps.push(JSON.stringify(this.splines.map(row => row.map(spline => {
+            if (spline) {
+                return spline.toJSON()
+            } else {
+                return undefined
+            }
+        }))))
+
+        if (this.undoSteps.length > 500)
+            this.undoSteps.shift()
     }
 
     private applyErosion(c_id: number, e: number, w: number) {
