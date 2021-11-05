@@ -285,9 +285,9 @@ export class SplineEditor {
 
                     newDrag = {
                         location: xScale.invert(evt.x),
-                        value: xScale.invert(evt.y),
-                        derivative_left: 0,
-                        derivative_right: 0
+                        value: spline.apply(xScale.invert(evt.x)),
+                        derivative_left: spline.derivative(xScale.invert(evt.x)),
+                        derivative_right: spline.derivative(xScale.invert(evt.x))
                     }
                     spline.points.push(newDrag)
 
@@ -295,8 +295,8 @@ export class SplineEditor {
                         dragMirrorPoint = {
                             location: -newDrag.location,
                             value: newDrag.value,
-                            derivative_left: 0,
-                            derivative_right: 0
+                            derivative_left: -newDrag.derivative_right,
+                            derivative_right: -newDrag.derivative_left
                         }
                         spline.points.push(dragMirrorPoint)
                     }
@@ -575,7 +575,7 @@ export class SplineEditor {
                     self.builder.splines[spline_name].addUndoStep()
                     self.builder.hasChanges = true
 
-                    self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = new SimpleSpline(this.copy.points)
+                    self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = new SimpleSpline(this.copy.points.map(p => Object.create(p)))
                     this.refresh()
                 } else if (evt.code === "KeyZ" && (evt.ctrlKey || evt.metaKey)){
                     self.builder.splines[spline_name].undo()

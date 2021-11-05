@@ -213,11 +213,31 @@ export class GridSpline {
         return new GridSpline(continentalnesses, erosions, splines)
     }
 
+    getInterpolatedSpline(c: number, e: number){
+
+    }
+
+    private interpolateSplinesZeroGrad(alpha: number, a: SimpleSpline, b: SimpleSpline){
+        const locationSet = new Set<number>()
+        a.points.map(p => p.location).forEach(locationSet.add, locationSet)
+        b.points.map(p => p.location).forEach(locationSet.add, locationSet)
+
+        
+        const points = Array.from(locationSet).sort((a,b) => a-b).map(l => {
+            return {
+                location: l, 
+                value: GridSpline.interpolateZeroGrad(alpha, a.apply(l), b.apply(l)),
+                derivative_left: GridSpline.interpolateZeroGrad(alpha, a.derivative(l, "left"), b.derivative(l, "left")),
+                derivative_right: GridSpline.interpolateZeroGrad(alpha, a.derivative(l, "right"), b.derivative(l, "right"))
+            }
+        })
+
+        return new SimpleSpline(points)
+    }
+
     createSpline(c_id: number, e_id: number) {
-        this.splines[c_id][e_id] = new SimpleSpline([{ location: 0, value: 0, derivative_left: 0, derivative_right: 0 }])
-        /*
         var e_last: number
-        for (var e = e_id - 1; e >= 0; e_id--) {
+        for (var e = e_id - 1; e >= 0; e--) {
             if (this.splines[c_id][e]) {
                 e_last = e
                 break;
@@ -225,24 +245,24 @@ export class GridSpline {
         }
 
         var e_next: number
-        for (var e = e_id + 1; e < this.erosions.length; e_id++) {
+        for (var e = e_id + 1; e < this.erosions.length; e++) {
             if (this.splines[c_id][e]) {
                 e_next = e
                 break;
             }
         }
 
-        if (!e_last && !e_next){
-            console.warn("not implemented")
-        } if (!e_next) {
-            this.splines[c_id][e_id] = Object.apply(this.splines[c_id][e_last])
-        } else if (!e_last) {
-            this.splines[c_id][e_id] = Object.apply(this.splines[c_id][e_next])
+        if (e_last === undefined && e_next === undefined){
+            this.splines[c_id][e_id] = new SimpleSpline([{ location: 0, value: 0, derivative_left: 0, derivative_right: 0 }])
+        } else if (e_next === undefined) { 
+            this.splines[c_id][e_id] = new SimpleSpline(Array.from(this.splines[c_id][e_last].points.map(p => Object.create(p))))
+        } else if (e_last === undefined) {
+            this.splines[c_id][e_id] = new SimpleSpline(Array.from(this.splines[c_id][e_next].points.map(p => Object.create(p))))
         } else {
-            const locations = new Set<number>()
-            this.splines[c_id][e_last].points.map(p => p.location).forEach(locations.add, locations)
-            this.splines[c_id][e_next].points.map(p => p.location).forEach(locations.add, locations)
-        }*/
+            const alpha = (this.erosions[e_id] - this.erosions[e_last])/(this.erosions[e_next] - this.erosions[e_last])
+
+            this.splines[c_id][e_id] = this.interpolateSplinesZeroGrad(alpha, this.splines[c_id][e_last], this.splines[c_id][e_next])
+        }
 
     }
 

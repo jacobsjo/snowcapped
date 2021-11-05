@@ -119,4 +119,40 @@ export class SimpleSpline {
 		return f10
 	}
 
+	public derivative(c: number, direction: "left" | "right" = "left"){
+		const coordinate = c
+
+		const exactPoint = this.points.find(p => p.location === coordinate)
+		if (exactPoint){
+			if (direction === "left")
+				return exactPoint.derivative_left
+			else 
+				return exactPoint.derivative_right
+		}
+
+		const i = binarySearch(0, this.points.length, n => coordinate < this.points[n].location) - 1
+		const n = this.points.length - 1
+
+		if (i < 0) {
+			return this.points[0].derivative_left
+		}
+		if (i === n) {
+			return this.points[n].derivative_right
+		}
+
+		const loc0 = this.points[i].location
+		const loc1 = this.points[i + 1].location
+		const der0 = this.points[i].derivative_right
+		const der1 = this.points[i + 1].derivative_left
+		const f = (coordinate - loc0) / (loc1 - loc0)
+
+		const val0 = this.points[i].value
+		const val1 = this.points[i + 1].value
+
+		const f8 = der0 * (loc1 - loc0) - (val1 - val0)
+		const f9 = -der1 * (loc1 - loc0) + (val1 - val0)
+
+		return (-val0 + val1 + f8 + 2 * f * (f9 - 2*f8) + 3 * f * f * (f8 - f9)) / (loc1 - loc0)
+	}
+
 }
