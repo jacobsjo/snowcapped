@@ -63,6 +63,7 @@ export class VisualizationManger{
 
         const tooltip = document.getElementById("visualizationTooltip")
         const tooltip_position = tooltip.getElementsByClassName("position")[0] as HTMLElement
+        const tooltip_noise_values = tooltip.getElementsByClassName("noise_values")[0] as HTMLElement
         const tooltip_slice = tooltip.getElementsByClassName("slice")[0] as HTMLElement
         const tooltip_mode = tooltip.getElementsByClassName("mode")[0] as HTMLImageElement
         const tooltip_layout = tooltip.getElementsByClassName("layout")[0] as HTMLElement
@@ -103,6 +104,8 @@ export class VisualizationManger{
           const pos = this.getPos(evt.latlng);
           const y = idxs ? (builder.splines.offset.apply(idxs.values.continentalness, idxs.values.erosion, idxs.values.weirdness) * 128 + 64) : undefined
           tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0) + (y?(" -> Y: " + y.toFixed(0)):"")
+          tooltip_noise_values.innerHTML = "C: " + idxs.values.continentalness.toFixed(2) + ", E: " + idxs.values.erosion.toFixed(2) + ", W: " + 
+                    idxs.values.weirdness.toFixed(2) + "<br /> T: " + idxs.values.temperature.toFixed(2) + ", H: " + idxs.values.humidity.toFixed(2)
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
           tooltip_biome.innerHTML = lookup?.biome?.name
