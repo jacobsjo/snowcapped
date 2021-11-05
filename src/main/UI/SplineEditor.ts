@@ -239,6 +239,7 @@ export class SplineEditor {
                 return
 
             self.builder.splines[spline_name].addUndoStep()
+            self.builder.hasChanges = true
 
             this.builder.splines[spline_name].createSpline(d.row, d.col)
             this.refresh()
@@ -277,6 +278,8 @@ export class SplineEditor {
                     const spline = (d3.select(this.parentElement.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
 
                     self.builder.splines[spline_name].addUndoStep()
+                    self.builder.hasChanges = true
+
 
                     drag_mirror = Math.abs(spline.apply(xScale.invert(evt.x)) - spline.apply(-xScale.invert(evt.x))) < 1e-5 && !evt.sourceEvent.ctrlKey && !evt.sourceEvent.metaKey
 
@@ -353,6 +356,7 @@ export class SplineEditor {
                 const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number })
 
                 self.builder.splines[spline_name].addUndoStep()
+                self.builder.hasChanges = true
 
                 const id = spline.spline.points.indexOf(d)
                 spline.spline.points.splice(id, 1)
@@ -383,6 +387,7 @@ export class SplineEditor {
                     const spline = (d3.select(this.parentElement).datum() as { spline: SimpleSpline, row: number, col: number }).spline
 
                     self.builder.splines[spline_name].addUndoStep()
+                    self.builder.hasChanges = true
 
                     if (Math.pow(xScale(d.location) - evt.x, 2) + Math.pow(yScale(d.value) - evt.y, 2) < 25){
                         dragmode = "value"
@@ -560,16 +565,22 @@ export class SplineEditor {
             if (this.hover){
                 if (evt.key === "Delete"){
                     self.builder.splines[spline_name].addUndoStep()
+                    self.builder.hasChanges = true
+
                     self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = undefined
                     this.refresh()
                 } else if (evt.code === "KeyC" && (evt.ctrlKey || evt.metaKey)){
                     this.copy = this.hover.spline
                 } else if (evt.code === "KeyV" && (evt.ctrlKey || evt.metaKey) && this.copy){
                     self.builder.splines[spline_name].addUndoStep()
+                    self.builder.hasChanges = true
+
                     self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = new SimpleSpline(this.copy.points)
                     this.refresh()
                 } else if (evt.code === "KeyZ" && (evt.ctrlKey || evt.metaKey)){
                     self.builder.splines[spline_name].undo()
+                    self.builder.hasChanges = true
+
                     this.refresh()
                 }
             }
