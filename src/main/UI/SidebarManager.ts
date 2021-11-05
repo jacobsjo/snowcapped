@@ -42,6 +42,36 @@ export class SidebarManager {
             })
 
 
+        sidebar.select("#splines_grid_view_button")
+            .on("click", (evt: Event) => {
+                const isCompact = !sidebar.select('#splines').classed("compact")
+                sidebar.select('#splines').classed("compact", isCompact)
+                sidebar.select("#splines_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+            })
+
+        sidebar.select("#slices_grid_view_button")
+            .on("click", (evt: Event) => {
+                const isCompact = !sidebar.select('#slices').classed("compact")
+                sidebar.select('#slices').classed("compact", isCompact)
+                sidebar.select("#slices_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+            })
+
+        sidebar.select("#layouts_grid_view_button")
+            .on("click", (evt: Event) => {
+                const isCompact = !sidebar.select('#layouts').classed("compact")
+                sidebar.select('#layouts').classed("compact", isCompact)
+                sidebar.select("#layouts_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+            })
+
+        sidebar.select("#biomes_grid_view_button")
+            .on("click", (evt: Event) => {
+                const isCompact = !sidebar.select('#biomes').classed("compact")
+                sidebar.select('#biomes').classed("compact", isCompact)
+                sidebar.select('#vanilla_biomes').classed("compact", isCompact)
+                sidebar.select("#biomes_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+            })
+
+
         sidebar.select("#assign_slices_button")
             .on("click", (evt: Event) => {
                 this.openElement({ type: "assign_slices" })
