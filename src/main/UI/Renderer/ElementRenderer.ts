@@ -74,9 +74,10 @@ export class ABBiomeRenderer implements GridElementRenderer{
 
         if (elementA instanceof GridElementUnassigned){
             ctx.fillStyle = "white"
-            ctx.font = (sizeX*0.5) + 'px serif'
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"
+
+            ctx.font = (sizeX*0.5) + 'px serif'
             ctx.fillText("?", minX + sizeX * 0.3, minY + sizeY * 0.4)
         }
 
@@ -89,10 +90,12 @@ export class ABBiomeRenderer implements GridElementRenderer{
             ctx.fill()
 
             ctx.fillStyle = "rgb(0,0,0,1)"
-            ctx.font = '110px serif';
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"
-            ctx.fillText('↵', minX + 0.25 * sizeX, minY + 0.33 * sizeY)
+            ctx.font = '80px serif';
+            ctx.fillText(this.ab_biome.getElement("A").name.charAt(0), minX + sizeX * 0.2, minY + sizeY * 0.3)
+            ctx.font = '110px serif';
+            ctx.fillText('↵', minX + 0.3 * sizeX, minY + 0.5 * sizeY)
         }
 
         const elementB = this.ab_biome.lookupRecursive(indexes, "B", false)
@@ -124,10 +127,12 @@ export class ABBiomeRenderer implements GridElementRenderer{
             ctx.fill()
 
             ctx.fillStyle = "rgb(0,0,0,1)"
-            ctx.font = '110px serif';
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"
-            ctx.fillText('↵', minX + 0.72 * sizeX, minY + 0.8 * sizeY)
+            ctx.font = '80px serif';
+            ctx.fillText(this.ab_biome.getElement("B").name.charAt(0), minX + sizeX * 0.65, minY + sizeY * 0.7)
+            ctx.font = '110px serif';
+            ctx.fillText('↵', minX + 0.77 * sizeX, minY + 0.85 * sizeY)
         }
 
         ctx.strokeStyle = "black"

@@ -67,10 +67,12 @@ export class BiomeGridRenderer implements GridElementRenderer {
 
                     if (!isIcon){
                         ctx.fillStyle = "rgb(0,0,0,1)"
-                        ctx.font = '140px serif';
                         ctx.textAlign = "center"
                         ctx.textBaseline = "middle"
-                        ctx.fillText('↵', xOffset + (x_idx+0.5) * elementSize, yOffset + (y_idx+0.6) * elementSize)
+                        ctx.font = '100px serif';
+                        ctx.fillText(element.name.charAt(0), xOffset + (x_idx+0.4) * elementSize, yOffset + (y_idx+0.4) * elementSize)
+                        ctx.font = '140px serif';
+                        ctx.fillText('↵', xOffset + (x_idx+0.65) * elementSize, yOffset + (y_idx+0.75) * elementSize)
                     }                    
                 }
 
