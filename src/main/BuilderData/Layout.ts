@@ -1,20 +1,21 @@
 import * as _ from "lodash";
-import { ElementRenderer } from "../UI/Renderer/ElementRenderer";
-import { LayoutGridRenderer } from "../UI/Renderer/LayoutGridRenderer";
+import { GridElementRenderer } from "../UI/Renderer/ElementRenderer";
 import { ABElement } from "./ABBiome";
 import { Biome } from "./Biome";
-import { BiomeBuilder } from "./BiomeBuilder";
-import { LayoutElement, Mode} from "./LayoutElement";
+import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
+import { GridElement, Mode} from "./GridElement";
 import * as uniqid from 'uniqid';
+import { BiomeGridRenderer } from "../UI/Renderer/BiomeGridRenderer";
 
-export class Layout implements LayoutElement {
+export class Layout implements GridElement {
     allowEdit: boolean = true
     name: string;
+    type_id: number = 2
     hidden: boolean
 
     private array: string[][]
     private builder: BiomeBuilder
-    private renderer: LayoutGridRenderer
+    private renderer: BiomeGridRenderer
 
     private undoActions: {t_id: number, h_id: number, value: string}[]
 
@@ -47,14 +48,17 @@ export class Layout implements LayoutElement {
         }
     }
 
-    set(temperatureIndex: number, humidityIndex: number, element: string, recordUndo: boolean = true){
-        if (this.array[temperatureIndex][humidityIndex] === element)
+    set(indexes: PartialMultiNoiseIndexes, element: string, recordUndo: boolean = true){
+        if (indexes.t_idx === undefined || indexes.h_idx === undefined)
+            throw new Error("Trying to set element of Layout without proper ids")
+
+        if (this.array[indexes.t_idx][indexes.h_idx] === element)
             return
 
         if (recordUndo)
-            this.undoActions.push({t_id: temperatureIndex, h_id: humidityIndex, value: this.array[temperatureIndex][humidityIndex]})
+            this.undoActions.push({t_id: indexes.t_idx, h_id: indexes.h_idx, value: this.array[indexes.t_idx][indexes.h_idx]})
 
-        this.array[temperatureIndex][humidityIndex] = element
+        this.array[indexes.t_idx][indexes.h_idx] = element
         this.builder.hasChanges = true
     }
 
@@ -83,34 +87,48 @@ export class Layout implements LayoutElement {
 
 
 
-    lookupKey(temperatureIndex: number, humidityIndex: number): string {
-        return this.array[temperatureIndex][humidityIndex]
+    lookupKey(indexes: PartialMultiNoiseIndexes, _mode: Mode): string {
+        if (indexes.t_idx === undefined || indexes.h_idx === undefined)
+            throw new Error("Trying to look up element of Layout without proper ids")
+
+        return this.array[indexes.t_idx][indexes.h_idx]
     }
 
-    lookup(temperatureIndex: number, humidityIndex: number): LayoutElement{
-        const key = this.lookupKey(temperatureIndex, humidityIndex);
+    lookup(indexes: PartialMultiNoiseIndexes, mode: Mode): GridElement{
+        const key = this.lookupKey(indexes, mode);
         const element = this.builder.getLayoutElement(key)
 
         return element
     }
 
-    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode, stopAtHidden: boolean = false): LayoutElement{
-        const element = this.lookup(temperatureIndex, humidityIndex)
+    lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden: boolean = false): GridElement{
+        const element = this.lookup(indexes, mode)
         if (stopAtHidden && element.hidden)
             return element
         else 
-            return element.lookupRecursive(temperatureIndex, humidityIndex, mode, stopAtHidden);
+            return element.lookupRecursive(indexes, mode, stopAtHidden);
     }
 
     getSize(): [number, number]{
         return [this.builder.getNumTemperatures(), this.builder.getNumHumidities()]
     }
 
-    getRenderer(): ElementRenderer {
+    getRenderer(): GridElementRenderer {
         if (this.renderer === undefined)
-            this.renderer = new LayoutGridRenderer(this)
+            this.renderer = new BiomeGridRenderer(this)
 
         return this.renderer
+    }
+
+    public cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
+        return { h_idx: x, t_idx: y }
+    }
+
+    public idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
+        if (indexes.h_idx === undefined || indexes.t_idx === undefined)
+            return "all"
+
+        return [indexes.h_idx, indexes.t_idx]
     }
 
     getKey(){

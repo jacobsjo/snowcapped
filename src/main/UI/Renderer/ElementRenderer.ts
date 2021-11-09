@@ -1,15 +1,16 @@
 import { ABElement } from "../../BuilderData/ABBiome";
 import { Biome } from "../../BuilderData/Biome";
 import { Layout } from "../../BuilderData/Layout";
-import { LayoutElementUnassigned } from "../../BuilderData/LayoutElementUnassigned";
+import { GridElementUnassigned } from "../../BuilderData/GridElementUnassigned";
+import { PartialMultiNoiseIndexes } from "../../BuilderData/BiomeBuilder";
 
 
-export interface ElementRenderer{
-    draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean, isIcon: boolean): void;
+export interface GridElementRenderer{
+    draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean, isIcon: boolean, gradGridWithBorder: boolean): void;
     setHighlight(x_idx: number, y_idx: number): void;
 }
 
-export class BiomeRenderer implements ElementRenderer{
+export class BiomeRenderer implements GridElementRenderer{
     biome: Biome
 
     constructor(biome: Biome){
@@ -18,7 +19,7 @@ export class BiomeRenderer implements ElementRenderer{
     setHighlight(x_idx: number, y_idx: number): void {
     }
 
-    public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
+    public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean, isIcon: boolean, gradGridWithBorder: boolean){
         ctx.fillStyle = this.biome.color
         ctx.fillRect(minX, minY, sizeX, sizeY)
     }
@@ -28,11 +29,11 @@ export class BiomeRenderer implements ElementRenderer{
     }
 }
 
-export class UnassignedRenderer implements ElementRenderer{
+export class UnassignedRenderer implements GridElementRenderer{
     setHighlight(x_idx: number, y_idx: number): void {
     }
 
-    public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
+    public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean, isIcon: boolean, gradGridWithBorder: boolean){
         ctx.fillStyle = "gray"
         ctx.fillRect(minX, minY, sizeX, sizeY)
 
@@ -45,7 +46,7 @@ export class UnassignedRenderer implements ElementRenderer{
 }
 
 
-export class ABBiomeRenderer implements ElementRenderer{
+export class ABBiomeRenderer implements GridElementRenderer{
     ab_biome: ABElement
 
     constructor(ab_biome: ABElement){
@@ -54,15 +55,15 @@ export class ABBiomeRenderer implements ElementRenderer{
     setHighlight(x_idx: number, y_idx: number): void {
     }
 
-    public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, t_idx: number, h_idx: number, indicateRecursive: boolean = true, isIcon: boolean = false){
-        const isARecursive = this.ab_biome.getElement("A") instanceof Layout
-        const isBRecursive = this.ab_biome.getElement("B") instanceof Layout
+    public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean, isIcon: boolean, gradGridWithBorder: boolean){
+        const isARecursive = !(this.ab_biome.getElement("A") instanceof Biome)
+        const isBRecursive = !(this.ab_biome.getElement("B") instanceof Biome)
 
-        const elementA = this.ab_biome.lookupRecursive(t_idx, h_idx, "A")
+        const elementA = this.ab_biome.lookupRecursive(indexes, "A", false )
 
         if (elementA instanceof Biome)
             ctx.fillStyle = (elementA as Biome).color
-        else if (elementA instanceof LayoutElementUnassigned)
+        else if (elementA instanceof GridElementUnassigned)
             ctx.fillStyle = "gray"
 
         ctx.beginPath()
@@ -71,7 +72,7 @@ export class ABBiomeRenderer implements ElementRenderer{
         ctx.lineTo(minX, minY + sizeY)
         ctx.fill()
 
-        if (elementA instanceof LayoutElementUnassigned){
+        if (elementA instanceof GridElementUnassigned){
             ctx.fillStyle = "white"
             ctx.font = (sizeX*0.5) + 'px serif'
             ctx.textAlign = "center"
@@ -87,20 +88,18 @@ export class ABBiomeRenderer implements ElementRenderer{
             ctx.lineTo(minX, minY + sizeY)
             ctx.fill()
 
-            if (!isIcon){
-                ctx.fillStyle = "rgb(0,0,0,1)"
-                ctx.font = '110px serif';
-                ctx.textAlign = "center"
-                ctx.textBaseline = "middle"
-                ctx.fillText('↵', minX + 0.25 * sizeX, minY + 0.33 * sizeY)
-            }
+            ctx.fillStyle = "rgb(0,0,0,1)"
+            ctx.font = '110px serif';
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
+            ctx.fillText('↵', minX + 0.25 * sizeX, minY + 0.33 * sizeY)
         }
 
-        const elementB = this.ab_biome.lookupRecursive(t_idx, h_idx, "B")
+        const elementB = this.ab_biome.lookupRecursive(indexes, "B", false)
 
         if (elementB instanceof Biome)
             ctx.fillStyle = (elementB as Biome).color
-        else if (elementB instanceof LayoutElementUnassigned)
+        else if (elementB instanceof GridElementUnassigned)
             ctx.fillStyle = "gray"
         ctx.beginPath()
         ctx.moveTo(minX + sizeX, minY)
@@ -108,7 +107,7 @@ export class ABBiomeRenderer implements ElementRenderer{
         ctx.lineTo(minX, minY + sizeY)
         ctx.fill()
 
-        if (elementB instanceof LayoutElementUnassigned){
+        if (elementB instanceof GridElementUnassigned){
             ctx.fillStyle = "white"
             ctx.font = (sizeX*0.5) + 'px serif'
             ctx.textAlign = "center"
@@ -124,13 +123,11 @@ export class ABBiomeRenderer implements ElementRenderer{
             ctx.lineTo(minX, minY + sizeY)
             ctx.fill()
 
-            if (!isIcon){
-                ctx.fillStyle = "rgb(0,0,0,1)"
-                ctx.font = '110px serif';
-                ctx.textAlign = "center"
-                ctx.textBaseline = "middle"
-                ctx.fillText('↵', minX + 0.72 * sizeX, minY + 0.8 * sizeY)
-            }
+            ctx.fillStyle = "rgb(0,0,0,1)"
+            ctx.font = '110px serif';
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
+            ctx.fillText('↵', minX + 0.72 * sizeX, minY + 0.8 * sizeY)
         }
 
         ctx.strokeStyle = "black"

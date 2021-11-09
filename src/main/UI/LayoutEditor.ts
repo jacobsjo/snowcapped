@@ -1,14 +1,13 @@
 import { Spline, TerrainShaper } from "deepslate";
 import { ABElement } from "../BuilderData/ABBiome";
 import { Biome } from "../BuilderData/Biome";
-import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
+import { BiomeBuilder, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { Layout } from "../BuilderData/Layout";
-import { LayoutElement } from "../BuilderData/LayoutElement";
-import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
+import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
 import { Slice } from "../BuilderData/Slice";
 import { MenuManager } from "./MenuManager";
-import { LayoutGridRenderer } from "./Renderer/LayoutGridRenderer";
 import { UI } from "./UI";
+import { BiomeGridRenderer } from "./Renderer/BiomeGridRenderer";
 
 
 function lerp(a: number, b: number, l: number) {
@@ -39,7 +38,7 @@ export class LayoutEditor {
 
         this.canvas.onmousemove = (evt: MouseEvent) => {
 
-            const renderer = this.layout.getRenderer() as LayoutGridRenderer
+            const renderer = this.layout.getRenderer() as BiomeGridRenderer
             this.mouse_position = this.getMousePosition(evt)
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, this.mouse_position.mouse_x, this.mouse_position.mouse_y)
             if (ids === undefined) {
@@ -59,7 +58,7 @@ export class LayoutEditor {
             tooltip.style.top = (evt.pageY + 15) + "px"
             tooltip.classList.remove("hidden")
   
-            let element = this.layout.lookup(ids.t_idx, ids.h_idx)
+            let element = this.layout.lookup(ids.indexes, ids.mode)
 
             if (this.layout instanceof Layout) {
                 if (element instanceof ABElement) {
@@ -80,17 +79,18 @@ export class LayoutEditor {
                 tooltip_name.innerHTML = "&crarr; " + element.name + " (Layout)"
                 MenuManager.toggleAction("open", true)
                 MenuManager.toggleAction("remove", true)
-            } else if (element instanceof LayoutElementUnassigned) {
+            } else if (element instanceof GridElementUnassigned) {
                 tooltip_name.innerHTML = "Unassigned"
                 MenuManager.toggleAction("open", false)
                 MenuManager.toggleAction("remove", false)
             }
 
+            // Update Spline display in slices
             if (this.layout instanceof Slice){
-                const cont = builder.continentalnesses[ids.t_idx][1]
+                const cont = builder.continentalnesses[ids.indexes.c_idx][1]
                 const c = lerp(cont.min, cont.max, ids.local_t)
     
-                const ero = builder.erosions[ids.h_idx][1]
+                const ero = builder.erosions[ids.indexes.e_idx][1]
                 const e = lerp(ero.min, ero.max, ids.local_h)
 
                 UI.getInstance().splineDisplayManager.setPos({c: c, e: e})
@@ -111,26 +111,26 @@ export class LayoutEditor {
         }
 
         this.canvas.onclick = (evt: MouseEvent) => {
-            const renderer = this.layout.getRenderer() as LayoutGridRenderer
+            const renderer = this.layout.getRenderer() as BiomeGridRenderer
             const mouse_position = this.getMousePosition(evt)
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, mouse_position.mouse_x, mouse_position.mouse_y)
             if (ids === undefined) {
                 return
             }
 
-            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, evt.ctrlKey || evt.metaKey ? "add_alt" : evt.altKey ? "pick" : "add")
+            this.handleInteraction(ids.indexes, ids.mode, evt.ctrlKey || evt.metaKey ? "add_alt" : evt.altKey ? "pick" : "add")
         }
 
         this.canvas.onauxclick = (evt: MouseEvent) => {
             if (evt.button === 1) {
-                const renderer = this.layout.getRenderer() as LayoutGridRenderer
+                const renderer = this.layout.getRenderer() as BiomeGridRenderer
                 const mouse_position = this.getMousePosition(evt)
                 const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, mouse_position.mouse_x, mouse_position.mouse_y)
                 if (ids === undefined) {
                     return
                 }
 
-                this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "pick")
+                this.handleInteraction(ids.indexes, ids.mode, "pick")
             }
         }
 
@@ -138,14 +138,14 @@ export class LayoutEditor {
 
 
         this.canvas.oncontextmenu = (evt: MouseEvent) => {
-            const renderer = this.layout.getRenderer() as LayoutGridRenderer
+            const renderer = this.layout.getRenderer() as BiomeGridRenderer
             const mouse_position = this.getMousePosition(evt)
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, mouse_position.mouse_x, mouse_position.mouse_y)
             if (ids === undefined) {
                 return
             }
 
-            this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "open")
+            this.handleInteraction(ids.indexes, ids.mode, "open")
             evt.preventDefault()
         }
 
@@ -158,14 +158,14 @@ export class LayoutEditor {
 
         this.canvas.onkeyup = (evt: KeyboardEvent) => {
             if (evt.key === "Delete") {
-                const renderer = this.layout.getRenderer() as LayoutGridRenderer
+                const renderer = this.layout.getRenderer() as BiomeGridRenderer
                 const mouse_position = this.mouse_position
                 const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, mouse_position.mouse_x, mouse_position.mouse_y)
                 if (ids === undefined) {
                     return
                 }
 
-                this.handleInteraction(ids.t_idx, ids.h_idx, ids.mode, "remove")
+                this.handleInteraction(ids.indexes, ids.mode, "remove")
                 evt.preventDefault
             }
         }
@@ -189,8 +189,8 @@ export class LayoutEditor {
         return { mouse_x: canvasMouseX, mouse_y: canvasMouseY }
     }
 
-    handleInteraction(t_idx: number, h_idx: number, mode: "A" | "B", action: "add" | "add_alt" | "pick" | "open" | "remove") {
-        const element = this.layout.lookup(t_idx, h_idx)
+    handleInteraction(indexes: PartialMultiNoiseIndexes, mode: "A" | "B", action: "add" | "add_alt" | "pick" | "open" | "remove") {
+        const element = this.layout.lookup(indexes, mode)
 
         let exact_element = element
         if (exact_element instanceof ABElement) {
@@ -201,7 +201,7 @@ export class LayoutEditor {
             }
         }
 
-        var selectedElement = UI.getInstance().sidebarManager.selectedElement.key;
+        var selectedElement = UI.getInstance().sidebarManager.selectedElement?.key;
 
         if (action === "remove") {
             selectedElement = "unassigned"
@@ -211,19 +211,22 @@ export class LayoutEditor {
         if (action === "pick") {
             UI.getInstance().sidebarManager.selectElement({type: exact_element instanceof Layout ? "layout" : "biome", key: selectedElement = exact_element.getKey()})
             UI.getInstance().refresh()
-        } else if ((action === "add" || action === "add_alt") && selectedElement !== "") {
-            //Cycle Check
+        } else if ((action === "add" || action === "add_alt") && selectedElement !== undefined) {
+            
             const se = this.builder.layoutElements.get(selectedElement)
+            
+            //Cycle Check
+            /*
             if (se instanceof Layout && this.layout instanceof Layout) {
-                this.layout.set(t_idx, h_idx, this.builder.layoutElementDummy.getKey(), false)
-                if (se.lookupRecursive(t_idx, h_idx, "A") === this.builder.layoutElementDummy || se.lookupRecursive(t_idx, h_idx, "B") === this.builder.layoutElementDummy) {
+                this.layout.set(indexes, this.builder.layoutElementDummy.getKey(), false)
+                if (se.lookupRecursive(indexes, "A") === this.builder.layoutElementDummy || se.lookupRecursive(indexes, "B") === this.builder.layoutElementDummy) {
                     //Cycle found
-                    this.layout.set(t_idx, h_idx, element.getKey(), false)
+                    this.layout.set(indexes, element.getKey(), false)
                     return
                 } else {
-                    this.layout.set(t_idx, h_idx, element.getKey(), false)
+                    this.layout.set(indexes, element.getKey(), false)
                 }
-            }
+            }*/
 
             if (!se && this.builder.vanillaBiomes.has(selectedElement)) {
                 this.builder.registerLayoutElement(this.builder.vanillaBiomes.get(selectedElement))
@@ -232,27 +235,27 @@ export class LayoutEditor {
             if (action === "add_alt" && !(element instanceof ABElement) && this.layout instanceof Layout) {
                 // add alternate
                 if (mode === "A") {
-                    this.layout.set(t_idx, h_idx, selectedElement + "/" + element.getKey())
+                    this.layout.set(indexes, selectedElement + "/" + element.getKey())
                 } else {
-                    this.layout.set(t_idx, h_idx, element.getKey() + "/" + selectedElement)
+                    this.layout.set(indexes, element.getKey() + "/" + selectedElement)
                 }
             } else {
                 if (element instanceof ABElement) {
                     if (mode === "A") {
                         if (selectedElement === element.elementB) {
-                            this.layout.set(t_idx, h_idx, selectedElement)
+                            this.layout.set(indexes, selectedElement)
                         } else {
-                            this.layout.set(t_idx, h_idx, selectedElement + "/" + element.elementB)
+                            this.layout.set(indexes, selectedElement + "/" + element.elementB)
                         }
                     } else {
                         if (selectedElement === element.elementA) {
-                            this.layout.set(t_idx, h_idx, selectedElement)
+                            this.layout.set(indexes, selectedElement)
                         } else {
-                            this.layout.set(t_idx, h_idx, element.elementA + "/" + selectedElement)
+                            this.layout.set(indexes, element.elementA + "/" + selectedElement)
                         }
                     }
                 } else {
-                    this.layout.set(t_idx, h_idx, selectedElement)
+                    this.layout.set(indexes, selectedElement)
                 }
             }
             UI.getInstance().refresh()
@@ -287,7 +290,7 @@ export class LayoutEditor {
         }
 
         const ctx = this.canvas.getContext('2d')
-        this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, -1, -1, true, false)
+        this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, {}, true, false, false)
     }
 
     hide() {

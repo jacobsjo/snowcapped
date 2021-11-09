@@ -1,12 +1,13 @@
 import * as uniqid from 'uniqid'
-import { BiomeRenderer, ElementRenderer } from '../UI/Renderer/ElementRenderer'
+import { BiomeRenderer, GridElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { VanillaBiomes } from '../Vanilla/VanillaBiomes'
-import { BiomeBuilder } from './BiomeBuilder'
-import {LayoutElement, Mode} from './LayoutElement'
+import { BiomeBuilder, MultiNoiseIndexes } from './BiomeBuilder'
+import {GridElement, Mode} from './GridElement'
 
-export class Biome implements LayoutElement{
+export class Biome implements GridElement{
     name: string
     hidden: boolean
+    type_id: number = 3
     readonly allowEdit: boolean = true
 
     public color: string
@@ -70,19 +71,19 @@ export class Biome implements LayoutElement{
         }
     }    
 
-    lookupKey(temperatureIndex: number, humidityIndex: number): string{
+    lookupKey(indexes: MultiNoiseIndexes, mode: Mode,): string{
         return this.getKey()
     }
 
-    lookup(temperatureIndex: number, humidityIndex: number): Biome {
+    lookup(indexes: MultiNoiseIndexes, mode: Mode): Biome {
         return this
     }
 
-    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode): Biome {
+    lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode,): Biome {
         return this
     }
 
-    getRenderer(): ElementRenderer {
+    getRenderer(): GridElementRenderer {
         if (this.renderer === undefined)
             this.renderer = new BiomeRenderer(this)
 

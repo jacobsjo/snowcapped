@@ -1,16 +1,17 @@
 import { isString } from 'lodash';
 import * as uniqid from 'uniqid';
-import { SliceGridRenderer } from '../UI/Renderer/SliceGridRenderer';
-import { BiomeBuilder } from './BiomeBuilder';
-import { LayoutElement } from './LayoutElement';
+import { BiomeGridRenderer } from '../UI/Renderer/BiomeGridRenderer';
+import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder';
+import { GridElement, Mode } from './GridElement';
 
-export class Slice{
+export class Slice implements GridElement{
     allowEdit: boolean = true
     name: string;
+    type_id: number = 1
     hidden: boolean
     private array: string[][]
     private builder: BiomeBuilder
-    private renderer: SliceGridRenderer
+    private renderer: BiomeGridRenderer
     private key: string
 
     private undoActions: {c_id: number, e_id: number, value: string}[]
@@ -49,13 +50,16 @@ export class Slice{
         return [this.builder.getNumContinentalnesses(), this.builder.getNumErosions()]
     }
 
-    set(continentalnessIndex: number, erosionIndex: number, element: string){
-        if (this.array[continentalnessIndex][erosionIndex] === element)
+    set(indexes: PartialMultiNoiseIndexes, element: string){
+        if (indexes.c_idx === undefined || indexes.e_idx === undefined)
+            throw new Error("Trying to set element of Slice without proper ids")
+
+        if (this.array[indexes.c_idx][indexes.e_idx] === element)
             return
 
-        this.undoActions.push({c_id: continentalnessIndex, e_id: erosionIndex, value: this.array[continentalnessIndex][erosionIndex]})
+        this.undoActions.push({c_id: indexes.c_idx, e_id: indexes.e_idx, value: this.array[indexes.c_idx][indexes.e_idx]})
         
-        this.array[continentalnessIndex][erosionIndex] = element
+        this.array[indexes.c_idx][indexes.e_idx] = element
         this.builder.hasChanges = true
     }
 
@@ -82,20 +86,45 @@ export class Slice{
         }
     }
 
-    lookupKey(continentalnessIndex: number, erosionIndex: number): string{
-        return this.array[continentalnessIndex][erosionIndex]
+    lookupKey(indexes: PartialMultiNoiseIndexes, _mode: Mode): string{
+        if (indexes.c_idx === undefined || indexes.e_idx === undefined)
+            throw new Error("Trying to look up element of Slice without proper ids")
+
+        return this.array[indexes.c_idx][indexes.e_idx]
     }
 
-    lookup(continentalnessIndex: number, erosionIndex: number): LayoutElement{
-        const key = this.lookupKey(continentalnessIndex, erosionIndex)
+    lookup(indexes: PartialMultiNoiseIndexes, mode: Mode): GridElement{
+        const key = this.lookupKey(indexes, mode)
         return this.builder.getLayoutElement(key)
     }
 
-    getRenderer(): SliceGridRenderer {
+    lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean, stopAtLayout?: boolean): GridElement {
+        const element = this.lookup(indexes, mode)
+        if (stopAtHidden && element.hidden)
+            return element
+        else if (stopAtLayout && !(element instanceof Slice)){
+            return element
+        } else {
+            return element.lookupRecursive(indexes, mode, stopAtHidden);
+        }
+    }
+
+    getRenderer(): BiomeGridRenderer {
         if (this.renderer === undefined)
-            this.renderer = new SliceGridRenderer(this)
+            this.renderer = new BiomeGridRenderer(this)
 
         return this.renderer
+    }
+
+    public cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
+        return { e_idx: x, c_idx: y }
+    }
+
+    public idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
+        if (indexes.e_idx === undefined || indexes.c_idx === undefined)
+            return "all"
+
+        return [indexes.e_idx, indexes.c_idx]
     }
 
     getKey(){

@@ -47,7 +47,7 @@ export class AssignSlicesManager {
             const slice_icon = document.createElement("canvas") as HTMLCanvasElement
             slice_icon.width = 100
             slice_icon.height = 100
-            element.getRenderer().draw(slice_icon.getContext('2d'), 0, 0, 100, 100, -1, -1, false, true)
+            element.getRenderer().draw(slice_icon.getContext('2d'), 0, 0, 100, 100, {}, false, true, false)
 
             slice_icon_col.appendChild(slice_icon)
 

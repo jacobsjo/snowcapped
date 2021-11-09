@@ -2,7 +2,7 @@ import { lerp2, TerrainShaper } from "deepslate";
 import * as L from "leaflet";
 import { last } from "lodash";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
-import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
+import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
 import { BiomeLayer } from "../Visualization/BiomeLayer";
 import { ContourLayer } from "../Visualization/ContourLayer";
 import { GridMultiNoise } from "../Visualization/GridMultiNoise";
@@ -76,7 +76,7 @@ export class VisualizationManger{
           const idxs = this.getIdxs(evt.latlng)
           const lookup = this.builder.lookup(idxs.idx)
 
-          if (lookup.slice === undefined || lookup.slice instanceof LayoutElementUnassigned)
+          if (lookup.slice === undefined || lookup.slice instanceof GridElementUnassigned)
             return
 
           if (lookup.layout !== undefined && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)){
@@ -112,16 +112,16 @@ export class VisualizationManger{
 
           //tooltip_position.classList.toggle("hidden", idxs === undefined)
           tooltip_mode.classList.toggle("hidden", lookup?.mode === undefined)
-          tooltip_slice.parentElement.classList.toggle("hidden", lookup?.slice === undefined || lookup.slice instanceof LayoutElementUnassigned)
-          tooltip_layout.parentElement.classList.toggle("hidden", lookup?.layout === undefined || lookup.layout instanceof LayoutElementUnassigned)
-          tooltip_biome.parentElement.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof LayoutElementUnassigned)
+          tooltip_slice.parentElement.classList.toggle("hidden", lookup?.slice === undefined || lookup.slice instanceof GridElementUnassigned)
+          tooltip_layout.parentElement.classList.toggle("hidden", lookup?.layout === undefined || lookup.layout instanceof GridElementUnassigned)
+          tooltip_biome.parentElement.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof GridElementUnassigned)
 
           if (idxs){
             UI.getInstance().splineDisplayManager.setPos({c: idxs.values.continentalness, e: idxs.values.erosion, w: idxs.values.weirdness})
             UI.getInstance().splineDisplayManager.refresh()
           }
 
-          MenuManager.toggleAction("open-slice", lookup?.slice !== undefined && !(lookup?.slice instanceof LayoutElementUnassigned))
+          MenuManager.toggleAction("open-slice", lookup?.slice !== undefined && !(lookup?.slice instanceof GridElementUnassigned))
           MenuManager.toggleAction("open-layout", lookup?.layout !== undefined)
           MenuManager.toggleAction("copy", true)
 

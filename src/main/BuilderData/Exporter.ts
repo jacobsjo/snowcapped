@@ -1,7 +1,7 @@
 import { Climate } from "deepslate";
 import { Biome } from "./Biome";
 import { BiomeBuilder } from "./BiomeBuilder";
-import { LayoutElementUnassigned } from "./LayoutElementUnassigned";
+import { GridElementUnassigned } from "./GridElementUnassigned";
 
 
 
@@ -37,14 +37,12 @@ export class Exporter {
                 array[w_idx][c_idx] = []
                 for (let e_idx = 0; e_idx < this.builder.erosions.length; e_idx++) {
                     array[w_idx][c_idx][e_idx] = []
-                    console.log(fixed_c_idx)
-                    const layout = slice?.lookup(fixed_c_idx ?? c_idx, fixed_e_idx ?? e_idx)
 
                     for (let t_idx = 0; t_idx < this.builder.temperatures.length; t_idx++) {
                         array[w_idx][c_idx][e_idx][t_idx] = []
                         for (let h_idx = 0; h_idx < this.builder.humidities.length; h_idx++) {
-                            const biome = layout?.lookupRecursive(fixed_t_idx ?? t_idx, fixed_h_idx ?? h_idx, mode)
-                            if (biome === undefined || biome instanceof LayoutElementUnassigned) {
+                            const biome = slice?.lookupRecursive({w_idx: w_idx, c_idx: c_idx, e_idx: e_idx, h_idx: h_idx, t_idx: t_idx} , mode)
+                            if (biome === undefined || biome instanceof GridElementUnassigned) {
                                 array[w_idx][c_idx][e_idx][t_idx][h_idx] = { biome: "", done: true }
                             } else if (biome instanceof Biome) {
                                 array[w_idx][c_idx][e_idx][t_idx][h_idx] = { biome: biome.name, done: false }

@@ -2,7 +2,7 @@ import { BiomeSource, NoiseParameters, NoiseSampler, NormalNoise, TerrainShaper,
 import { template, uniqueId } from "lodash";
 import { Biome } from "../BuilderData/Biome";
 import { BiomeBuilder, MultiNoiseParameters } from "../BuilderData/BiomeBuilder";
-import { LayoutElementUnassigned } from "../BuilderData/LayoutElementUnassigned";
+import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
 
 
 

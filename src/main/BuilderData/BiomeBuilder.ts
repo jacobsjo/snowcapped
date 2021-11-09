@@ -7,15 +7,16 @@ import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
 import { GridSpline } from "./GridSpline"
 import { Layout } from "./Layout"
-import { LayoutElement } from "./LayoutElement"
-import { LayoutElementDummy } from "./LayoutElementDummy"
-import { LayoutElementUnassigned } from "./LayoutElementUnassigned"
+import { GridElement } from "./GridElement"
+import { GridElementDummy } from "./GridElementDummy"
+import { GridElementUnassigned } from "./GridElementUnassigned"
 import { SimpleSpline } from "./SimpleSpline"
 
 import { Slice } from "./Slice"
 
 export type MultiNoiseParameters = {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}
 export type MultiNoiseIndexes = {w_idx: number, c_idx:number, e_idx: number, h_idx: number, t_idx: number}
+export type PartialMultiNoiseIndexes = {w_idx?: number, c_idx?:number, e_idx?: number, h_idx?: number, t_idx?: number}
 
 export type NoiseSetting = {firstOctave: number, amplitudes: number[]}
 
@@ -32,8 +33,8 @@ export class BiomeBuilder{
         [key: string] : GridSpline,
     } = {}
 
-    renderedElements: Map<string, LayoutElement | Slice>
-    layoutElements: Map<string, LayoutElement>
+    renderedElements: Map<string, GridElement | Slice>
+    layoutElements: Map<string, GridElement>
     vanillaBiomes: Map<string, Biome>
 
     slices: Slice[]
@@ -41,8 +42,8 @@ export class BiomeBuilder{
     biomes: Biome[]
 
 
-    layoutElementDummy: LayoutElementDummy
-    layoutElementUnassigned: LayoutElementUnassigned
+    layoutElementDummy: GridElementDummy
+    layoutElementUnassigned: GridElementUnassigned
 
     noiseSettings: {
         "continentalness": NoiseSetting,
@@ -60,15 +61,15 @@ export class BiomeBuilder{
     useLegacyRandom: boolean = false;
 
     constructor(json: any){
-        this.renderedElements = new Map<string, LayoutElement | Slice>();
-        this.layoutElements = new Map<string, LayoutElement>();
+        this.renderedElements = new Map<string, GridElement | Slice>();
+        this.layoutElements = new Map<string, GridElement>();
         this.vanillaBiomes = new Map<string, Biome>();
         this.slices = []
         this.layouts = []
         this.biomes = []
         
-        this.layoutElementDummy = LayoutElementDummy.create(this)
-        this.layoutElementUnassigned = LayoutElementUnassigned.create(this)
+        this.layoutElementDummy = GridElementDummy.create(this)
+        this.layoutElementUnassigned = GridElementUnassigned.create(this)
 
         this.loadJSON(json)
     }
@@ -148,11 +149,11 @@ export class BiomeBuilder{
         return this.renderedElements.get(name) ?? this.layoutElementUnassigned;
     }
 
-    public getRenderedElement(name: string): LayoutElement | Slice {
+    public getRenderedElement(name: string): GridElement | Slice {
         return this.renderedElements.get(name) ?? this.layoutElementUnassigned
     }
 
-    public getLayoutElement(name: string): LayoutElement{
+    public getLayoutElement(name: string): GridElement{
         var element = this.layoutElements.get(name)
         /*
         if (element === undefined && this.vanillaBiomes.has(name)){
@@ -195,7 +196,7 @@ export class BiomeBuilder{
         this.renderedElements.set(biome.getKey(), biome)
     }
 
-    public registerLayoutElement(element: LayoutElement){
+    public registerLayoutElement(element: GridElement){
         this.layoutElements.set(element.getKey(), element);
         this.renderedElements.set(element.getKey(), element)
         if (element instanceof Layout){
@@ -206,7 +207,7 @@ export class BiomeBuilder{
         }
     }
 
-    public removeLayoutElement(element: LayoutElement){
+    public removeLayoutElement(element: GridElement){
         this.layoutElements.delete(element.getKey())
         this.renderedElements.delete(element.getKey())
 
@@ -249,18 +250,18 @@ export class BiomeBuilder{
             return {}
         }
 
-        const layout = slice.lookup(indexes.c_idx, indexes.e_idx) as LayoutElement
+        const layout = slice.lookupRecursive(indexes, w[3], true, true) as GridElement
 
         if (layout.hidden){
             return {slice: slice, mode: w[3]}
         }
 
-        if (layout instanceof LayoutElementUnassigned){
+        if (layout instanceof GridElementUnassigned){
             return {slice: slice, mode: w[3]}
         } else if (layout instanceof Biome){
             return {slice: slice, mode: w[3], biome: layout}
         } else if (layout instanceof Layout){
-            const biome = layout.lookupRecursive(indexes.t_idx, indexes.h_idx, w[3], true)
+            const biome = layout.lookupRecursive(indexes, w[3], true)
 
             if (biome.hidden){
                 return {slice: slice, mode: w[3], layout: layout}

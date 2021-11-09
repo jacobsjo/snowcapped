@@ -19,8 +19,6 @@ export class SplineEditor {
     private dragValue: number
     private dragLocation: number
 
-    private undoStack: string[] = []
-
     private hover: {
         spline: SimpleSpline;
         row: number;

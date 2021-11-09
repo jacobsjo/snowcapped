@@ -1,12 +1,14 @@
-import { ABBiomeRenderer, ElementRenderer } from '../UI/Renderer/ElementRenderer'
+import { ABBiomeRenderer, GridElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { Biome } from './Biome'
-import { BiomeBuilder } from './BiomeBuilder'
-import {LayoutElement, Mode} from './LayoutElement'
+import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder'
+import {GridElement, Mode} from './GridElement'
 
-export class ABElement implements LayoutElement{
+export class ABElement implements GridElement{
     readonly allowEdit: boolean = false
     readonly elementA: string
     readonly elementB: string
+
+    type_id: number = -1
 
     hidden: boolean
 
@@ -26,16 +28,26 @@ export class ABElement implements LayoutElement{
         return ab_biome
     }
 
-    lookupKey(temperatureIndex: number, humidityIndex: number): string{
+    lookupKey(indexes: MultiNoiseIndexes, mode: Mode): string{
+        if (mode === "A"){
+            return this.elementA
+        } else if (mode === "B"){
+            return this.elementB
+        }
         return this.getKey()
     }
 
-    lookup(temperatureIndex: number, humidityIndex: number): ABElement {
+    lookup(indexes: PartialMultiNoiseIndexes, mode: Mode): GridElement {
+        if (mode === "A"){
+            return this.builder.getLayoutElement(this.elementA)
+        } else if (mode === "B"){
+            return this.builder.getLayoutElement(this.elementB)
+        }
         return this
     }
 
-    lookupRecursive(temperatureIndex: number, humidityIndex: number, mode: Mode, stopAtHidden: boolean = false): LayoutElement {
-        let element
+    lookupRecursive(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden: boolean = false): GridElement {
+        let element : GridElement
 
         if (mode === "Any"){
             return this
@@ -48,7 +60,7 @@ export class ABElement implements LayoutElement{
         if (stopAtHidden && element.hidden)
             return element
         else 
-            return element.lookupRecursive(temperatureIndex, humidityIndex, mode, stopAtHidden)
+            return element.lookupRecursive(indexes, mode, stopAtHidden)
     }
 
     getElement(mode: "A" | "B"){
@@ -59,7 +71,7 @@ export class ABElement implements LayoutElement{
         }
     }
 
-    getRenderer(): ElementRenderer {
+    getRenderer(): GridElementRenderer {
         if (this.renderer === undefined)
             this.renderer = new ABBiomeRenderer(this)
 
