@@ -1,6 +1,9 @@
 import { BiomeRenderer, GridElementRenderer, UnassignedRenderer } from "../UI/Renderer/ElementRenderer";
+import { Biome } from "./Biome";
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
 import { GridElement, Mode } from "./GridElement";
+import { Layout } from "./Layout";
+import { Slice } from "./Slice";
 
 
 
@@ -32,6 +35,11 @@ export class GridElementUnassigned implements GridElement{
     lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode): GridElement {
         return this
     }
+
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Slice, layout: Layout, biome: Biome} {
+        return {slice: undefined, layout: undefined, biome: undefined}
+    }
+
 
     getRenderer(): GridElementRenderer {
         if (this.renderer === undefined)

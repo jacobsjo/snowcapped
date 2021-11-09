@@ -1,8 +1,10 @@
 import { isString } from 'lodash';
 import * as uniqid from 'uniqid';
 import { BiomeGridRenderer } from '../UI/Renderer/BiomeGridRenderer';
+import { Biome } from './Biome';
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder';
 import { GridElement, Mode } from './GridElement';
+import { Layout } from './Layout';
 
 export class Slice implements GridElement{
     allowEdit: boolean = true
@@ -106,6 +108,16 @@ export class Slice implements GridElement{
             return element
         } else {
             return element.lookupRecursive(indexes, mode, stopAtHidden);
+        }
+    }
+
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Slice, layout: Layout, biome: Biome} {
+        const element = this.lookup(indexes, mode)
+        if (stopAtHidden && element.hidden)
+            return {slice: this, layout: undefined, biome: undefined}
+        else {
+            const lookup = element.lookupRecursiveWithTracking(indexes, mode, stopAtHidden)
+            return {slice: this, layout: lookup.layout, biome: lookup.biome}
         }
     }
 

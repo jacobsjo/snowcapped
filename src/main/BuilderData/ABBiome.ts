@@ -2,6 +2,8 @@ import { ABBiomeRenderer, GridElementRenderer } from '../UI/Renderer/ElementRend
 import { Biome } from './Biome'
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder'
 import {GridElement, Mode} from './GridElement'
+import { Layout } from './Layout'
+import { Slice } from './Slice'
 
 export class ABElement implements GridElement{
     readonly allowEdit: boolean = false
@@ -61,6 +63,23 @@ export class ABElement implements GridElement{
             return element
         else 
             return element.lookupRecursive(indexes, mode, stopAtHidden)
+    }
+
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Slice, layout: Layout, biome: Biome} {
+        let element : GridElement
+
+        if (mode === "Any"){
+            return {slice: undefined, layout: undefined, biome: undefined}
+        } else if (mode === "A"){
+            element = this.builder.getLayoutElement(this.elementA)
+        } else {
+            element = this.builder.getLayoutElement(this.elementB)
+        }
+
+        if (stopAtHidden && element.hidden)
+            return {slice: undefined, layout: undefined, biome: undefined}
+        else 
+            return element.lookupRecursiveWithTracking(indexes, mode, stopAtHidden)
     }
 
     getElement(mode: "A" | "B"){

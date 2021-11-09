@@ -60,6 +60,7 @@ export class LayoutEditor {
   
             let element = this.layout.lookup(ids.indexes, ids.mode)
 
+            
             if (this.layout instanceof Layout) {
                 if (element instanceof ABElement) {
                     MenuManager.toggleAction("paint-mode", false)
@@ -71,15 +72,19 @@ export class LayoutEditor {
                 MenuManager.toggleAction("paint-mode", false)
             }
 
-            if (element instanceof Biome) {
-                tooltip_name.innerHTML = element.name
-                MenuManager.toggleAction("open", false)
+            if (element instanceof Slice) {
+                tooltip_name.innerHTML = "&crarr; " + element.name + " (Slice)"
+                MenuManager.toggleAction("open", true)
                 MenuManager.toggleAction("remove", true)
             } else if (element instanceof Layout) {
                 tooltip_name.innerHTML = "&crarr; " + element.name + " (Layout)"
                 MenuManager.toggleAction("open", true)
                 MenuManager.toggleAction("remove", true)
-            } else if (element instanceof GridElementUnassigned) {
+            } else if (element instanceof Biome) {
+                tooltip_name.innerHTML = element.name
+                MenuManager.toggleAction("open", false)
+                MenuManager.toggleAction("remove", true)
+            } else {
                 tooltip_name.innerHTML = "Unassigned"
                 MenuManager.toggleAction("open", false)
                 MenuManager.toggleAction("remove", false)

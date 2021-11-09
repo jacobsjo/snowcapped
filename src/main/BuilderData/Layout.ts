@@ -6,6 +6,8 @@ import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./Bio
 import { GridElement, Mode} from "./GridElement";
 import * as uniqid from 'uniqid';
 import { BiomeGridRenderer } from "../UI/Renderer/BiomeGridRenderer";
+import { GridElementUnassigned } from "./GridElementUnassigned";
+import { Slice } from "./Slice";
 
 export class Layout implements GridElement {
     allowEdit: boolean = true
@@ -107,6 +109,16 @@ export class Layout implements GridElement {
             return element
         else 
             return element.lookupRecursive(indexes, mode, stopAtHidden);
+    }
+
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Slice, layout: Layout, biome: Biome} {
+        const element = this.lookup(indexes, mode)
+        if (stopAtHidden && element.hidden)
+            return {slice: undefined, layout: this, biome: undefined}
+        else {
+            const lookup = element.lookupRecursiveWithTracking(indexes, mode, stopAtHidden)
+            return {slice: undefined, layout: this, biome: lookup.biome}
+        }
     }
 
     getSize(): [number, number]{

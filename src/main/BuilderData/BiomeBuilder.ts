@@ -245,28 +245,9 @@ export class BiomeBuilder{
             return {}
         }
 
-        const layout = slice.lookupRecursive(indexes, w[3], true, true) as GridElement
+        const lookup = slice.lookupRecursiveWithTracking(indexes, w[3], true)
+        return {slice: lookup.slice, layout: lookup.layout, biome: lookup.biome, mode: w[3]}
 
-        if (layout.hidden){
-            return {slice: slice, mode: w[3]}
-        }
-
-        if (layout instanceof GridElementUnassigned){
-            return {slice: slice, mode: w[3]}
-        } else if (layout instanceof Biome){
-            return {slice: slice, mode: w[3], biome: layout}
-        } else if (layout instanceof Layout){
-            const biome = layout.lookupRecursive(indexes, w[3], true)
-
-            if (biome.hidden){
-                return {slice: slice, mode: w[3], layout: layout}
-            }
-
-            if (biome instanceof Biome)
-                return {slice: slice, mode: w[3], layout: layout, biome: biome}
-            else
-                return {slice: slice, mode: w[3], layout: layout}
-        }
     }
 
     deleteParam(param: "humidity"|"temperature"|"continentalness"|"erosion"|"weirdness", id: number){
