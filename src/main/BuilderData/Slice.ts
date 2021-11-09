@@ -42,7 +42,7 @@ export class Slice implements GridElement{
         return {
             key: this.key,
             name: this.name,
-            array: this.array.map(row => row.map(e => this.builder.getLayoutElement(e).getKey()))
+            array: this.array.map(row => row.map(e => this.builder.getRenderedElement(e).getKey()))
         }
     }
 
@@ -95,7 +95,7 @@ export class Slice implements GridElement{
 
     lookup(indexes: PartialMultiNoiseIndexes, mode: Mode): GridElement{
         const key = this.lookupKey(indexes, mode)
-        return this.builder.getLayoutElement(key)
+        return this.builder.getRenderedElement(key)
     }
 
     lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean, stopAtLayout?: boolean): GridElement {

@@ -186,7 +186,7 @@ export class SidebarManager {
         this.openedElement = openElement ?? this.openedElement
 
         if ((this.openedElement.type === "assign_slices" && this.selectedElement?.type !== "slice") ||
-            (this.openedElement.type !== "assign_slices" && this.selectedElement?.type === "slice") ||
+            (this.openedElement.type === "layout" && this.selectedElement?.type === "slice") ||
             this.openedElement.type.startsWith("modify_") || this.openedElement.type === "spline" || this.openedElement.type === "spline_grid" )
             this.selectedElement = undefined
 
@@ -200,7 +200,7 @@ export class SidebarManager {
 
     public selectElement(selectElement?: { type: string, key: string }) {
         if ((this.openedElement.type === "assign_slices" && selectElement.type !== "slice") ||
-            (this.openedElement.type !== "assign_slices" && selectElement.type === "slice") ||
+            (this.openedElement.type === "layout" && selectElement.type === "slice") ||
             this.openedElement.type.startsWith("modify_"))
             return
 

@@ -213,7 +213,7 @@ export class LayoutEditor {
             UI.getInstance().refresh()
         } else if ((action === "add" || action === "add_alt") && selectedElement !== undefined) {
             
-            const se = this.builder.layoutElements.get(selectedElement)
+            const se = this.builder.renderedElements.get(selectedElement)
             
             //Cycle Check
             if (se.has(this.layout.getKey(), indexes))
@@ -258,6 +258,12 @@ export class LayoutEditor {
                 UI.getInstance().sidebarManager.openElement({type:"layout", key: exact_element.getKey()})
                 UI.getInstance().refresh()
             }
+
+            if (exact_element instanceof Slice) {
+                UI.getInstance().sidebarManager.openElement({type:"slice", key: exact_element.getKey()})
+                UI.getInstance().refresh()
+            }
+
         }
     }
 
