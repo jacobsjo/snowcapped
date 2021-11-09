@@ -216,17 +216,8 @@ export class LayoutEditor {
             const se = this.builder.layoutElements.get(selectedElement)
             
             //Cycle Check
-            /*
-            if (se instanceof Layout && this.layout instanceof Layout) {
-                this.layout.set(indexes, this.builder.layoutElementDummy.getKey(), false)
-                if (se.lookupRecursive(indexes, "A") === this.builder.layoutElementDummy || se.lookupRecursive(indexes, "B") === this.builder.layoutElementDummy) {
-                    //Cycle found
-                    this.layout.set(indexes, element.getKey(), false)
-                    return
-                } else {
-                    this.layout.set(indexes, element.getKey(), false)
-                }
-            }*/
+            if (se.has(this.layout.getKey(), indexes))
+                return
 
             if (!se && this.builder.vanillaBiomes.has(selectedElement)) {
                 this.builder.registerLayoutElement(this.builder.vanillaBiomes.get(selectedElement))

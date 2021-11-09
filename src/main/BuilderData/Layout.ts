@@ -134,4 +134,14 @@ export class Layout implements GridElement {
     getKey(){
         return this.key
     }
+
+    has(key: string, limit: PartialMultiNoiseIndexes){
+        if (key === this.getKey()) return true
+
+        if (limit.h_idx === undefined || limit.t_idx === undefined){
+            return this.array.findIndex(row => row.findIndex(element => this.builder.getLayoutElement(element).has(key, limit)) >= 0) >= 0
+        } else {
+            return this.lookup(limit, "Any").has(key, limit)
+        }
+    }
 }

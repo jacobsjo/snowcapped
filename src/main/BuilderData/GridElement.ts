@@ -13,4 +13,5 @@ export interface GridElement{
     lookupRecursive(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): GridElement
     getRenderer(): GridElementRenderer
     getKey(): string
+    has(key: string, limit: PartialMultiNoiseIndexes): boolean
 }

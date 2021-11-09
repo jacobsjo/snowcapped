@@ -1,7 +1,7 @@
 import * as uniqid from 'uniqid'
 import { BiomeRenderer, GridElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { VanillaBiomes } from '../Vanilla/VanillaBiomes'
-import { BiomeBuilder, MultiNoiseIndexes } from './BiomeBuilder'
+import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder'
 import {GridElement, Mode} from './GridElement'
 
 export class Biome implements GridElement{
@@ -94,6 +94,9 @@ export class Biome implements GridElement{
         return this.key
     }
 
+    has(key: string, _limit: PartialMultiNoiseIndexes){
+        return (key === this.getKey())
+    }
 
 }
 

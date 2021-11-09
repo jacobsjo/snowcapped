@@ -8,9 +8,7 @@ import { Biome } from "./Biome"
 import { GridSpline } from "./GridSpline"
 import { Layout } from "./Layout"
 import { GridElement } from "./GridElement"
-import { GridElementDummy } from "./GridElementDummy"
 import { GridElementUnassigned } from "./GridElementUnassigned"
-import { SimpleSpline } from "./SimpleSpline"
 
 import { Slice } from "./Slice"
 
@@ -42,7 +40,6 @@ export class BiomeBuilder{
     biomes: Biome[]
 
 
-    layoutElementDummy: GridElementDummy
     layoutElementUnassigned: GridElementUnassigned
 
     noiseSettings: {
@@ -68,7 +65,6 @@ export class BiomeBuilder{
         this.layouts = []
         this.biomes = []
         
-        this.layoutElementDummy = GridElementDummy.create(this)
         this.layoutElementUnassigned = GridElementUnassigned.create(this)
 
         this.loadJSON(json)
@@ -92,7 +88,6 @@ export class BiomeBuilder{
         this.slices = []
 
         VanillaBiomes.registerVanillaBiomes(this)
-        this.registerLayoutElement(this.layoutElementDummy)
         this.registerLayoutElement(this.layoutElementUnassigned)
 
         json.slices?.forEach((slice : any) => {

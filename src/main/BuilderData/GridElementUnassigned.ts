@@ -1,5 +1,5 @@
 import { BiomeRenderer, GridElementRenderer, UnassignedRenderer } from "../UI/Renderer/ElementRenderer";
-import { BiomeBuilder, MultiNoiseIndexes } from "./BiomeBuilder";
+import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
 import { GridElement, Mode } from "./GridElement";
 
 
@@ -42,5 +42,9 @@ export class GridElementUnassigned implements GridElement{
     
     getKey(): string {
         return "unassigned"
+    }
+
+    has(key: string, _limit: PartialMultiNoiseIndexes){
+        return (key === this.getKey())
     }
 }

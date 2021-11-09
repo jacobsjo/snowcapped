@@ -81,4 +81,8 @@ export class ABElement implements GridElement{
     getKey(){
         return this.elementA + "/" + this.elementB
     }
+
+    has(key: string, limit: PartialMultiNoiseIndexes){
+        return (key === this.getKey()) || this.getElement("A").has(key, limit) || this.getElement("B").has(key, limit)
+    }
 }
