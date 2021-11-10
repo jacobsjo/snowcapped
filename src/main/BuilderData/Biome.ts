@@ -2,9 +2,8 @@ import * as uniqid from 'uniqid'
 import { BiomeRenderer, GridElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { VanillaBiomes } from '../Vanilla/VanillaBiomes'
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder'
+import { Grid } from './Grid'
 import {GridElement, Mode} from './GridElement'
-import { Layout } from './Layout'
-import { Slice } from './Slice'
 
 export class Biome implements GridElement{
     name: string
@@ -36,7 +35,7 @@ export class Biome implements GridElement{
         if (isVanilla)
             builder.registerVanillaBiome(biome)
         else
-            builder.registerGridElement(biome);
+            builder.registerBiome(biome);
         return biome
     }
 
@@ -44,13 +43,13 @@ export class Biome implements GridElement{
         if (builder.vanillaBiomes.has(json.key)){
             const vanillaBiome = builder.vanillaBiomes.get(json.key)
 
-            builder.registerGridElement(vanillaBiome)
+            builder.registerBiome(vanillaBiome)
             if (json.color){
                 vanillaBiome.color = json.color
             }
         } else {
             const biome = new Biome(json.name, json.color ?? "#888888", json.key, false)
-            builder.registerGridElement(biome);
+            builder.registerBiome(biome);
             return biome
         }
     }
@@ -85,7 +84,7 @@ export class Biome implements GridElement{
         return this
     }
 
-    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Slice, layout: Layout, biome: Biome} {
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Grid, layout: Grid, biome: Biome} {
         return {slice: undefined, layout: undefined, biome: this}
     }
 

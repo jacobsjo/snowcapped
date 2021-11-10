@@ -6,11 +6,9 @@ import { VanillaSpline } from "../Vanilla/VanillaSplines"
 import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
 import { GridSpline } from "./GridSpline"
-import { Layout } from "./Layout"
 import { GridElement } from "./GridElement"
 import { GridElementUnassigned } from "./GridElementUnassigned"
-
-import { Slice } from "./Slice"
+import { Grid, LayoutMultiNoiseIndexesAccessor, SliceMultiNoiseIndexesAccessor } from "./Grid"
 
 export type MultiNoiseParameters = {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}
 export type MultiNoiseIndexes = {w_idx: number, c_idx:number, e_idx: number, h_idx: number, t_idx: number}
@@ -34,8 +32,8 @@ export class BiomeBuilder{
     gridElements: Map<string, GridElement>
     vanillaBiomes: Map<string, Biome>
 
-    slices: Slice[]
-    layouts: Layout[]
+    slices: Grid[]
+    layouts: Grid[]
     biomes: Biome[]
 
 
@@ -87,14 +85,14 @@ export class BiomeBuilder{
 
         VanillaBiomes.registerVanillaBiomes(this)
         console.log(this.gridElements);
-        this.registerGridElement(this.layoutElementUnassigned)
+        this.gridElements.set("unassigned", this.layoutElementUnassigned)
 
         json.slices?.forEach((slice : any) => {
-            Slice.fromJSON(this, slice)
+            Grid.fromJSON(this, slice, new SliceMultiNoiseIndexesAccessor())
         });
 
         json.layouts?.forEach((layout : any) => {
-            Layout.fromJSON(this, layout)
+            Grid.fromJSON(this, layout, new LayoutMultiNoiseIndexesAccessor())
         });
 
         json.biomes?.forEach((biome : any) => {
@@ -170,20 +168,26 @@ export class BiomeBuilder{
 
     public registerVanillaBiome(biome: Biome){
         this.vanillaBiomes.set(biome.getKey(), biome);
-        //this.gridElements.set(biome.getKey(), biome)
     }
 
     public registerGridElement(element: GridElement){
         this.gridElements.set(element.getKey(), element)
-        if (element instanceof Slice){
-            this.slices.push(element)
-        }
-        if (element instanceof Layout){
-            this.layouts.push(element)
-        }
-        if (element instanceof Biome){
-            this.biomes.push(element)
-        }
+    }
+
+    public registerSlice(element: Grid){
+        this.gridElements.set(element.getKey(), element)
+        this.slices.push(element)
+    }
+
+
+    public registerLayout(element: Grid){
+        this.gridElements.set(element.getKey(), element)
+        this.layouts.push(element)
+    }    
+
+    public registerBiome(element: Biome){
+        this.gridElements.set(element.getKey(), element)
+        this.biomes.push(element)
     }
 
     public removeGridElement(element: GridElement){
@@ -192,13 +196,14 @@ export class BiomeBuilder{
         this.slices.forEach(s => s.deleteGridElement(element.getKey()))
         this.layouts.forEach(l => l.deleteGridElement(element.getKey()))
 
-        if (element instanceof Slice){
-            const index = this.slices.indexOf(element)
-            this.slices.splice(index, 1)
-        }
-        if (element instanceof Layout){
-            const index = this.layouts.indexOf(element)
-            this.layouts.splice(index, 1)
+        if (element instanceof Grid){
+            const si = this.slices.indexOf(element)
+            if (si >= 0) 
+                this.slices.splice(si, 1)
+
+            const li = this.layouts.indexOf(element)
+            if (li >= 0)
+                this.layouts.splice(li, 1)
         }
         if (element instanceof Biome){
             const index = this.biomes.indexOf(element)
@@ -219,7 +224,7 @@ export class BiomeBuilder{
         return {w_idx: w_idx, e_idx: e_idx, c_idx: c_idx, t_idx: t_idx, h_idx: h_idx}
     }
 
-    public lookup(indexes: MultiNoiseIndexes): {slice?: Slice, mode?: "A"|"B", layout?: Layout, biome?: Biome}{
+    public lookup(indexes: MultiNoiseIndexes): {slice?: Grid, mode?: "A"|"B", layout?: Grid, biome?: Biome}{
         if (indexes === undefined)
             return undefined
             
@@ -229,7 +234,7 @@ export class BiomeBuilder{
             return {}
         }
 
-        const slice = this.getSlice(w[2]) as Slice
+        const slice = this.getSlice(w[2]) as Grid
 
         if (slice.hidden){
             return {}

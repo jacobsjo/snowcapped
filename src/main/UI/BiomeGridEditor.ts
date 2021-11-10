@@ -2,12 +2,10 @@ import { Spline, TerrainShaper } from "deepslate";
 import { ABElement } from "../BuilderData/ABBiome";
 import { Biome } from "../BuilderData/Biome";
 import { BiomeBuilder, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
-import { Layout } from "../BuilderData/Layout";
-import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
-import { Slice } from "../BuilderData/Slice";
 import { MenuManager } from "./MenuManager";
 import { UI } from "./UI";
 import { BiomeGridRenderer } from "./Renderer/BiomeGridRenderer";
+import { Grid } from "../BuilderData/Grid";
 
 
 function lerp(a: number, b: number, l: number) {
@@ -19,7 +17,7 @@ export class BiomeGridEditor {
     private canvas: HTMLCanvasElement
 
     private mouse_position: { mouse_x: number, mouse_y: number }
-    layout: Layout | Slice
+    layout: Grid
 
     constructor(builder: BiomeBuilder) {
         this.builder = builder
@@ -61,7 +59,7 @@ export class BiomeGridEditor {
             let element = this.layout.lookup(ids.indexes, ids.mode)
 
             
-            if (this.layout instanceof Layout || this.layout instanceof Slice) {
+            if (this.layout instanceof Grid) {
                 if (element instanceof ABElement) {
                     MenuManager.toggleAction("paint-mode", false)
                     element = element.getElement(ids.mode)
@@ -72,11 +70,11 @@ export class BiomeGridEditor {
                 MenuManager.toggleAction("paint-mode", false)
             }
 
-            if (element instanceof Slice) {
+            if (element instanceof Grid && element.getType() === "slice") {
                 tooltip_name.innerHTML = "&crarr; " + element.name + " (Slice)"
                 MenuManager.toggleAction("open", true)
                 MenuManager.toggleAction("remove", true)
-            } else if (element instanceof Layout) {
+            } else if (element instanceof Grid  && element.getType() === "layout") {
                 tooltip_name.innerHTML = "&crarr; " + element.name + " (Layout)"
                 MenuManager.toggleAction("open", true)
                 MenuManager.toggleAction("remove", true)
@@ -91,7 +89,7 @@ export class BiomeGridEditor {
             }
 
             // Update Spline display in slices
-            if (this.layout instanceof Slice){
+            if (this.layout instanceof Grid && this.layout.getType() === "slice"){
                 const cont = builder.continentalnesses[ids.indexes.c_idx][1]
                 const c = lerp(cont.min, cont.max, ids.local_t)
     
@@ -178,7 +176,7 @@ export class BiomeGridEditor {
 
     highlight(x_idx: number, y_idx: number){
         const element = this.builder.getLayoutElement(UI.getInstance().sidebarManager.openedElement.key)
-        if (element instanceof Slice || element instanceof Layout)
+        if (element instanceof Grid)
             this.layout = element
         this.layout.getRenderer().setHighlight(x_idx, y_idx)
     }
@@ -214,7 +212,7 @@ export class BiomeGridEditor {
         }
 
         if (action === "pick") {
-            UI.getInstance().sidebarManager.selectElement({type: exact_element instanceof Layout ? "layout" : "biome", key: selectedElement = exact_element.getKey()})
+            UI.getInstance().sidebarManager.selectElement({type: exact_element instanceof Grid ? exact_element.getType() : "biome", key: selectedElement = exact_element.getKey()})
             UI.getInstance().refresh()
         } else if ((action === "add" || action === "add_alt") && selectedElement !== undefined) {
             
@@ -266,16 +264,10 @@ export class BiomeGridEditor {
             // Right mouse button
             // open
 
-            if (exact_element instanceof Layout) {
-                UI.getInstance().sidebarManager.openElement({type:"layout", key: exact_element.getKey()})
+            if (exact_element instanceof Grid) {
+                UI.getInstance().sidebarManager.openElement({type:exact_element.getType(), key: exact_element.getKey()})
                 UI.getInstance().refresh()
             }
-
-            if (exact_element instanceof Slice) {
-                UI.getInstance().sidebarManager.openElement({type:"slice", key: exact_element.getKey()})
-                UI.getInstance().refresh()
-            }
-
         }
     }
 
@@ -287,11 +279,11 @@ export class BiomeGridEditor {
         this.canvas.parentElement.classList.remove("hidden")
         this.title.readOnly = false
         const element = this.builder.getLayoutElement(UI.getInstance().sidebarManager.openedElement.key)
-        if (element instanceof Slice || element instanceof Layout)
+        if (element instanceof Grid)
             this.layout = element
         this.title.value = this.layout.name
 
-        if (this.layout instanceof Slice){
+        if (this.layout instanceof Grid && this.layout.getType() === "slice"){
             UI.getInstance().splineDisplayManager.setWeirdnesses(this.builder.weirdnesses.filter(w => (w[2] === this.layout.getKey())).map(w => w[1]))
         } else {
             UI.getInstance().splineDisplayManager.setWeirdnesses([])

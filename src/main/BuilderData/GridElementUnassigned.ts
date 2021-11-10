@@ -1,11 +1,8 @@
 import { BiomeRenderer, GridElementRenderer, UnassignedRenderer } from "../UI/Renderer/ElementRenderer";
 import { Biome } from "./Biome";
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
+import { Grid } from "./Grid";
 import { GridElement, Mode } from "./GridElement";
-import { Layout } from "./Layout";
-import { Slice } from "./Slice";
-
-
 
 export class GridElementUnassigned implements GridElement{
     allowEdit: boolean = false
@@ -20,7 +17,6 @@ export class GridElementUnassigned implements GridElement{
 
     static create(builder: BiomeBuilder){
         const element = new GridElementUnassigned()
-        builder.registerGridElement(element)
         return element
     }
 
@@ -36,7 +32,7 @@ export class GridElementUnassigned implements GridElement{
         return this
     }
 
-    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Slice, layout: Layout, biome: Biome} {
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {slice: Grid, layout: Grid, biome: Biome} {
         return {slice: undefined, layout: undefined, biome: undefined}
     }
 

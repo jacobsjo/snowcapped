@@ -1,8 +1,8 @@
 import { ABElement } from "../../BuilderData/ABBiome";
 import { Biome } from "../../BuilderData/Biome";
-import { Layout } from "../../BuilderData/Layout";
 import { GridElementUnassigned } from "../../BuilderData/GridElementUnassigned";
 import { PartialMultiNoiseIndexes } from "../../BuilderData/BiomeBuilder";
+import { Grid } from "../../BuilderData/Grid";
 
 
 export interface GridElementRenderer{
@@ -48,7 +48,7 @@ export class UnassignedRenderer implements GridElementRenderer{
 
 export class ABBiomeRenderer implements GridElementRenderer{
     ab_biome: ABElement
-    private parentConstuctor: Function
+    private parentType: string
 
     constructor(ab_biome: ABElement){
         this.ab_biome = ab_biome
@@ -56,8 +56,8 @@ export class ABBiomeRenderer implements GridElementRenderer{
     setHighlight(x_idx: number, y_idx: number): void {
     }
 
-    public setParentConsturctor(parentConstuctor: Function){
-        this.parentConstuctor = parentConstuctor
+    public setParentType(type: string){
+        this.parentType = type
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean, isIcon: boolean, gradGridWithBorder: boolean){
@@ -95,7 +95,8 @@ export class ABBiomeRenderer implements GridElementRenderer{
             elementA.getRenderer().draw(ctx, minX + sizeX * 0.1, minY + sizeY * 0.1, sizeX * 0.38, sizeY * 0.38, indexes, indicateRecursive, isIcon, false)
         }
 
-        if (indicateRecursive && isARecursive && this.ab_biome.getElement("A").constructor === this.parentConstuctor){
+        const directElementA = this.ab_biome.getElement("A")
+        if (indicateRecursive && isARecursive && (directElementA instanceof Grid) && directElementA.getType()  === this.parentType){
             ctx.fillStyle = "rgb(255,255,255,0.8)"
             ctx.beginPath()
             ctx.moveTo(minX, minY)
@@ -143,7 +144,8 @@ export class ABBiomeRenderer implements GridElementRenderer{
             elementB.getRenderer().draw(ctx, minX + sizeX * 0.52, minY + sizeY * 0.52, sizeX * 0.38, sizeY * 0.38, indexes, indicateRecursive, isIcon, false)
         }
 
-        if (indicateRecursive && isBRecursive && this.ab_biome.getElement("B").constructor === this.parentConstuctor){
+        const directElementB = this.ab_biome.getElement("A")
+        if (indicateRecursive && isBRecursive && (directElementB instanceof Grid) && directElementB.getType()  === this.parentType){
             ctx.fillStyle = "rgb(255,255,255,0.8)"
             ctx.beginPath()
             ctx.moveTo(minX + sizeX, minY)

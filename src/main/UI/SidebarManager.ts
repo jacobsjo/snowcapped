@@ -2,9 +2,8 @@ import * as d3 from "d3";
 
 import { Biome } from "../BuilderData/Biome"
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
+import { Grid, LayoutMultiNoiseIndexesAccessor, SliceMultiNoiseIndexesAccessor } from "../BuilderData/Grid";
 import { GridElement } from "../BuilderData/GridElement";
-import { Layout } from "../BuilderData/Layout"
-import { Slice } from "../BuilderData/Slice"
 import { UI } from "./UI"
 
 export class SidebarManager {
@@ -90,7 +89,7 @@ export class SidebarManager {
             
         sidebar.select("#add_slices_button")
             .on("click", (evt: Event) => {
-                const slice = Slice.create(this.builder, "New Slice", "unassigned")
+                const slice = Grid.create(this.builder, "New Slice", new SliceMultiNoiseIndexesAccessor())
                 this.builder.hasChanges = true
                 this.openElement({ type: "slice", key: slice.getKey() })
                 evt.stopPropagation()
@@ -106,7 +105,7 @@ export class SidebarManager {
 
         sidebar.select("#add_layout_button")
             .on("click", (evt: Event) => {
-                const layout = Layout.create(this.builder, "New Layout")
+                const layout = Grid.create(this.builder, "New Layout", new LayoutMultiNoiseIndexesAccessor())
                 this.builder.hasChanges = true
                 this.openElement({ type: "layout", key: layout.getKey() })
                 evt.stopPropagation()

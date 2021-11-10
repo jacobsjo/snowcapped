@@ -1,0 +1,242 @@
+import * as _ from "lodash";
+import { GridElementRenderer } from "../UI/Renderer/ElementRenderer";
+import { Biome } from "./Biome";
+import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
+import { GridElement, Mode} from "./GridElement";
+import * as uniqid from 'uniqid';
+import { BiomeGridRenderer } from "../UI/Renderer/BiomeGridRenderer";
+
+export interface MultiNoiseIndexesAccessor{
+    readonly type: "layout" | "slice"
+    getSize(bulder: BiomeBuilder): [number, number]
+    cellToIds(x: number, y: number): PartialMultiNoiseIndexes
+    idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all"
+    paramToAxis(param: string): "x" | "y"
+}
+
+export class SliceMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccessor{
+    type: "layout" | "slice" = "slice"
+    getSize(bulder: BiomeBuilder): [number, number] {
+        return [bulder.getNumErosions(), bulder.getNumContinentalnesses()]
+    }
+
+    cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
+        return {c_idx: x, e_idx: y}
+    }
+    idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
+        if (indexes.c_idx === undefined || indexes.e_idx === undefined)
+            return "all"
+
+        return [indexes.c_idx, indexes.e_idx]
+    }
+
+    paramToAxis(param: string): "x" | "y" {
+        if (param === "continentalness")
+            return "x"
+        else if (param === "erosion")
+            return "y"
+        else
+            throw new Error("Invalid Parameter")
+    }
+}
+
+export class LayoutMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccessor{
+    type: "layout" | "slice" = "layout"
+    getSize(bulder: BiomeBuilder): [number, number] {
+        return [bulder.getNumHumidities(), bulder.getNumTemperatures()]
+    }
+
+    cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
+        return {t_idx: x, h_idx: y}
+    }
+    idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
+        if (indexes.t_idx === undefined || indexes.h_idx === undefined)
+            return "all"
+
+        return [indexes.t_idx, indexes.h_idx]
+    }
+
+    paramToAxis(param: string): "x" | "y" {
+        if (param === "temperature")
+            return "x"
+        else if (param === "humidity")
+            return "y"
+        else
+            throw new Error("Invalid Parameter")
+    }
+}
+
+
+
+
+export class Grid implements GridElement {
+    allowEdit: boolean = true
+    name: string;
+    hidden: boolean
+
+    private accessor: MultiNoiseIndexesAccessor
+    private array: string[][]
+    private builder: BiomeBuilder
+    private renderer: BiomeGridRenderer
+    private key: string
+
+    private undoActions: {y_id: number, x_id: number, value: string}[]
+    
+    private constructor(builder: BiomeBuilder, name: string, accessor: MultiNoiseIndexesAccessor, array?: string[][], key?: string){
+        this.name = name
+        this.builder = builder
+        this.accessor = accessor
+        const size = accessor.getSize(builder)
+        this.array = array ?? new Array(size[0]).fill(0).map(() => new Array(size[1]).fill("unassigned"))
+        this.key = key ?? uniqid('layout_')
+        this.undoActions = []
+    }
+
+    static create(builder: BiomeBuilder, name: string, accessor: MultiNoiseIndexesAccessor, array?: string[][], key?: string): Grid{
+        const grid = new Grid(builder, name, accessor, array, key)
+
+        if (accessor.type === "layout")
+            builder.registerLayout(grid);
+        else if (accessor.type === "slice")
+            builder.registerSlice(grid);
+
+        return grid
+    }
+
+    static fromJSON(builder: BiomeBuilder, json: any, accessor: MultiNoiseIndexesAccessor){
+        return Grid.create(builder, json.name, accessor, json.array, json.key)
+    }
+
+    toJSON(){
+        return {
+            key: this.key,
+            name: this.name,
+            array: this.array.map(row => row.map(e => this.builder.getLayoutElement(e).getKey()))
+        }
+    }
+
+    getSize(): [number, number]{
+        return this.accessor.getSize(this.builder)
+    }
+
+    getType(): "layout" | "slice" {
+        return this.accessor.type
+    }
+
+    set(indexes: PartialMultiNoiseIndexes, element: string, recordUndo: boolean = true){
+        const cell = this.accessor.idsToCell(indexes)
+        if (cell === "all")
+            throw new Error("Trying to set element of Layout without proper ids")
+
+        if (this.array[cell[0]][cell[1]] === element)
+            return
+
+        if (recordUndo)
+            this.undoActions.push({y_id: cell[0], x_id: cell[1], value: this.array[cell[0]][cell[1]]})
+
+        this.array[cell[0]][cell[1]] = element
+        this.builder.hasChanges = true
+    }
+
+    undo(){
+        if (this.undoActions.length > 0){
+            const action = this.undoActions.pop()
+            this.array[action.y_id][action.x_id] = action.value
+        }
+    }
+
+    deleteParam(param: string, id: number){
+        const axis = this.accessor.paramToAxis(param)
+        if (axis === "x"){
+            this.array.splice(id, 1)
+        } else {
+            this.array.forEach(row => row.splice(id, 1))
+        }
+    }
+
+    splitParam(param: string, id: number){
+        const axis = this.accessor.paramToAxis(param)
+        if (axis === "x"){
+            this.array.splice(id, 0, Array.from(this.array[id]))
+        } else {
+            this.array.forEach(row => row.splice(id, 0, row[id]))
+        }
+    }
+
+    deleteGridElement(key: string){
+        for (let r in this.array){
+            for (let c in this.array[r]){
+                if (this.array[r][c] === key){
+                    this.array[r][c] = "unassigned";
+                }
+            }
+        }
+    }
+
+    lookupKey(indexes: PartialMultiNoiseIndexes, _mode: Mode): string {
+        const cell = this.accessor.idsToCell(indexes)
+        if (cell === "all")
+            return this.getKey()
+
+        return this.array[cell[0]][cell[1]]
+    }
+
+    lookup(indexes: PartialMultiNoiseIndexes, mode: Mode): GridElement{
+        const key = this.lookupKey(indexes, mode)
+        return this.builder.getLayoutElement(key)
+    }
+
+    lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden: boolean = false): GridElement{
+        const element = this.lookup(indexes, mode)
+        if ((stopAtHidden && element.hidden) || element === this)
+            return element
+        else
+            return element.lookupRecursive(indexes, mode, stopAtHidden);
+    }
+
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): { slice: Grid; layout: Grid; biome: Biome; } {
+        const element = this.lookup(indexes, mode)
+        if (stopAtHidden && element.hidden){
+            if (this.accessor.type === "slice")
+                return {slice: this, layout: undefined, biome: undefined}
+            else if (this.accessor.type === "layout")
+                return {slice: undefined, layout: this, biome: undefined}
+        } else {
+            const lookup = element.lookupRecursiveWithTracking(indexes, mode, stopAtHidden)
+            if (this.accessor.type === "slice")
+                return {slice: this, layout: lookup.layout, biome: lookup.biome}
+            else if (this.accessor.type === "layout")
+                return {slice: undefined, layout: this, biome: lookup.biome}
+        }
+    }
+
+
+    getRenderer(): GridElementRenderer {
+        if (this.renderer === undefined)
+            this.renderer = new BiomeGridRenderer(this)
+
+        return this.renderer
+    }
+
+    public cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
+        return this.accessor.cellToIds(x, y)
+    }
+
+    public idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
+        return this.accessor.idsToCell(indexes)
+    }
+
+    getKey(){
+        return this.key
+    }
+
+    has(key: string, limit: PartialMultiNoiseIndexes){
+        if (key === this.getKey()) return true
+
+        if (limit.h_idx === undefined || limit.t_idx === undefined){
+            return this.array.findIndex(row => row.findIndex(element => this.builder.getLayoutElement(element).has(key, limit)) >= 0) >= 0
+        } else {
+            return this.lookup(limit, "Any").has(key, limit)
+        }
+    }
+}
