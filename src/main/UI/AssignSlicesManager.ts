@@ -32,7 +32,7 @@ export class AssignSlicesManager {
         this.div.innerHTML = ""
         const table = document.createElement("table")
         this.builder.weirdnesses.forEach((weirdness, w_idx) => {
-            const element = this.builder.getRenderedElement(weirdness[2])
+            const element = this.builder.getLayoutElement(weirdness[2])
 
             const row = document.createElement("tr")
 

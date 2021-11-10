@@ -13,7 +13,7 @@ import { BiomeGridRenderer } from "./Renderer/BiomeGridRenderer";
 function lerp(a: number, b: number, l: number) {
     return ((1 - l) * a + l * b)
 }
-export class LayoutEditor {
+export class BiomeGridEditor {
     private builder: BiomeBuilder
     private title: HTMLInputElement
     private canvas: HTMLCanvasElement
@@ -61,7 +61,7 @@ export class LayoutEditor {
             let element = this.layout.lookup(ids.indexes, ids.mode)
 
             
-            if (this.layout instanceof Layout) {
+            if (this.layout instanceof Layout || this.layout instanceof Slice) {
                 if (element instanceof ABElement) {
                     MenuManager.toggleAction("paint-mode", false)
                     element = element.getElement(ids.mode)
@@ -177,7 +177,7 @@ export class LayoutEditor {
     }
 
     highlight(x_idx: number, y_idx: number){
-        const element = this.builder.getRenderedElement(UI.getInstance().sidebarManager.openedElement.key)
+        const element = this.builder.getLayoutElement(UI.getInstance().sidebarManager.openedElement.key)
         if (element instanceof Slice || element instanceof Layout)
             this.layout = element
         this.layout.getRenderer().setHighlight(x_idx, y_idx)
@@ -228,7 +228,7 @@ export class LayoutEditor {
                 this.builder.registerLayoutElement(this.builder.vanillaBiomes.get(selectedElement))
             }
 
-            if (action === "add_alt" && !(element instanceof ABElement) && this.layout instanceof Layout) {
+            if (action === "add_alt" && !(element instanceof ABElement) /*&& this.layout instanceof Layout*/) {
                 // add alternate
                 if (mode === "A") {
                     this.layout.set(indexes, selectedElement + "/" + element.getKey())
@@ -279,7 +279,7 @@ export class LayoutEditor {
     refresh() {
         this.canvas.parentElement.classList.remove("hidden")
         this.title.readOnly = false
-        const element = this.builder.getRenderedElement(UI.getInstance().sidebarManager.openedElement.key)
+        const element = this.builder.getLayoutElement(UI.getInstance().sidebarManager.openedElement.key)
         if (element instanceof Slice || element instanceof Layout)
             this.layout = element
         this.title.value = this.layout.name

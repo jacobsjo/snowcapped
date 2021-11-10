@@ -91,7 +91,7 @@ export class Layout implements GridElement {
 
     lookupKey(indexes: PartialMultiNoiseIndexes, _mode: Mode): string {
         if (indexes.t_idx === undefined || indexes.h_idx === undefined)
-            throw new Error("Trying to look up element of Layout without proper ids")
+            return this.getKey()
 
         return this.array[indexes.t_idx][indexes.h_idx]
     }
@@ -105,7 +105,7 @@ export class Layout implements GridElement {
 
     lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden: boolean = false): GridElement{
         const element = this.lookup(indexes, mode)
-        if (stopAtHidden && element.hidden)
+        if ((stopAtHidden && element.hidden) || element === this)
             return element
         else 
             return element.lookupRecursive(indexes, mode, stopAtHidden);

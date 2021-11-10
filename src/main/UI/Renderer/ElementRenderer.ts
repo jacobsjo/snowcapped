@@ -48,11 +48,16 @@ export class UnassignedRenderer implements GridElementRenderer{
 
 export class ABBiomeRenderer implements GridElementRenderer{
     ab_biome: ABElement
+    private parentConstuctor: Function
 
     constructor(ab_biome: ABElement){
         this.ab_biome = ab_biome
     }
     setHighlight(x_idx: number, y_idx: number): void {
+    }
+
+    public setParentConsturctor(parentConstuctor: Function){
+        this.parentConstuctor = parentConstuctor
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean, isIcon: boolean, gradGridWithBorder: boolean){
@@ -61,27 +66,36 @@ export class ABBiomeRenderer implements GridElementRenderer{
 
         const elementA = this.ab_biome.lookupRecursive(indexes, "A", false )
 
+        var drawFullElementA = false
+
         if (elementA instanceof Biome)
             ctx.fillStyle = (elementA as Biome).color
         else if (elementA instanceof GridElementUnassigned)
             ctx.fillStyle = "gray"
+        else   
+            drawFullElementA = true
 
-        ctx.beginPath()
-        ctx.moveTo(minX, minY)
-        ctx.lineTo(minX + sizeX, minY)
-        ctx.lineTo(minX, minY + sizeY)
-        ctx.fill()
+        if (!drawFullElementA){
+            ctx.beginPath()
+            ctx.moveTo(minX, minY)
+            ctx.lineTo(minX + sizeX, minY)
+            ctx.lineTo(minX, minY + sizeY)
+            ctx.fill()
 
-        if (elementA instanceof GridElementUnassigned){
-            ctx.fillStyle = "white"
-            ctx.textAlign = "center"
-            ctx.textBaseline = "middle"
+            if (elementA instanceof GridElementUnassigned){
+                ctx.fillStyle = "white"
+                ctx.textAlign = "center"
+                ctx.textBaseline = "middle"
 
-            ctx.font = (sizeX*0.5) + 'px serif'
-            ctx.fillText("?", minX + sizeX * 0.3, minY + sizeY * 0.4)
+                ctx.font = (sizeX*0.5) + 'px serif'
+                ctx.fillText("?", minX + sizeX * 0.3, minY + sizeY * 0.4)
+            }
+
+        } else {
+            elementA.getRenderer().draw(ctx, minX + sizeX * 0.1, minY + sizeY * 0.1, sizeX * 0.38, sizeY * 0.38, indexes, indicateRecursive, isIcon, false)
         }
 
-        if (indicateRecursive && isARecursive){
+        if (indicateRecursive && isARecursive && this.ab_biome.getElement("A").constructor === this.parentConstuctor){
             ctx.fillStyle = "rgb(255,255,255,0.8)"
             ctx.beginPath()
             ctx.moveTo(minX, minY)
@@ -96,29 +110,40 @@ export class ABBiomeRenderer implements GridElementRenderer{
             ctx.fillText(this.ab_biome.getElement("A").name.charAt(0), minX + sizeX * 0.2, minY + sizeY * 0.3)
             ctx.font = '110px serif';
             ctx.fillText('↵', minX + 0.3 * sizeX, minY + 0.5 * sizeY)
-        }
+        }            
+
+
 
         const elementB = this.ab_biome.lookupRecursive(indexes, "B", false)
+        var drawFullElementB = false
 
         if (elementB instanceof Biome)
             ctx.fillStyle = (elementB as Biome).color
         else if (elementB instanceof GridElementUnassigned)
             ctx.fillStyle = "gray"
-        ctx.beginPath()
-        ctx.moveTo(minX + sizeX, minY)
-        ctx.lineTo(minX + sizeX, minY + sizeY)
-        ctx.lineTo(minX, minY + sizeY)
-        ctx.fill()
+        else
+            drawFullElementB = true
 
-        if (elementB instanceof GridElementUnassigned){
-            ctx.fillStyle = "white"
-            ctx.font = (sizeX*0.5) + 'px serif'
-            ctx.textAlign = "center"
-            ctx.textBaseline = "middle"
-            ctx.fillText("?", minX + sizeX * 0.72, minY + sizeY * 0.75)
+        if (!drawFullElementB){
+            ctx.beginPath()
+            ctx.moveTo(minX + sizeX, minY)
+            ctx.lineTo(minX + sizeX, minY + sizeY)
+            ctx.lineTo(minX, minY + sizeY)
+            ctx.fill()
+
+            if (elementB instanceof GridElementUnassigned){
+                ctx.fillStyle = "white"
+                ctx.font = (sizeX*0.5) + 'px serif'
+                ctx.textAlign = "center"
+                ctx.textBaseline = "middle"
+                ctx.fillText("?", minX + sizeX * 0.72, minY + sizeY * 0.75)
+            }
+
+        } else {
+            elementB.getRenderer().draw(ctx, minX + sizeX * 0.52, minY + sizeY * 0.52, sizeX * 0.38, sizeY * 0.38, indexes, indicateRecursive, isIcon, false)
         }
 
-        if (indicateRecursive && isBRecursive){
+        if (indicateRecursive && isBRecursive && this.ab_biome.getElement("B").constructor === this.parentConstuctor){
             ctx.fillStyle = "rgb(255,255,255,0.8)"
             ctx.beginPath()
             ctx.moveTo(minX + sizeX, minY)
@@ -133,7 +158,7 @@ export class ABBiomeRenderer implements GridElementRenderer{
             ctx.fillText(this.ab_biome.getElement("B").name.charAt(0), minX + sizeX * 0.65, minY + sizeY * 0.7)
             ctx.font = '110px serif';
             ctx.fillText('↵', minX + 0.77 * sizeX, minY + 0.85 * sizeY)
-        }
+        }        
 
         ctx.strokeStyle = "black"
         ctx.lineWidth = sizeX / 30

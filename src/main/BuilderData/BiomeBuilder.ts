@@ -144,12 +144,8 @@ export class BiomeBuilder{
         return this.renderedElements.get(name) ?? this.layoutElementUnassigned;
     }
 
-    public getRenderedElement(name: string): GridElement | Slice {
-        return this.renderedElements.get(name) ?? this.layoutElementUnassigned
-    }
-
     public getLayoutElement(name: string): GridElement{
-        var element = this.layoutElements.get(name)
+        var element = this.renderedElements.get(name)
         /*
         if (element === undefined && this.vanillaBiomes.has(name)){
             element = this.vanillaBiomes.get(name)

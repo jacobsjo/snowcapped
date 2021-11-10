@@ -44,7 +44,7 @@ export class Slice implements GridElement{
         return {
             key: this.key,
             name: this.name,
-            array: this.array.map(row => row.map(e => this.builder.getRenderedElement(e).getKey()))
+            array: this.array.map(row => row.map(e => this.builder.getLayoutElement(e).getKey()))
         }
     }
 
@@ -53,6 +53,7 @@ export class Slice implements GridElement{
     }
 
     set(indexes: PartialMultiNoiseIndexes, element: string){
+        console.log(element)
         if (indexes.c_idx === undefined || indexes.e_idx === undefined)
             throw new Error("Trying to set element of Slice without proper ids")
 
@@ -62,6 +63,7 @@ export class Slice implements GridElement{
         this.undoActions.push({c_id: indexes.c_idx, e_id: indexes.e_idx, value: this.array[indexes.c_idx][indexes.e_idx]})
         
         this.array[indexes.c_idx][indexes.e_idx] = element
+        console.log(this.array)
         this.builder.hasChanges = true
     }
 
@@ -97,7 +99,7 @@ export class Slice implements GridElement{
 
     lookup(indexes: PartialMultiNoiseIndexes, mode: Mode): GridElement{
         const key = this.lookupKey(indexes, mode)
-        return this.builder.getRenderedElement(key)
+        return this.builder.getLayoutElement(key)
     }
 
     lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean, stopAtLayout?: boolean): GridElement {

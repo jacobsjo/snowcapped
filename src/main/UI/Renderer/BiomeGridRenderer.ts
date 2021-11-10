@@ -5,7 +5,7 @@ import { MultiNoiseIndexes, PartialMultiNoiseIndexes } from "../../BuilderData/B
 import { GridElement } from "../../BuilderData/GridElement";
 import { Layout } from "../../BuilderData/Layout"
 import { Slice } from "../../BuilderData/Slice";
-import { GridElementRenderer } from "./ElementRenderer"
+import { ABBiomeRenderer, GridElementRenderer } from "./ElementRenderer"
 
 export class BiomeGridRenderer implements GridElementRenderer {
     private highlight_x: number = -1
@@ -57,6 +57,11 @@ export class BiomeGridRenderer implements GridElementRenderer {
                 if (element === undefined)
                     console.log("undefined at: " + y_idx + ", " + x_idx)
 
+                const renderer = element.getRenderer()
+                if (renderer instanceof ABBiomeRenderer){
+                    renderer.setParentConsturctor(this.grid.constructor)
+                }
+                
                 element.getRenderer().draw(ctx, xOffset + x_idx * elementSize, yOffset + y_idx * elementSize, elementSize, elementSize, this.grid.cellToIds(x_idx, y_idx) , indicateRecursive && !isIcon, true, !isIcon)
 
                 if (indicateRecursive && !isIcon && element.constructor === this.grid.constructor){

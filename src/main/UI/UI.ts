@@ -2,7 +2,7 @@ import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { SimpleSpline } from "../BuilderData/SimpleSpline";
 import { AssignSlicesManager } from "./AssignSlicesManager";
 import { GridEditor } from "./GridEditor";
-import { LayoutEditor } from "./LayoutEditor";
+import { BiomeGridEditor } from "./BiomeGridEditor";
 import { MenuManager } from "./MenuManager";
 import { SettingsManager } from "./SettingsManager";
 import { SidebarManager } from "./SidebarManager";
@@ -26,7 +26,7 @@ export class UI {
     }
 
     readonly sidebarManager: SidebarManager
-    readonly layoutEditor: LayoutEditor
+    readonly layoutEditor: BiomeGridEditor
     readonly assignSlicesEditor: AssignSlicesManager
     readonly splineDisplayManager: SplineDisplayManager
     readonly visualizationManager: VisualizationManger
@@ -41,7 +41,7 @@ export class UI {
 
         this.builder = builder
 
-        this.layoutEditor = new LayoutEditor(builder)
+        this.layoutEditor = new BiomeGridEditor(builder)
         this.sidebarManager = new SidebarManager(builder)
         this.assignSlicesEditor = new AssignSlicesManager(builder)
         this.splineDisplayManager = new SplineDisplayManager(builder)
