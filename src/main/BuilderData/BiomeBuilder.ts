@@ -269,6 +269,13 @@ export class BiomeBuilder{
             } else {
                 this.erosions.splice(id, 1)
             }
+        } else if (param === "weirdness" || param === "depth"){
+            this.dimension.deleteParam(param, id)
+            if (param === "weirdness"){
+                this.weirdnesses.splice(id, 1)
+            } else {
+                this.depths.splice(id, 1)
+            }
         }
     }
 
@@ -306,6 +313,23 @@ export class BiomeBuilder{
                 const newEro2 = new Climate.Param(midPoint, this.erosions[id].max)
 
                 this.erosions.splice(id, 1, newEro1, newEro2)
+            }
+        } else if (param === "weirdness" || param === "depth"){ 
+            this.dimension.splitParam(param, id)
+            if (param === "weirdness"){
+                const midPoint = (this.weirdnesses[id].min + this.weirdnesses[id].max)/2
+
+                const newCont1 = new Climate.Param(this.weirdnesses[id].min, midPoint)
+                const newCont2 = new Climate.Param(midPoint, this.weirdnesses[id].max)
+
+                this.weirdnesses.splice(id, 1, newCont1, newCont2)
+            } else {
+                const midPoint = (this.depths[id].min + this.depths[id].max)/2
+
+                const newEro1 = new Climate.Param(this.depths[id].min, midPoint)
+                const newEro2 = new Climate.Param(midPoint, this.depths[id].max)
+
+                this.depths.splice(id, 1, newEro1, newEro2)
             }
         }
     }

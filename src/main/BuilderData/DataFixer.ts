@@ -24,7 +24,7 @@ export class DataFixer {
 
             json.dimension = {
                 "key": "dimension",
-                "name": "Dimension",
+                "name": "Biomes",
                 "array": array
             }
 

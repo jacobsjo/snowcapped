@@ -483,7 +483,7 @@ export class GridEditor {
             this.ys = this.y_array.map(t => t.max)
             this.ys.unshift(this.y_array[0].min)
         } else if (UI.getInstance().sidebarManager.openedElement.key === "dimension") {
-            this.title.value = "Layout Grid"
+            this.title.value = "Biome Grid"
 
             this.x_array = this.builder.weirdnesses
             this.y_array = this.builder.depths
