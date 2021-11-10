@@ -219,10 +219,11 @@ export class BiomeGridEditor {
             var se = this.builder.gridElements.get(selectedElement)
             
             if (se === undefined){
-                se = this.builder.vanillaBiomes.get(selectedElement)
-                if (se !== undefined){
-                    this.builder.registerGridElement(se)
+                const vanillaBiome = this.builder.vanillaBiomes.get(selectedElement)
+                if (vanillaBiome !== undefined){
+                    this.builder.registerBiome(vanillaBiome)
                 }
+                se = vanillaBiome
             }
             
             //Cycle Check
