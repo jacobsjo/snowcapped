@@ -31,8 +31,7 @@ export class BiomeBuilder{
         [key: string] : GridSpline,
     } = {}
 
-    renderedElements: Map<string, GridElement | Slice>
-    layoutElements: Map<string, GridElement>
+    gridElements: Map<string, GridElement>
     vanillaBiomes: Map<string, Biome>
 
     slices: Slice[]
@@ -58,8 +57,7 @@ export class BiomeBuilder{
     useLegacyRandom: boolean = false;
 
     constructor(json: any){
-        this.renderedElements = new Map<string, GridElement | Slice>();
-        this.layoutElements = new Map<string, GridElement>();
+        this.gridElements = new Map<string, GridElement>();
         this.vanillaBiomes = new Map<string, Biome>();
         this.slices = []
         this.layouts = []
@@ -82,13 +80,14 @@ export class BiomeBuilder{
         this.temperatures = json.temperatures
         this.humidities = json.humidities
 
-        this.layoutElements.clear()
+        this.gridElements.clear()
         this.layouts = []
         this.biomes = []
         this.slices = []
 
         VanillaBiomes.registerVanillaBiomes(this)
-        this.registerLayoutElement(this.layoutElementUnassigned)
+        console.log(this.gridElements);
+        this.registerGridElement(this.layoutElementUnassigned)
 
         json.slices?.forEach((slice : any) => {
             Slice.fromJSON(this, slice)
@@ -141,11 +140,11 @@ export class BiomeBuilder{
     }
     
     public getSlice(name: string){
-        return this.renderedElements.get(name) ?? this.layoutElementUnassigned;
+        return this.gridElements.get(name) ?? this.layoutElementUnassigned;
     }
 
     public getLayoutElement(name: string): GridElement{
-        var element = this.renderedElements.get(name)
+        var element = this.gridElements.get(name)
         /*
         if (element === undefined && this.vanillaBiomes.has(name)){
             element = this.vanillaBiomes.get(name)
@@ -169,27 +168,16 @@ export class BiomeBuilder{
         }
     }
 
-    public registerSlice(slice: Slice){
-        this.slices.push(slice);
-        this.renderedElements.set(slice.getKey(), slice)
-    }
-
-    public removeSlice(slice: Slice){
-        const index = this.slices.indexOf(slice)
-        if (index > -1){
-            this.slices.splice(index, 1)
-        }
-        this.renderedElements.delete(slice.getKey())
-    }
-
     public registerVanillaBiome(biome: Biome){
         this.vanillaBiomes.set(biome.getKey(), biome);
-        this.renderedElements.set(biome.getKey(), biome)
+        //this.gridElements.set(biome.getKey(), biome)
     }
 
-    public registerLayoutElement(element: GridElement){
-        this.layoutElements.set(element.getKey(), element);
-        this.renderedElements.set(element.getKey(), element)
+    public registerGridElement(element: GridElement){
+        this.gridElements.set(element.getKey(), element)
+        if (element instanceof Slice){
+            this.slices.push(element)
+        }
         if (element instanceof Layout){
             this.layouts.push(element)
         }
@@ -198,10 +186,16 @@ export class BiomeBuilder{
         }
     }
 
-    public removeLayoutElement(element: GridElement){
-        this.layoutElements.delete(element.getKey())
-        this.renderedElements.delete(element.getKey())
+    public removeGridElement(element: GridElement){
+        this.gridElements.delete(element.getKey())
 
+        this.slices.forEach(s => s.deleteGridElement(element.getKey()))
+        this.layouts.forEach(l => l.deleteGridElement(element.getKey()))
+
+        if (element instanceof Slice){
+            const index = this.slices.indexOf(element)
+            this.slices.splice(index, 1)
+        }
         if (element instanceof Layout){
             const index = this.layouts.indexOf(element)
             this.layouts.splice(index, 1)

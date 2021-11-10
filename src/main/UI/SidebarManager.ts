@@ -160,7 +160,7 @@ export class SidebarManager {
 
             (sidebar.select(".sidebar_entry_list#vanilla_biomes")
                 .selectAll(".sidebar_entry") as d3.Selection<d3.BaseType, GridElement, d3.BaseType, unknown>)
-                .data(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.layoutElements.has(b.getKey())), (d: GridElement) => d.getKey())
+                .data(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.gridElements.has(b.getKey())), (d: GridElement) => d.getKey())
                 .classed("hidden", d => !d.name.includes(search_bar.property("value")))
 
             this.resizeBottomSpacer(sidebar)
@@ -246,7 +246,7 @@ export class SidebarManager {
         this.handleElementDivs(this.builder.slices, "slice", sidebar.select(".sidebar_entry_list#slices"), false, false)
         this.handleElementDivs(this.builder.layouts, "layout", sidebar.select(".sidebar_entry_list#layouts"), false, false)
         this.handleElementDivs(this.builder.biomes, "biome", sidebar.select(".sidebar_entry_list#biomes"), false, true)
-        this.handleElementDivs(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.layoutElements.has(b.getKey())), "vanilla_biome", sidebar.select(".sidebar_entry_list#vanilla_biomes"), true, true)
+        this.handleElementDivs(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.gridElements.has(b.getKey())), "vanilla_biome", sidebar.select(".sidebar_entry_list#vanilla_biomes"), true, true)
     }
 
     handleElementDivs(list: (GridElement)[], c: string, selection: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>, fixed: boolean, use_color_picker: boolean) {
@@ -292,11 +292,7 @@ export class SidebarManager {
                                 return
 
                             this.builder.hasChanges = true
-                            if (d instanceof Slice) {
-                                this.builder.removeSlice(d)
-                            } else {
-                                this.builder.removeLayoutElement(d)
-                            }
+                            this.builder.removeGridElement(d)
                             UI.getInstance().refresh()
                             evt.stopPropagation()
                         })

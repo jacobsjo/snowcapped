@@ -20,7 +20,7 @@ export class GridElementUnassigned implements GridElement{
 
     static create(builder: BiomeBuilder){
         const element = new GridElementUnassigned()
-        builder.registerLayoutElement(element)
+        builder.registerGridElement(element)
         return element
     }
 

@@ -8,7 +8,7 @@ import { Slice } from './Slice'
 
 export class Biome implements GridElement{
     name: string
-    hidden: boolean
+    hidden: boolean = false
     type_id: number = 3
     readonly allowEdit: boolean = true
 
@@ -36,7 +36,7 @@ export class Biome implements GridElement{
         if (isVanilla)
             builder.registerVanillaBiome(biome)
         else
-            builder.registerLayoutElement(biome);
+            builder.registerGridElement(biome);
         return biome
     }
 
@@ -44,13 +44,13 @@ export class Biome implements GridElement{
         if (builder.vanillaBiomes.has(json.key)){
             const vanillaBiome = builder.vanillaBiomes.get(json.key)
 
-            builder.registerLayoutElement(vanillaBiome)
+            builder.registerGridElement(vanillaBiome)
             if (json.color){
                 vanillaBiome.color = json.color
             }
         } else {
             const biome = new Biome(json.name, json.color ?? "#888888", json.key, false)
-            builder.registerLayoutElement(biome);
+            builder.registerGridElement(biome);
             return biome
         }
     }

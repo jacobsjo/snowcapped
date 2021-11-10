@@ -30,13 +30,13 @@ export class Slice implements GridElement{
 
     static create(builder: BiomeBuilder, name: string, fill: string): Slice{
         const slice = new Slice(builder, name, new Array(builder.getNumContinentalnesses()).fill(0).map(() => new Array(builder.getNumErosions()).fill(fill)));
-        builder.registerSlice(slice);
+        builder.registerGridElement(slice);
         return slice
     }
 
     static fromJSON(builder: BiomeBuilder, json: any){
         const slice = new Slice(builder, json.name, json.array, json.key)
-        builder.registerSlice(slice);
+        builder.registerGridElement(slice);
         return slice
     }
 
@@ -87,6 +87,16 @@ export class Slice implements GridElement{
             this.array.splice(id, 0, Array.from(this.array[id]))
         } else {
             this.array.forEach(row => row.splice(id, 0, row[id]))
+        }
+    }
+
+    deleteGridElement(key: string){
+        for (let r in this.array){
+            for (let c in this.array[r]){
+                if (this.array[r][c] === key){
+                    this.array[r][c] = "unassigned";
+                }
+            }
         }
     }
 

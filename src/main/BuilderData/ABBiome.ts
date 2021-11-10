@@ -26,7 +26,7 @@ export class ABElement implements GridElement{
 
     static create(builder: BiomeBuilder, elementA: string, elementB: string): ABElement{
         const ab_biome = new ABElement(builder, elementA, elementB)
-        builder.registerLayoutElement(ab_biome);
+        builder.registerGridElement(ab_biome);
         return ab_biome
     }
 

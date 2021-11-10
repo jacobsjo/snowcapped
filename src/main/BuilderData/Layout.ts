@@ -34,7 +34,7 @@ export class Layout implements GridElement {
 
     static create(builder: BiomeBuilder, name: string, array?: string[][], key?: string): Layout{
         const layout = new Layout(builder, name, array, key)
-        builder.registerLayoutElement(layout);
+        builder.registerGridElement(layout);
         return layout
     }
 
@@ -87,7 +87,15 @@ export class Layout implements GridElement {
         }
     }
 
-
+    deleteGridElement(key: string){
+        for (let r in this.array){
+            for (let c in this.array[r]){
+                if (this.array[r][c] === key){
+                    this.array[r][c] = "unassigned";
+                }
+            }
+        }
+    }
 
     lookupKey(indexes: PartialMultiNoiseIndexes, _mode: Mode): string {
         if (indexes.t_idx === undefined || indexes.h_idx === undefined)

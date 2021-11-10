@@ -19,6 +19,5 @@ for (let i = 0 ; i < close_elements.length ; i++){
 
 fetch('minecraft_overworld.snowcapped.json').then( r => r.text()).then(jsonString => {
     const builder = new BiomeBuilder(JSON.parse(jsonString));
-    VanillaBiomes.registerVanillaBiomes(builder)
     UI.create(builder)
 })

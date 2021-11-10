@@ -218,14 +218,21 @@ export class BiomeGridEditor {
             UI.getInstance().refresh()
         } else if ((action === "add" || action === "add_alt") && selectedElement !== undefined) {
             
-            const se = this.builder.renderedElements.get(selectedElement)
+            var se = this.builder.gridElements.get(selectedElement)
+            
+            if (se === undefined){
+                se = this.builder.vanillaBiomes.get(selectedElement)
+                if (se !== undefined){
+                    this.builder.registerGridElement(se)
+                }
+            }
             
             //Cycle Check
             if (se.has(this.layout.getKey(), indexes))
                 return
 
             if (!se && this.builder.vanillaBiomes.has(selectedElement)) {
-                this.builder.registerLayoutElement(this.builder.vanillaBiomes.get(selectedElement))
+                this.builder.registerGridElement(this.builder.vanillaBiomes.get(selectedElement))
             }
 
             if (action === "add_alt" && !(element instanceof ABElement) /*&& this.layout instanceof Layout*/) {
