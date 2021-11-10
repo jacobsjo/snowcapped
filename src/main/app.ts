@@ -5,6 +5,7 @@ import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
 
+export const DATA_VERSION = 1
 
 const close_elements = document.getElementsByClassName("closable")
 

@@ -19,11 +19,11 @@ export class GridEditor {
     private xs: number[]
     private ys: number[]
 
-    private x_param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness";
-    private y_param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness";
+    private x_param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth";
+    private y_param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth";
 
-    private x_array: [string, Climate.Param][]
-    private y_array: [string, Climate.Param][]
+    private x_array: Climate.Param[]
+    private y_array: Climate.Param[]
 
     private hoverHandle: Handle = undefined
 
@@ -165,12 +165,12 @@ export class GridEditor {
 
                     if (this.x_array) {
                         if (draggingHandle.id === 0) {
-                            this.x_array[0][1] = new Climate.Param(this.xs[0], this.x_array[0][1].max)
+                            this.x_array[0] = new Climate.Param(this.xs[0], this.x_array[0].max)
                         } else if (draggingHandle.id < this.xs.length - 1) {
-                            this.x_array[draggingHandle.id - 1][1] = new Climate.Param(this.x_array[draggingHandle.id - 1][1].min, this.xs[draggingHandle.id])
-                            this.x_array[draggingHandle.id][1] = new Climate.Param(this.xs[draggingHandle.id], this.x_array[draggingHandle.id][1].max)
+                            this.x_array[draggingHandle.id - 1] = new Climate.Param(this.x_array[draggingHandle.id - 1].min, this.xs[draggingHandle.id])
+                            this.x_array[draggingHandle.id] = new Climate.Param(this.xs[draggingHandle.id], this.x_array[draggingHandle.id].max)
                         } else {
-                            this.x_array[draggingHandle.id - 1][1] = new Climate.Param(this.x_array[draggingHandle.id - 1][1].min, this.xs[draggingHandle.id])
+                            this.x_array[draggingHandle.id - 1] = new Climate.Param(this.x_array[draggingHandle.id - 1].min, this.xs[draggingHandle.id])
                         }
 
                         if (this.xs[draggingHandle.id] === min_value) {
@@ -204,12 +204,12 @@ export class GridEditor {
 
                     if (this.y_array) {
                         if (draggingHandle.id === 0) {
-                            this.y_array[0][1] = new Climate.Param(this.ys[0], this.y_array[0][1].max)
+                            this.y_array[0] = new Climate.Param(this.ys[0], this.y_array[0].max)
                         } else if (draggingHandle.id < this.ys.length - 1) {
-                            this.y_array[draggingHandle.id - 1][1] = new Climate.Param(this.y_array[draggingHandle.id - 1][1].min, this.ys[draggingHandle.id])
-                            this.y_array[draggingHandle.id][1] = new Climate.Param(this.ys[draggingHandle.id], this.y_array[draggingHandle.id][1].max)
+                            this.y_array[draggingHandle.id - 1] = new Climate.Param(this.y_array[draggingHandle.id - 1].min, this.ys[draggingHandle.id])
+                            this.y_array[draggingHandle.id] = new Climate.Param(this.ys[draggingHandle.id], this.y_array[draggingHandle.id].max)
                         } else {
-                            this.y_array[draggingHandle.id - 1][1] = new Climate.Param(this.y_array[draggingHandle.id - 1][1].min, this.ys[draggingHandle.id])
+                            this.y_array[draggingHandle.id - 1] = new Climate.Param(this.y_array[draggingHandle.id - 1].min, this.ys[draggingHandle.id])
                         }
 
                         if (this.ys[draggingHandle.id] === min_value) {
@@ -463,11 +463,11 @@ export class GridEditor {
             this.x_param = "erosion"
             this.y_param = "continentalness"
 
-            this.xs = this.x_array.map(t => t[1].max)
-            this.xs.unshift(this.x_array[0][1].min)
+            this.xs = this.x_array.map(t => t.max)
+            this.xs.unshift(this.x_array[0].min)
 
-            this.ys = this.y_array.map(t => t[1].max)
-            this.ys.unshift(this.y_array[0][1].min)
+            this.ys = this.y_array.map(t => t.max)
+            this.ys.unshift(this.y_array[0].min)
         } else if (UI.getInstance().sidebarManager.openedElement.key === "layout") {
             this.title.value = "Layout Grid"
 
@@ -477,11 +477,25 @@ export class GridEditor {
             this.x_param = "humidity"
             this.y_param = "temperature"
 
-            this.xs = this.x_array.map(t => t[1].max)
-            this.xs.unshift(this.x_array[0][1].min)
+            this.xs = this.x_array.map(t => t.max)
+            this.xs.unshift(this.x_array[0].min)
 
-            this.ys = this.y_array.map(t => t[1].max)
-            this.ys.unshift(this.y_array[0][1].min)
+            this.ys = this.y_array.map(t => t.max)
+            this.ys.unshift(this.y_array[0].min)
+        } else if (UI.getInstance().sidebarManager.openedElement.key === "dimension") {
+            this.title.value = "Layout Grid"
+
+            this.x_array = this.builder.weirdnesses
+            this.y_array = this.builder.depths
+
+            this.x_param = "weirdness"
+            this.y_param = "depth"
+
+            this.xs = this.x_array.map(t => t.max)
+            this.xs.unshift(this.x_array[0].min)
+
+            this.ys = this.y_array.map(t => t.max)
+            this.ys.unshift(this.y_array[0].min)
         } else {
             this.title.value = UI.getInstance().sidebarManager.openedElement.key === "offset" ? "Offset Spline Grid" : UI.getInstance().sidebarManager.openedElement.key === "factor" ? "Factor Spline Grid" : "Jaggedness Spline Grid"
 

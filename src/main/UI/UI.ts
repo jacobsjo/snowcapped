@@ -1,6 +1,4 @@
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
-import { SimpleSpline } from "../BuilderData/SimpleSpline";
-import { AssignSlicesManager } from "./AssignSlicesManager";
 import { GridEditor } from "./GridEditor";
 import { BiomeGridEditor } from "./BiomeGridEditor";
 import { MenuManager } from "./MenuManager";
@@ -27,7 +25,6 @@ export class UI {
 
     readonly sidebarManager: SidebarManager
     readonly layoutEditor: BiomeGridEditor
-    readonly assignSlicesEditor: AssignSlicesManager
     readonly splineDisplayManager: SplineDisplayManager
     readonly visualizationManager: VisualizationManger
     readonly gridEditor: GridEditor
@@ -43,7 +40,6 @@ export class UI {
 
         this.layoutEditor = new BiomeGridEditor(builder)
         this.sidebarManager = new SidebarManager(builder)
-        this.assignSlicesEditor = new AssignSlicesManager(builder)
         this.splineDisplayManager = new SplineDisplayManager(builder)
         this.visualizationManager = new VisualizationManger(builder)
         this.gridEditor = new GridEditor(builder)
@@ -58,23 +54,15 @@ export class UI {
     refresh() {
         this.sidebarManager.refresh()
 
-        if (this.sidebarManager.openedElement.type === "assign_slices") {
-            this.layoutEditor.hide()
-            this.gridEditor.hide()
-            this.assignSlicesEditor.refresh()
-            this.splineEditor.hide()
-        } else if (this.sidebarManager.openedElement.type === "spline") {
-            this.assignSlicesEditor.hide()
+        if (this.sidebarManager.openedElement.type === "spline") {
             this.layoutEditor.hide()
             this.gridEditor.hide()
             this.splineEditor.refresh()
         } else if (this.sidebarManager.openedElement.type === "grid") {
-            this.assignSlicesEditor.hide()
             this.layoutEditor.hide()
             this.gridEditor.refresh()
             this.splineEditor.hide()
         } else {
-            this.assignSlicesEditor.hide()
             this.gridEditor.hide()
             this.layoutEditor.refresh()
             this.splineEditor.hide()

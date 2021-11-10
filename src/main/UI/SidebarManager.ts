@@ -13,7 +13,7 @@ export class SidebarManager {
     private dragKey: string;
     private lastDragedOverDiv: HTMLElement;
 
-    public openedElement: { type: string, key?: string } = { type: "assign_slices" };
+    public openedElement: { type: string, key?: string } = { type: "dimension", key: "dimension" };
     public selectedElement: { type: string, key: string };
 
     constructor(builder: BiomeBuilder) {
@@ -23,12 +23,20 @@ export class SidebarManager {
         const self=this
         sidebar.selectAll<HTMLElement, unknown>(".sidebar_entry_list#splines .sidebar_entry.spline")
             .on("click", function(evt: Event) {
-                self.openElement({ type: "spline", key: this.id })
+                if (this.id === "dimension"){
+                    self.openElement({ type: "dimension", key: this.id})
+                } else {
+                    self.openElement({ type: "spline", key: this.id })
+                }
                 UI.getInstance().refresh()
                 evt.stopPropagation()
             })
             .on("contextmenu", function(evt: Event) {
-                self.openElement({ type: "spline", key: this.id })
+                if (this.id === "dimension"){
+                    self.openElement({ type: "dimension", key: "dimension"})
+                } else {
+                    self.openElement({ type: "spline", key: this.id })
+                }
                 UI.getInstance().refresh()
                 evt.stopPropagation()
                 evt.preventDefault()
@@ -216,7 +224,8 @@ export class SidebarManager {
         const self=this
         sidebar.selectAll<HTMLElement, unknown>(".sidebar_entry_list#splines .sidebar_entry.spline")
             .classed("open", function(){
-                return self.openedElement.type === "spline" && this.id === self.openedElement.key
+                return (self.openedElement.type === "spline" && this.id === self.openedElement.key) ||
+                    (self.openedElement.type === "dimension" && this.id === "dimension")
             })
             .selectAll<HTMLElement, unknown>(".edit_grid_button")
             .classed("open", function(){

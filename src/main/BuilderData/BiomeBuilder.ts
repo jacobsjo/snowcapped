@@ -6,24 +6,28 @@ import { VanillaSpline } from "../Vanilla/VanillaSplines"
 import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
 import { GridSpline } from "./GridSpline"
-import { GridElement } from "./GridElement"
+import { GridElement, Mode } from "./GridElement"
 import { GridElementUnassigned } from "./GridElementUnassigned"
-import { Grid, LayoutMultiNoiseIndexesAccessor, SliceMultiNoiseIndexesAccessor } from "./Grid"
+import { DimensionMultiNoiseIndexesAccessor, Grid, LayoutMultiNoiseIndexesAccessor, SliceMultiNoiseIndexesAccessor } from "./Grid"
+import { DataFixer } from "./DataFixer"
+import { DATA_VERSION } from "../app"
+import { version } from "leaflet"
 
 export type MultiNoiseParameters = {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}
-export type MultiNoiseIndexes = {w_idx: number, c_idx:number, e_idx: number, h_idx: number, t_idx: number}
-export type PartialMultiNoiseIndexes = {w_idx?: number, c_idx?:number, e_idx?: number, h_idx?: number, t_idx?: number}
+export type MultiNoiseIndexes = {d_idx: number, w_idx: number, c_idx:number, e_idx: number, h_idx: number, t_idx: number}
+export type PartialMultiNoiseIndexes = {d_idx?: number, w_idx?: number, c_idx?:number, e_idx?: number, h_idx?: number, t_idx?: number}
 
 export type NoiseSetting = {firstOctave: number, amplitudes: number[]}
 
 export class BiomeBuilder{
     hasChanges: boolean
 
-    continentalnesses: [string, Climate.Param][]
-    erosions: [string,Climate.Param][]
-    weirdnesses: [string,Climate.Param, string, "A"|"B"][]
-    temperatures: [string,Climate.Param][]
-    humidities: [string,Climate.Param][]
+    continentalnesses: Climate.Param[]
+    erosions: Climate.Param[]
+    weirdnesses: Climate.Param[]
+    temperatures: Climate.Param[]
+    humidities: Climate.Param[]
+    depths: Climate.Param[]
 
     splines: {
         [key: string] : GridSpline,
@@ -36,6 +40,8 @@ export class BiomeBuilder{
     layouts: Grid[]
     biomes: Biome[]
 
+    dimension: Grid
+    modes: ("A" | "B")[]
 
     layoutElementUnassigned: GridElementUnassigned
 
@@ -67,6 +73,12 @@ export class BiomeBuilder{
     }
 
     loadJSON(json: any){
+        json = DataFixer.fixJSON(json)
+
+        if (json.version !== DATA_VERSION){
+            throw new Error("Datafixer did output json in version " + json.version + ". Newest version is " + DATA_VERSION)
+        }
+
         this.dimensionName = json.dimensionName??"minecraft:overworld"
         this.seed = BigInt(json.seed ?? "1")
         this.noiseSettings = json.noiseSettings ?? VanillaNoiseSettings.default()
@@ -77,14 +89,18 @@ export class BiomeBuilder{
         this.weirdnesses = json.weirdnesses
         this.temperatures = json.temperatures
         this.humidities = json.humidities
+        this.depths = json.depths
 
         this.gridElements.clear()
+        this.vanillaBiomes.clear()
         this.layouts = []
         this.biomes = []
         this.slices = []
 
+        this.dimension = Grid.fromJSON(this, json.dimension, new DimensionMultiNoiseIndexesAccessor(this))
+        this.modes = json.modes
+
         VanillaBiomes.registerVanillaBiomes(this)
-        console.log(this.gridElements);
         this.gridElements.set("unassigned", this.layoutElementUnassigned)
 
         json.slices?.forEach((slice : any) => {
@@ -119,12 +135,14 @@ export class BiomeBuilder{
 
             continentalnesses: this.continentalnesses,
             erosions: this.erosions,
-            weirdnesses: this.weirdnesses.map(weirdness => {
-                weirdness[2] = this.getSlice(weirdness[2]).getKey()
-                return weirdness
-            }),
+            weirdnesses: this.weirdnesses,
             temperatures: this.temperatures,
             humidities: this.humidities,
+            depths: this.depths,
+
+            dimension: this.dimension,
+            modes: this.modes,
+
             layouts: this.layouts,
             slices: this.slices,
             biomes: this.biomes,
@@ -133,7 +151,9 @@ export class BiomeBuilder{
                 offset: this.splines.offset.toJSON(),
                 factor: this.splines.factor.toJSON(),
                 jaggedness: this.splines.jaggedness.toJSON()
-            }
+            },
+
+            version: DATA_VERSION
         }
     }
     
@@ -143,12 +163,6 @@ export class BiomeBuilder{
 
     public getLayoutElement(name: string): GridElement{
         var element = this.gridElements.get(name)
-        /*
-        if (element === undefined && this.vanillaBiomes.has(name)){
-            element = this.vanillaBiomes.get(name)
-            this.registerLayoutElement(element)
-        }*/
-
         
         if (element === undefined){
             const biomeKeys = name.split('/')
@@ -212,19 +226,20 @@ export class BiomeBuilder{
     }
 
     private findIndex(array: Climate.Param[], number: number): number{
-        return number < array[0].min ? 0 : number > array[array.length-1].max ? array.length - 1 : array.findIndex(e => e.min < number && e.max > number)
+        return number < array[0].min ? 0 : number > array[array.length-1].max ? array.length - 1 : array.findIndex(e => e.min <= number && e.max > number)
     }
 
     public getIndexes(params: MultiNoiseParameters): MultiNoiseIndexes{
-        const w_idx = this.findIndex(this.weirdnesses.map(e => e[1]), params.weirdness)
-        const c_idx = this.findIndex(this.continentalnesses.map(e => e[1]), params.continentalness)
-        const e_idx = this.findIndex(this.erosions.map(e => e[1]), params.erosion)
-        const t_idx = this.findIndex(this.temperatures.map(e => e[1]), params.temperature)
-        const h_idx = this.findIndex(this.humidities.map(e => e[1]), params.humidity)
-        return {w_idx: w_idx, e_idx: e_idx, c_idx: c_idx, t_idx: t_idx, h_idx: h_idx}
+        const w_idx = this.findIndex(this.weirdnesses, params.weirdness)
+        const c_idx = this.findIndex(this.continentalnesses, params.continentalness)
+        const e_idx = this.findIndex(this.erosions, params.erosion)
+        const t_idx = this.findIndex(this.temperatures, params.temperature)
+        const h_idx = this.findIndex(this.humidities, params.humidity)
+        const d_idx = this.findIndex(this.depths, params.depth)
+        return {w_idx: w_idx, e_idx: e_idx, c_idx: c_idx, t_idx: t_idx, h_idx: h_idx, d_idx: d_idx}
     }
 
-    public lookup(indexes: MultiNoiseIndexes): {slice?: Grid, mode?: "A"|"B", layout?: Grid, biome?: Biome}{
+    public lookup(indexes: MultiNoiseIndexes): {slice?: Grid, mode?: Mode, layout?: Grid, biome?: Biome}{
         if (indexes === undefined)
             return undefined
             
@@ -234,18 +249,12 @@ export class BiomeBuilder{
             return {}
         }
 
-        const slice = this.getSlice(w[2]) as Grid
-
-        if (slice.hidden){
-            return {}
-        }
-
-        const lookup = slice.lookupRecursiveWithTracking(indexes, w[3], true)
-        return {slice: lookup.slice, layout: lookup.layout, biome: lookup.biome, mode: w[3]}
+        const lookup = this.dimension.lookupRecursiveWithTracking(indexes, "Any", true)
+        return {slice: lookup.slice, layout: lookup.layout, biome: lookup.biome, mode: lookup.mode}
 
     }
 
-    deleteParam(param: "humidity"|"temperature"|"continentalness"|"erosion"|"weirdness", id: number){
+    deleteParam(param: "humidity"|"temperature"|"continentalness"|"erosion"|"weirdness"|"depth", id: number){
         if (param === "humidity" || param === "temperature"){
             this.layouts.forEach(layout => layout.deleteParam(param, id))
             if (param === "humidity"){
@@ -263,40 +272,40 @@ export class BiomeBuilder{
         }
     }
 
-    splitParam(param: "humidity"|"temperature"|"continentalness"|"erosion"|"weirdness", id: number){
+    splitParam(param: "humidity"|"temperature"|"continentalness"|"erosion"|"weirdness"|"depth", id: number){
         if (param === "humidity" || param === "temperature"){
             this.layouts.forEach(layout => layout.splitParam(param, id))
             if (param === "humidity"){
-                const midPoint = (this.humidities[id][1].min + this.humidities[id][1].max)/2
+                const midPoint = (this.humidities[id].min + this.humidities[id].max)/2
 
-                const newHumid1 = new Climate.Param(this.humidities[id][1].min, midPoint)
-                const newHumid2 = new Climate.Param(midPoint, this.humidities[id][1].max)
+                const newHumid1 = new Climate.Param(this.humidities[id].min, midPoint)
+                const newHumid2 = new Climate.Param(midPoint, this.humidities[id].max)
 
-                this.humidities.splice(id, 1, ["d", newHumid1], ["d", newHumid2])
+                this.humidities.splice(id, 1, newHumid1, newHumid2)
             } else {
-                const midPoint = (this.temperatures[id][1].min + this.temperatures[id][1].max)/2
+                const midPoint = (this.temperatures[id].min + this.temperatures[id].max)/2
 
-                const newTemp1 = new Climate.Param(this.temperatures[id][1].min, midPoint)
-                const newTemp2 = new Climate.Param(midPoint, this.temperatures[id][1].max)
+                const newTemp1 = new Climate.Param(this.temperatures[id].min, midPoint)
+                const newTemp2 = new Climate.Param(midPoint, this.temperatures[id].max)
 
-                this.temperatures.splice(id, 1, ["d", newTemp1], ["d", newTemp2])
+                this.temperatures.splice(id, 1, newTemp1, newTemp2)
             }
         } else if (param === "continentalness" || param === "erosion"){ 
             this.slices.forEach(slice => slice.splitParam(param, id))
             if (param === "continentalness"){
-                const midPoint = (this.continentalnesses[id][1].min + this.continentalnesses[id][1].max)/2
+                const midPoint = (this.continentalnesses[id].min + this.continentalnesses[id].max)/2
 
-                const newCont1 = new Climate.Param(this.continentalnesses[id][1].min, midPoint)
-                const newCont2 = new Climate.Param(midPoint, this.continentalnesses[id][1].max)
+                const newCont1 = new Climate.Param(this.continentalnesses[id].min, midPoint)
+                const newCont2 = new Climate.Param(midPoint, this.continentalnesses[id].max)
 
-                this.continentalnesses.splice(id, 1, ["d", newCont1], ["d", newCont2])
+                this.continentalnesses.splice(id, 1, newCont1, newCont2)
             } else {
-                const midPoint = (this.erosions[id][1].min + this.erosions[id][1].max)/2
+                const midPoint = (this.erosions[id].min + this.erosions[id].max)/2
 
-                const newEro1 = new Climate.Param(this.erosions[id][1].min, midPoint)
-                const newEro2 = new Climate.Param(midPoint, this.erosions[id][1].max)
+                const newEro1 = new Climate.Param(this.erosions[id].min, midPoint)
+                const newEro2 = new Climate.Param(midPoint, this.erosions[id].max)
 
-                this.erosions.splice(id, 1, ["d", newEro1], ["d", newEro2])
+                this.erosions.splice(id, 1, newEro1, newEro2)
             }
         }
     }
@@ -315,6 +324,14 @@ export class BiomeBuilder{
 
     getNumErosions(){
         return this.erosions.length
+    }
+
+    getNumWeirdnesses(){
+        return this.weirdnesses.length
+    }
+
+    getNumDepths(){
+        return this.depths.length
     }
 
 }

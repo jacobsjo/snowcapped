@@ -59,7 +59,7 @@
                         <div id="sidebar_menu">
                             <div class="spacer"></div>
                             <div class="sidebar_header">
-                                <div class="name">Splines:</div>
+                                <div class="name">Dimension:</div>
                                 <img class="button" id="splines_grid_view_button" title="Grid View"
                                 src="grid-view.svg">
                             </div>
@@ -79,8 +79,13 @@
                                     <span class="name">Jaggedness</span>
                                     <img class="button edit edit_grid_button important" src="grid.svg" title="Edit Grid" />
                                 </div>
+                                <div class="sidebar_entry spline open" id="dimension">
+                                    <img class="grid" src="biomes-icon.svg">
+                                    <span class="name">Biomes</span>
+                                    <img class="button edit edit_grid_button important" src="grid.svg" title="Edit Grid" />
+                                </div>
                             </div>
-                            <!--<div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices
+                        <!--<div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices
                             </div>-->
                             <div class="spacer"></div>
                             <div class="sidebar_header">
@@ -88,8 +93,6 @@
                                 <img class="button" id="slices_grid_view_button" title="Grid View"
                                     src="grid-view.svg">
                                 <img class="button" id="add_slices_button" title="Add Slice" src="add.svg">
-                                <img class="button" id="assign_slices_button" title="Assign Slices"
-                                    src="assign.svg">
                                 <img class="button" id="edit_slices_grid_button" title="Edit Slices Grid"
                                     src="grid.svg">
                                 <!--<img class="button" id="edit_splines_button" title="Edit Splines" src="spline.svg">-->
@@ -142,9 +145,11 @@
                     <div id="layoutEditor">
                         <input type="text" id="layoutName" />
                         <div id="layoutEditorDiv">
+                            <div style="display:none;">
+                                <img id="aModeImg" src="mode_A.png">
+                                <img id="bModeImg" src="mode_B.png">
+                            </div>
                             <canvas tabindex='1' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
-                        </div>
-                        <div id="assignSlices" class="hidden">
                         </div>
                         <div id="gridEditorDiv">
                             <canvas tabindex='1' id="gridEditorCanvas" width="1300" height="1300"></canvas>

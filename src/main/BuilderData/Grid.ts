@@ -7,12 +7,51 @@ import * as uniqid from 'uniqid';
 import { BiomeGridRenderer } from "../UI/Renderer/BiomeGridRenderer";
 
 export interface MultiNoiseIndexesAccessor{
-    readonly type: "layout" | "slice"
+    readonly type: "dimension" | "layout" | "slice"
     getSize(bulder: BiomeBuilder): [number, number]
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all"
     paramToAxis(param: string): "x" | "y"
+    modesetting(indexes: PartialMultiNoiseIndexes): "A" | "B" | "unchanged"
 }
+
+export class DimensionMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccessor{
+
+    constructor(public builder: BiomeBuilder){}
+
+    type: "dimension" = "dimension"
+    getSize(bulder: BiomeBuilder): [number, number] {
+        return [bulder.getNumWeirdnesses(), bulder.getNumDepths()]
+    }
+
+    cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
+        return {w_idx: y, d_idx: x}
+    }
+    idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
+        if (indexes.w_idx === undefined || indexes.d_idx === undefined)
+            return "all"
+
+        return [indexes.w_idx, indexes.d_idx]
+    }
+
+    paramToAxis(param: string): "x" | "y" {
+        if (param === "weirdness")
+            return "x"
+        else if (param === "depth")
+            return "y"
+        else
+            throw new Error("Invalid Parameter")
+    }
+
+    modesetting(indexes: PartialMultiNoiseIndexes): "A" | "B" | "unchanged" {
+        if (indexes.w_idx === undefined){
+            return "unchanged"
+        } else {
+            return this.builder.modes[indexes.w_idx]
+        }
+    }
+}
+
 
 export class SliceMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccessor{
     type: "layout" | "slice" = "slice"
@@ -37,6 +76,10 @@ export class SliceMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccessor
             return "y"
         else
             throw new Error("Invalid Parameter")
+    }
+
+    modesetting(indexes: PartialMultiNoiseIndexes): "A" | "B" | "unchanged" {
+        return "unchanged"
     }
 }
 
@@ -63,6 +106,10 @@ export class LayoutMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccesso
             return "y"
         else
             throw new Error("Invalid Parameter")
+    }
+
+    modesetting(indexes: PartialMultiNoiseIndexes): "A" | "B" | "unchanged" {
+        return "unchanged"
     }
 }
 
@@ -119,7 +166,7 @@ export class Grid implements GridElement {
         return this.accessor.getSize(this.builder)
     }
 
-    getType(): "layout" | "slice" {
+    getType(): "dimension" | "layout" | "slice" {
         return this.accessor.type
     }
 
@@ -178,6 +225,10 @@ export class Grid implements GridElement {
         if (cell === "all")
             return this.getKey()
 
+        const result = this.array[cell[0]][cell[1]]
+        if (result === undefined){
+            console.log(cell)
+        }
         return this.array[cell[0]][cell[1]]
     }
 
@@ -187,26 +238,36 @@ export class Grid implements GridElement {
     }
 
     lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden: boolean = false): GridElement{
-        const element = this.lookup(indexes, mode)
+        const modechange = this.accessor.modesetting(indexes)
+        const new_mode = modechange === "unchanged" ? mode : modechange
+
+        const element = this.lookup(indexes, new_mode)
         if ((stopAtHidden && element.hidden) || element === this)
             return element
         else
-            return element.lookupRecursive(indexes, mode, stopAtHidden);
+            return element.lookupRecursive(indexes, new_mode, stopAtHidden);
     }
 
-    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): { slice: Grid; layout: Grid; biome: Biome; } {
-        const element = this.lookup(indexes, mode)
+    lookupRecursiveWithTracking(indexes: PartialMultiNoiseIndexes, mode: Mode, stopAtHidden?: boolean): {mode: Mode, slice: Grid; layout: Grid; biome: Biome; } {
+        const modechange = this.accessor.modesetting(indexes)
+        const new_mode = modechange === "unchanged" ? mode : modechange
+
+        const element = this.lookup(indexes, new_mode)
         if (stopAtHidden && element.hidden){
             if (this.accessor.type === "slice")
-                return {slice: this, layout: undefined, biome: undefined}
+                return {mode: new_mode, slice: this, layout: undefined, biome: undefined}
             else if (this.accessor.type === "layout")
-                return {slice: undefined, layout: this, biome: undefined}
+                return {mode: new_mode, slice: undefined, layout: this, biome: undefined}
+            else if (this.accessor.type === "dimension")
+                return {mode: new_mode, slice: undefined, layout: undefined, biome: undefined}
         } else {
-            const lookup = element.lookupRecursiveWithTracking(indexes, mode, stopAtHidden)
+            const lookup = element.lookupRecursiveWithTracking(indexes, new_mode, stopAtHidden)
             if (this.accessor.type === "slice")
-                return {slice: this, layout: lookup.layout, biome: lookup.biome}
+                return {mode: new_mode, slice: this, layout: lookup.layout, biome: lookup.biome}
             else if (this.accessor.type === "layout")
-                return {slice: undefined, layout: this, biome: lookup.biome}
+                return {mode: new_mode, slice: undefined, layout: this, biome: lookup.biome}
+            else if (this.accessor.type === "dimension")
+                return {mode: new_mode, slice: lookup.slice, layout: lookup.layout, biome: lookup.biome}
         }
     }
 

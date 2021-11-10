@@ -4,6 +4,7 @@ import { Biome } from "../../BuilderData/Biome";
 import { MultiNoiseIndexes, PartialMultiNoiseIndexes } from "../../BuilderData/BiomeBuilder";
 import { Grid } from "../../BuilderData/Grid";
 import { GridElement } from "../../BuilderData/GridElement";
+import { UI } from "../UI";
 import { ABBiomeRenderer, GridElementRenderer } from "./ElementRenderer"
 
 export class BiomeGridRenderer implements GridElementRenderer {
@@ -11,6 +12,9 @@ export class BiomeGridRenderer implements GridElementRenderer {
     private highlight_y: number = -1
 
     private grid: Grid
+
+    private aImg : HTMLImageElement = document.getElementById("aModeImg") as HTMLImageElement
+    private bImg : HTMLImageElement = document.getElementById("bModeImg") as HTMLImageElement
 
     constructor(grid: Grid) {
         this.grid = grid
@@ -32,6 +36,12 @@ export class BiomeGridRenderer implements GridElementRenderer {
         }
 
         const size = this.getSize()
+        var startY = 0
+
+        if (this.grid.getType() === "dimension"){
+            size[1] += 1
+            startY = 1
+        }
 
         if (drawGridWithBorder){
             minX += 0.1 * sizeX
@@ -50,11 +60,17 @@ export class BiomeGridRenderer implements GridElementRenderer {
 
         ctx.clearRect(minX, minY, sizeX, sizeY)
 
-        for (var y_idx = 0; y_idx < size[1]; y_idx++) {
+        if (this.grid.getType() === "dimension"){
             for (var x_idx = 0; x_idx < size[0]; x_idx++) {
-                var element = this.lookup(x_idx, y_idx)
+                ctx.drawImage(UI.getInstance().builder.modes[x_idx] === "A" ? this.aImg : this.bImg, xOffset + (x_idx + 0.25) * elementSize, yOffset + 0.25 * elementSize, 0.5 * elementSize, 0.5 * elementSize)
+            }
+        }
+
+        for (var y_idx = startY; y_idx < size[1]; y_idx++) {
+            for (var x_idx = 0; x_idx < size[0]; x_idx++) {
+                var element = this.lookup(x_idx, y_idx - startY)
                 if (element === undefined)
-                    console.log("undefined at: " + y_idx + ", " + x_idx)
+                    console.log("undefined at: " + (y_idx - startY) + ", " + x_idx)
 
                 const renderer = element.getRenderer()
                 if (renderer instanceof ABBiomeRenderer){
@@ -105,6 +121,13 @@ export class BiomeGridRenderer implements GridElementRenderer {
     public getIdsFromPosition(minX: number, minY: number, sizeX: number, sizeY: number, x: number, y: number): {indexes: PartialMultiNoiseIndexes, local_t: number, local_h: number, mode: "A"|"B"} | undefined{
         const size = this.getSize()
 
+        var startY = 0
+
+        if (this.grid.getType() === "dimension"){
+            size[1] += 1
+            startY = 1
+        }
+
         const maxElementSizeX = sizeX / size[0]
         const maxElementSizeY = sizeY / size[1]
 
@@ -123,7 +146,7 @@ export class BiomeGridRenderer implements GridElementRenderer {
         const localY = y - yOffset - (y_idx * elementSize)
         const mode = localX > elementSize - localY ? "B" : "A"
 
-        return {indexes: this.grid.cellToIds(y_idx, x_idx), local_h: localX / elementSize, local_t: localY / elementSize, mode: mode}
+        return {indexes: this.grid.cellToIds(y_idx - startY, x_idx), local_h: localX / elementSize, local_t: localY / elementSize, mode: mode}
     }
 
     public setHighlight(y_idx: number, x_idx: number){

@@ -39,7 +39,7 @@ export class BiomeGridEditor {
             const renderer = this.layout.getRenderer() as BiomeGridRenderer
             this.mouse_position = this.getMousePosition(evt)
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, this.mouse_position.mouse_x, this.mouse_position.mouse_y)
-            if (ids === undefined) {
+            if (ids === undefined || ids.indexes.d_idx === -1) {
                 tooltip.classList.add("hidden")
                 MenuManager.toggleAction("paint", false)
                 MenuManager.toggleAction("paint-mode", false)
@@ -90,10 +90,10 @@ export class BiomeGridEditor {
 
             // Update Spline display in slices
             if (this.layout instanceof Grid && this.layout.getType() === "slice"){
-                const cont = builder.continentalnesses[ids.indexes.c_idx][1]
+                const cont = builder.continentalnesses[ids.indexes.c_idx]
                 const c = lerp(cont.min, cont.max, ids.local_t)
     
-                const ero = builder.erosions[ids.indexes.e_idx][1]
+                const ero = builder.erosions[ids.indexes.e_idx]
                 const e = lerp(ero.min, ero.max, ids.local_h)
 
                 UI.getInstance().splineDisplayManager.setPos({c: c, e: e})
@@ -193,6 +193,17 @@ export class BiomeGridEditor {
     }
 
     handleInteraction(indexes: PartialMultiNoiseIndexes, mode: "A" | "B", action: "add" | "add_alt" | "pick" | "open" | "remove") {
+       
+        console.log(indexes)
+        if (indexes.d_idx === -1){
+            if (action === "add" || action === "add_alt"){
+                this.builder.modes[indexes.w_idx] = (this.builder.modes[indexes.w_idx] === "A") ? "B" : "A"
+            }
+            
+            UI.getInstance().refresh()
+            return
+        }
+
         const element = this.layout.lookup(indexes, mode)
 
         let exact_element = element
@@ -279,17 +290,18 @@ export class BiomeGridEditor {
     refresh() {
         this.canvas.parentElement.classList.remove("hidden")
         this.title.readOnly = false
-        const element = this.builder.getLayoutElement(UI.getInstance().sidebarManager.openedElement.key)
+        const type = UI.getInstance().sidebarManager.openedElement.type
+        const element = type === "dimension" ? this.builder.dimension : this.builder.getLayoutElement(UI.getInstance().sidebarManager.openedElement.key)
         if (element instanceof Grid)
             this.layout = element
         this.title.value = this.layout.name
 
-        if (this.layout instanceof Grid && this.layout.getType() === "slice"){
-            UI.getInstance().splineDisplayManager.setWeirdnesses(this.builder.weirdnesses.filter(w => (w[2] === this.layout.getKey())).map(w => w[1]))
-        } else {
+//        if (this.layout instanceof Grid && this.layout.getType() === "slice"){
+//            UI.getInstance().splineDisplayManager.setWeirdnesses(this.builder.weirdnesses.filter(w => (w[2] === this.layout.getKey())))
+//        } else {
             UI.getInstance().splineDisplayManager.setWeirdnesses([])
             UI.getInstance().splineDisplayManager.setPos(undefined)            
-        }
+//        }
 
         const ctx = this.canvas.getContext('2d')
         this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, {}, true, false, false)
