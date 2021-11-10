@@ -134,7 +134,7 @@ export class Grid implements GridElement {
         this.builder = builder
         this.accessor = accessor
         const size = accessor.getSize(builder)
-        this.array = array ?? new Array(size[0]).fill(0).map(() => new Array(size[1]).fill("unassigned"))
+        this.array = array ?? new Array(size[1]).fill(0).map(() => new Array(size[0]).fill("unassigned"))
         this.key = key ?? uniqid('layout_')
         this.undoActions = []
     }
