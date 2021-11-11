@@ -61,9 +61,6 @@ export class ABBiomeRenderer implements GridElementRenderer{
     }
 
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean, isIcon: boolean, gradGridWithBorder: boolean){
-        const isARecursive = !(this.ab_biome.getElement("A") instanceof Biome)
-        const isBRecursive = !(this.ab_biome.getElement("B") instanceof Biome)
-
         const elementA = this.ab_biome.lookupRecursive(indexes, "A", false )
 
         var drawFullElementA = false
@@ -96,7 +93,7 @@ export class ABBiomeRenderer implements GridElementRenderer{
         }
 
         const directElementA = this.ab_biome.getElement("A")
-        if (indicateRecursive && isARecursive && (directElementA instanceof Grid) && directElementA.getType()  === this.parentType){
+        if (indicateRecursive && (directElementA instanceof Grid) && directElementA.getType()  === this.parentType){
             ctx.fillStyle = "rgb(255,255,255,0.8)"
             ctx.beginPath()
             ctx.moveTo(minX, minY)
@@ -144,8 +141,8 @@ export class ABBiomeRenderer implements GridElementRenderer{
             elementB.getRenderer().draw(ctx, minX + sizeX * 0.52, minY + sizeY * 0.52, sizeX * 0.38, sizeY * 0.38, indexes, indicateRecursive, isIcon, false)
         }
 
-        const directElementB = this.ab_biome.getElement("A")
-        if (indicateRecursive && isBRecursive && (directElementB instanceof Grid) && directElementB.getType()  === this.parentType){
+        const directElementB = this.ab_biome.getElement("B")
+        if (indicateRecursive && (directElementB instanceof Grid) && directElementB.getType()  === this.parentType){
             ctx.fillStyle = "rgb(255,255,255,0.8)"
             ctx.beginPath()
             ctx.moveTo(minX + sizeX, minY)

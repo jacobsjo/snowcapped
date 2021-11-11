@@ -31,7 +31,7 @@ export class BiomeGridRenderer implements GridElementRenderer {
     public draw(ctx: CanvasRenderingContext2D, minX: number, minY: number, sizeX: number, sizeY: number, indexes: PartialMultiNoiseIndexes , indicateRecursive: boolean = true, isIcon: boolean = false, drawGridWithBorder: boolean = false){
         const ids = this.grid.idsToCell(indexes)
         if (ids !== "all"){
-            this.lookup(ids[0], ids[1]).getRenderer().draw(ctx, minX, minY, sizeX, sizeY, indexes, false, isIcon, drawGridWithBorder)
+            this.lookup(ids[1], ids[0]).getRenderer().draw(ctx, minX, minY, sizeX, sizeY, indexes, false, isIcon, drawGridWithBorder)
             return
         }
 
@@ -77,7 +77,7 @@ export class BiomeGridRenderer implements GridElementRenderer {
                     renderer.setParentType(this.grid.getType())
                 }
                 
-                element.getRenderer().draw(ctx, xOffset + x_idx * elementSize, yOffset + y_idx * elementSize, elementSize, elementSize, this.grid.cellToIds(x_idx, y_idx) , indicateRecursive && !isIcon, true, !isIcon)
+                element.getRenderer().draw(ctx, xOffset + x_idx * elementSize, yOffset + y_idx * elementSize, elementSize, elementSize, this.grid.cellToIds(y_idx, x_idx) , indicateRecursive && !isIcon, true, !isIcon)
 
                 if (indicateRecursive && !isIcon && (element instanceof Grid) && element.getType() === this.grid.getType()){
                     ctx.fillStyle = "rgb(255,255,255,0.8)"
