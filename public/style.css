@@ -230,6 +230,10 @@ body:not(.light) #menu .button img{
     width: min-content;
 }
 
+.tooltip.sidebar .tooltip_line.noises{
+    display: none;
+}
+
 .tooltip .tooltip_line .icon{
     padding-left: 10pt;
     height: 12pt;

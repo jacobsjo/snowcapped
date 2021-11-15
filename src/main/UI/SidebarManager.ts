@@ -336,6 +336,7 @@ export class SidebarManager {
                         tooltip.style("left", bb.left)
                         tooltip.style("top", bb.bottom)
                         tooltip.classed("hidden", false)
+                        tooltip.select(".noises").classed("hidden", true)
                     }
                 })
 

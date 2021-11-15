@@ -7,7 +7,6 @@ import { UI } from "./UI";
 import { BiomeGridRenderer } from "./Renderer/BiomeGridRenderer";
 import { Grid } from "../BuilderData/Grid";
 
-
 function lerp(a: number, b: number, l: number) {
     return ((1 - l) * a + l * b)
 }
@@ -27,6 +26,9 @@ export class BiomeGridEditor {
 
         const tooltip = document.getElementById("layoutEditorTooltip")
         const tooltip_name = tooltip.getElementsByClassName("name")[0] as HTMLElement
+        const tooltip_noises = tooltip.getElementsByClassName("noises")[0] as HTMLElement
+        const tooltip_noise_x = tooltip.getElementsByClassName("noise_x")[0] as HTMLElement
+        const tooltip_noise_y = tooltip.getElementsByClassName("noise_y")[0] as HTMLElement
 
         this.title.onchange = (evt: Event) => {
             this.layout.name = this.title.value
@@ -88,7 +90,20 @@ export class BiomeGridEditor {
                 MenuManager.toggleAction("remove", false)
             }
 
-            // Update Spline display in slices
+            tooltip_noises.classList.remove("hidden")
+
+            if (this.layout.getType() === "dimension"){
+                tooltip_noise_x.innerHTML = "Weirdness: [" + this.builder.weirdnesses[ids.indexes.w_idx].min.toFixed(3) + ", " + this.builder.weirdnesses[ids.indexes.w_idx].max.toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Depth: [" + this.builder.depths[ids.indexes.d_idx].min.toFixed(3) + ", " + this.builder.depths[ids.indexes.d_idx].max.toFixed(3) + "]"
+            } else if (this.layout.getType() === "slice"){
+                tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.erosions[ids.indexes.e_idx].min.toFixed(3) + ", " + this.builder.erosions[ids.indexes.e_idx].max.toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.continentalnesses[ids.indexes.c_idx].min.toFixed(3) + ", " + this.builder.continentalnesses[ids.indexes.c_idx].max.toFixed(3) + "]"
+            } else if (this.layout.getType() === "layout"){
+                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.humidities[ids.indexes.h_idx].min.toFixed(3) + ", " + this.builder.humidities[ids.indexes.h_idx].max.toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.temperatures[ids.indexes.t_idx].min.toFixed(3) + ", " + this.builder.temperatures[ids.indexes.t_idx].max.toFixed(3) + "]"
+            }
+
+                // Update Spline display in slices
             if (this.layout instanceof Grid && this.layout.getType() === "slice"){
                 const cont = builder.continentalnesses[ids.indexes.c_idx]
                 const c = lerp(cont.min, cont.max, ids.local_t)
