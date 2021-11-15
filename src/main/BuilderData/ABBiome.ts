@@ -1,4 +1,5 @@
-import { ABBiomeRenderer, GridElementRenderer } from '../UI/Renderer/ElementRenderer'
+import { ABElementRenderer } from '../UI/Renderer/ABElementRenderer'
+import { GridElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { Biome } from './Biome'
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder'
 import { Grid } from './Grid'
@@ -14,7 +15,7 @@ export class ABElement implements GridElement{
     hidden: boolean
 
     private builder: BiomeBuilder
-    private renderer: ABBiomeRenderer
+    private renderer: ABElementRenderer
     readonly name: string
 
     private constructor(builder: BiomeBuilder, elementA: string, elementB: string){
@@ -91,7 +92,7 @@ export class ABElement implements GridElement{
 
     getRenderer(): GridElementRenderer {
         if (this.renderer === undefined)
-            this.renderer = new ABBiomeRenderer(this)
+            this.renderer = new ABElementRenderer(this)
 
         return this.renderer
     }

@@ -304,7 +304,8 @@ export class BiomeGridEditor {
 //        }
 
         const ctx = this.canvas.getContext('2d')
-        this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, {}, true, false, false)
+        ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
+        this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, {}, false)
     }
 
     hide() {

@@ -251,13 +251,13 @@ export class SidebarManager {
             .classed("enabled", !this.builder.biomes.every(s => !s.hidden))
 
 
-        this.handleElementDivs(this.builder.slices, "slice", sidebar.select(".sidebar_entry_list#slices"), false, false)
-        this.handleElementDivs(this.builder.layouts, "layout", sidebar.select(".sidebar_entry_list#layouts"), false, false)
-        this.handleElementDivs(this.builder.biomes, "biome", sidebar.select(".sidebar_entry_list#biomes"), false, true)
-        this.handleElementDivs(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.gridElements.has(b.getKey())), "vanilla_biome", sidebar.select(".sidebar_entry_list#vanilla_biomes"), true, true)
+        this.handleElementDivs(this.builder.slices, "slice", sidebar.select(".sidebar_entry_list#slices"), 60 * 2,  false, false)
+        this.handleElementDivs(this.builder.layouts, "layout", sidebar.select(".sidebar_entry_list#layouts"), 40 * 2, false, false)
+        this.handleElementDivs(this.builder.biomes, "biome", sidebar.select(".sidebar_entry_list#biomes"), 22 * 2, false, true)
+        this.handleElementDivs(Array.from(this.builder.vanillaBiomes.values()).filter(b => !this.builder.gridElements.has(b.getKey())), "vanilla_biome", sidebar.select(".sidebar_entry_list#vanilla_biomes"), 22 * 2, true, true)
     }
 
-    handleElementDivs(list: (GridElement)[], c: string, selection: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>, fixed: boolean, use_color_picker: boolean) {
+    handleElementDivs(list: (GridElement)[], c: string, selection: d3.Selection<d3.BaseType, unknown, HTMLElement, unknown>, gridSize: number, fixed: boolean, use_color_picker: boolean) {
         const tooltip = d3.select('#layoutEditorTooltip')
 
         const slices_divs = (selection.selectAll(".sidebar_entry") as d3.Selection<d3.BaseType, GridElement, d3.BaseType, unknown>)
@@ -276,9 +276,9 @@ export class SidebarManager {
                 } else {
                     div.append("canvas")
                         .classed("grid", true)
-                        .attr("width", 100)
-                        .attr("height", 100)
-                        .each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, {}, false, true, false))
+                        .attr("width", gridSize)
+                        .attr("height", gridSize)
+                        .each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, gridSize, gridSize, {}, true))
                 }
                 div.append("span").classed("name", true)
 
@@ -385,7 +385,11 @@ export class SidebarManager {
         slices_divs.classed("selected", d => this.selectedElement?.key === d.getKey())
         //slices_divs.attr("title", d=>d.name)
 
-        slices_divs.select("canvas.grid").filter(d => d.getKey() === this.openedElement.key).each((d, i, nodes) => d.getRenderer().draw((nodes[i] as HTMLCanvasElement).getContext('2d'), 0, 0, 100, 100, {}, false, true, false))
+        slices_divs.select("canvas.grid").filter(d => d.getKey() === this.openedElement.key).each((d, i, nodes) => {
+            const ctx = (nodes[i] as HTMLCanvasElement).getContext('2d')
+            ctx.clearRect(0,0, gridSize, gridSize)
+            d.getRenderer().draw(ctx, 0, 0, gridSize, gridSize, {}, true)
+        })
         slices_divs.select("span.name").text(d => d.name)
         slices_divs.select("img.button.hide").classed("enabled", d => d.hidden)
     }

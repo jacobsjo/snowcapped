@@ -1,4 +1,5 @@
-import { BiomeRenderer, GridElementRenderer, UnassignedRenderer } from "../UI/Renderer/ElementRenderer";
+import { GridElementRenderer } from "../UI/Renderer/ElementRenderer";
+import { UnassignedRenderer } from "../UI/Renderer/UnassignedRenderer";
 import { Biome } from "./Biome";
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
 import { Grid } from "./Grid";

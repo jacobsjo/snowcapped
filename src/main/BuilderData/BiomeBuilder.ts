@@ -1,5 +1,4 @@
 import { Climate } from "deepslate"
-import { UnassignedRenderer } from "../UI/Renderer/ElementRenderer"
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes"
 import { VanillaNoiseSettings } from "../Vanilla/VanillaNoiseSettings"
 import { VanillaSpline } from "../Vanilla/VanillaSplines"

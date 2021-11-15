@@ -183,6 +183,8 @@ export class Grid implements GridElement {
 
         this.array[cell[0]][cell[1]] = element
         this.builder.hasChanges = true
+
+        this.getRenderer().setDirty()
     }
 
     undo(){
@@ -272,7 +274,7 @@ export class Grid implements GridElement {
     }
 
 
-    getRenderer(): GridElementRenderer {
+    getRenderer(): BiomeGridRenderer {
         if (this.renderer === undefined)
             this.renderer = new BiomeGridRenderer(this)
 

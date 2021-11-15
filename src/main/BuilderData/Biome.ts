@@ -1,5 +1,6 @@
 import * as uniqid from 'uniqid'
-import { BiomeRenderer, GridElementRenderer } from '../UI/Renderer/ElementRenderer'
+import { BiomeRenderer } from '../UI/Renderer/BiomeRenderer'
+import { GridElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { VanillaBiomes } from '../Vanilla/VanillaBiomes'
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from './BiomeBuilder'
 import { Grid } from './Grid'
