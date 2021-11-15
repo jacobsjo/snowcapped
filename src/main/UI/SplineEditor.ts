@@ -593,6 +593,8 @@ export class SplineEditor {
         UI.getInstance().splineDisplayManager.setWeirdnesses([])
         UI.getInstance().splineDisplayManager.setPos(undefined)
 
+        UI.getInstance().setLabels("Erosion", "Continentalness")
+
         this.draw()
     }
 

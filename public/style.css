@@ -756,9 +756,36 @@ body:not(.light) #menu .button img{
     text-align: center;
 }
 
+#layoutEditor .axis_label{
+    color: var(--main-text-color);
+}
+
+#layoutEditor .label_with_content{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+#layoutEditor .label_with_content .axis_label{
+    width: 20pt;
+    min-width: 20pt;
+    height: 100%;
+    position: relative;
+}
+
+#layoutEditor .label_with_content .axis_label #vertical_label{
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: rotate(-90deg);
+    width: 100%;
+}
+
 #layoutEditor #layoutEditorDiv, #layoutEditor #gridEditorDiv{
     margin: 5pt;
-    height: 300pt;
+    width: 300pt;
     min-width: 300pt;
     flex-grow: 1;
 }

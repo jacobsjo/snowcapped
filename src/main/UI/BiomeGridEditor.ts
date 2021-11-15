@@ -303,8 +303,16 @@ export class BiomeGridEditor {
             UI.getInstance().splineDisplayManager.setPos(undefined)            
 //        }
 
+        if (type === "dimension"){
+            UI.getInstance().setLabels("Weirdness", "Depth")
+        } else if (type === "slice"){
+            UI.getInstance().setLabels("Erosion", "Continentalness")
+        } else if (type === "layout")
+            UI.getInstance().setLabels("Humidity", "Temperature")
+
         const ctx = this.canvas.getContext('2d')
         ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
+        this.layout.getRenderer().setDirty()
         this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, {}, false)
     }
 

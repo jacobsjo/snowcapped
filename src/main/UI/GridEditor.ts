@@ -468,6 +468,9 @@ export class GridEditor {
 
             this.ys = this.y_array.map(t => t.max)
             this.ys.unshift(this.y_array[0].min)
+
+            UI.getInstance().setLabels("Erosion", "Continentalness")
+    
         } else if (UI.getInstance().sidebarManager.openedElement.key === "layout") {
             this.title.value = "Layout Grid"
 
@@ -482,6 +485,9 @@ export class GridEditor {
 
             this.ys = this.y_array.map(t => t.max)
             this.ys.unshift(this.y_array[0].min)
+
+            UI.getInstance().setLabels("Humidity", "Temperature")
+
         } else if (UI.getInstance().sidebarManager.openedElement.key === "dimension") {
             this.title.value = "Biome Grid"
 
@@ -496,6 +502,9 @@ export class GridEditor {
 
             this.ys = this.y_array.map(t => t.max)
             this.ys.unshift(this.y_array[0].min)
+
+            UI.getInstance().setLabels("Weirdness", "Depth")
+
         } else {
             this.title.value = UI.getInstance().sidebarManager.openedElement.key === "offset" ? "Offset Spline Grid" : UI.getInstance().sidebarManager.openedElement.key === "factor" ? "Factor Spline Grid" : "Jaggedness Spline Grid"
 
@@ -507,6 +516,9 @@ export class GridEditor {
 
             this.x_param = "erosion"
             this.y_param = "continentalness"
+
+            UI.getInstance().setLabels("Erosion", "Continentalness")
+
         }
 
 

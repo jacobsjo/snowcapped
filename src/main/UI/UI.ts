@@ -33,6 +33,9 @@ export class UI {
 
     readonly builder: BiomeBuilder
 
+    private horizonalLabel: HTMLDivElement
+    private verticalLabel: HTMLDivElement
+
     private constructor(builder: BiomeBuilder) {
         UI.instance = this
 
@@ -45,6 +48,9 @@ export class UI {
         this.gridEditor = new GridEditor(builder)
         this.splineEditor = new SplineEditor(builder)
         this.settingsManager = new SettingsManager(builder)
+
+        this.horizonalLabel = document.getElementById("horizontal_label") as HTMLDivElement
+        this.verticalLabel = document.getElementById("vertical_label") as HTMLDivElement
 
         this.refresh()
 
@@ -75,5 +81,10 @@ export class UI {
         }, 5)
 
         this.settingsManager.refresh()
+    }
+
+    setLabels(horizontal: string, vertical: string){
+        this.horizonalLabel.innerHTML = horizontal
+        this.verticalLabel.innerHTML = vertical
     }
 }

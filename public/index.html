@@ -141,17 +141,21 @@
                     </div>
                     <div id="layoutEditor">
                         <input type="text" id="layoutName" />
-                        <div id="layoutEditorDiv">
-                            <div style="display:none;">
-                                <img id="aModeImg" src="mode_A.png">
-                                <img id="bModeImg" src="mode_B.png">
+                        <div class="axis_label" id="horizontal_label">Humidity</div>
+                        <div class="label_with_content">
+                            <div class="axis_label"><div id="vertical_label">Temperature</div></div>
+                            <div id="layoutEditorDiv">
+                                <div style="display:none;">
+                                    <img id="aModeImg" src="mode_A.png">
+                                    <img id="bModeImg" src="mode_B.png">
+                                </div>
+                                <canvas tabindex='1' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
                             </div>
-                            <canvas tabindex='1' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
-                        </div>
-                        <div id="gridEditorDiv">
-                            <canvas tabindex='1' id="gridEditorCanvas" width="1300" height="1300"></canvas>
-                        </div>
-                        <div id="splineEditorDiv">
+                            <div id="gridEditorDiv">
+                                <canvas tabindex='1' id="gridEditorCanvas" width="1300" height="1300"></canvas>
+                            </div>
+                            <div id="splineEditorDiv">
+                            </div>
                         </div>
 
                     </div>
