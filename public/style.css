@@ -911,6 +911,16 @@ body:not(.light) #menu .button img{
     position: relative;
 }
 
+#visualization.fullscreen {
+    position: absolute;
+    left: 0;
+    width: 100vw;
+    top: 0;
+    height: 100vh;
+    z-index: 5;
+}
+
+
 #visualization_map {
     height: 100%;
     width: 100%;
@@ -923,24 +933,51 @@ body:not(.light) #menu .button img{
     image-rendering: pixelated;
 }
 
-#visualization #toggleIsolinesButton{
+#visualization .visualization_controlls{
     position: absolute;
     top: 62pt;
     left: 9;
-    width: 20pt;
-    background-color: var(--small-button-color);
-    padding: 3pt;
-    border-radius: 5pt;
     z-index: 400;
+    width: 26pt;
 }
 
-#visualization #toggleIsolinesButton.enabled{
+#visualization #toggleIsolinesButton{
+    width: 20pt;
+    padding: 3pt;
+}
+
+#visualization #mapFullscreenButton {
+    position: absolute;
+    top: 9pt;
+    right: 9;
+    z-index: 400;
+    width: 16pt;
+    padding: 5pt;
+}
+
+.map_button{
+    background-color: var(--small-button-color);
+    border-radius: 5pt;
+}
+
+.map_button.enabled{
     background-color: var(--primary-button-open-color);
 }
 
-#visualization #toggleIsolinesButton:hover{
+.map_button:hover{
     background-color: var(--small-button-hover-color);
 }
+
+.map_button.enabled:hover{
+    background-color: var(--primary-button-open-color);
+}
+
+.map_range{
+    margin-top: 10pt;
+    width: 26pt;
+    height: 150pt;
+}
+
 
 /* Settings */
 

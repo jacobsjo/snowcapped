@@ -21,11 +21,14 @@ export class VisualizationManger{
 
     private closeContainer: HTMLElement
     private toggleIsolinesButton: HTMLElement
+    private toggleFullscreenButton: HTMLElement
 
     constructor(builder: BiomeBuilder){
         this.builder = builder
 
-        this.closeContainer = document.getElementById('visualization').parentElement.parentElement;
+        const panel = document.getElementById('visualization')
+
+        this.closeContainer = panel.parentElement.parentElement;
         (this.closeContainer as any).onopenchange = () => {
           this.biomeLayer.redraw()
         }
@@ -49,6 +52,7 @@ export class VisualizationManger{
         //this.contourLayer.addTo(this.map)
 
         this.toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
+        this.toggleFullscreenButton = document.getElementById('mapFullscreenButton')
 
         this.toggleIsolinesButton.onclick = (evt: MouseEvent) => {
           if (this.map.hasLayer(this.contourLayer)){
@@ -58,6 +62,12 @@ export class VisualizationManger{
             this.map.addLayer(this.contourLayer)
             this.toggleIsolinesButton.classList.add("enabled")
           }
+        }
+
+        this.toggleFullscreenButton.onclick = (evt: MouseEvent) => {
+          const open = panel.classList.toggle("fullscreen")
+          this.toggleFullscreenButton.classList.toggle("enabled", open)
+          this.map.invalidateSize()
         }
 
 
