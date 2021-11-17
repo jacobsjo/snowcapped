@@ -450,7 +450,7 @@ body:not(.light) #menu .button img{
     border-left-style: hidden;
     border-bottom-style: hidden;   
     background-color: rgba(0,0,0,0); 
-    z-index: 200;
+    z-index: 2;
 }
 
 #sidebar .sidebar_header {
@@ -586,7 +586,7 @@ body:not(.light) #menu .button img{
     border-radius: 5pt;
     display: none;
     position: relative;
-    z-index: 200;
+    z-index: 2;
 }
 
 #sidebar .sidebar_entry:hover:not(.dragged) .button {

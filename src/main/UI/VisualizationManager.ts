@@ -143,10 +143,22 @@ export class VisualizationManger{
             tooltip_mode.src = "mode_" + lookup?.mode + ".png"
 
           const pos = this.getPos(evt.latlng);
-          const y = idxs ? (builder.splines.offset.apply(idxs.values.c, idxs.values.e, idxs.values.w) * 128 + 64) : undefined
-          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0) + (y?(" -> Y: " + y.toFixed(0)):"")
+
+          const offset = builder.splines.offset.apply(idxs.values.c, idxs.values.e, idxs.values.w)
+
+          var y
+          var depth: number
+          if (builder.vis_y_level === "surface") {
+            y = idxs ? (offset * 128 + 64) : undefined
+            depth = 0
+          } else {
+            y = builder.vis_y_level
+            depth = -(builder.vis_y_level - 64) / 128 + offset
+          }
+
+          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + (y?(", Y: " + y.toFixed(0)):"") + ", Z: " + pos.y.toFixed(0)
           tooltip_noise_values.innerHTML = "C: " + idxs.values.c.toFixed(2) + ", E: " + idxs.values.e.toFixed(2) + ", W: " + 
-                    idxs.values.w.toFixed(2) + "<br /> T: " + idxs.values.t.toFixed(2) + ", H: " + idxs.values.h.toFixed(2)
+                    idxs.values.w.toFixed(2) + "<br /> T: " + idxs.values.t.toFixed(2) + ", H: " + idxs.values.h.toFixed(2) + ", D: " + depth.toFixed(2)
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
           tooltip_biome.innerHTML = lookup?.biome?.name

@@ -241,7 +241,7 @@ export class BiomeBuilder {
         if (this.vis_y_level === "surface") {
             depth = -0.01
         } else {
-            depth = ((this.vis_y_level + 64) / 128 - this.splines['offset'].apply(params.c, params.e, params.w))
+            depth = -(this.vis_y_level - 64) / 128 + this.splines['offset'].apply(params.c, params.e, params.w)
         }
         const d_idx = this.findIndex(this.depths, depth)
         return { w: w_idx, e: e_idx, c: c_idx, t: t_idx, h: h_idx, d: d_idx }
