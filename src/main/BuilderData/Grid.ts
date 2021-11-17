@@ -5,6 +5,8 @@ import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./Bio
 import { GridElement, Mode} from "./GridElement";
 import * as uniqid from 'uniqid';
 import { BiomeGridRenderer } from "../UI/Renderer/BiomeGridRenderer";
+import { json, thresholdFreedmanDiaconis } from "d3";
+import { Json } from "deepslate";
 
 export interface MultiNoiseIndexesAccessor{
     readonly type: "dimension" | "layout" | "slice"
@@ -25,13 +27,13 @@ export class DimensionMultiNoiseIndexesAccessor implements MultiNoiseIndexesAcce
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
-        return {w_idx: y, d_idx: x}
+        return {w: y, d: x}
     }
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
-        if (indexes.w_idx === undefined || indexes.d_idx === undefined)
+        if (indexes.w === undefined || indexes.d === undefined)
             return "all"
 
-        return [indexes.w_idx, indexes.d_idx]
+        return [indexes.w, indexes.d]
     }
 
     paramToAxis(param: string): "x" | "y" {
@@ -44,10 +46,10 @@ export class DimensionMultiNoiseIndexesAccessor implements MultiNoiseIndexesAcce
     }
 
     modesetting(indexes: PartialMultiNoiseIndexes): "A" | "B" | "unchanged" {
-        if (indexes.w_idx === undefined){
+        if (indexes.w === undefined){
             return "unchanged"
         } else {
-            return this.builder.modes[indexes.w_idx]
+            return this.builder.modes[indexes.w]
         }
     }
 }
@@ -60,13 +62,13 @@ export class SliceMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccessor
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
-        return {c_idx: x, e_idx: y}
+        return {c: x, e: y}
     }
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
-        if (indexes.c_idx === undefined || indexes.e_idx === undefined)
+        if (indexes.c === undefined || indexes.e === undefined)
             return "all"
 
-        return [indexes.c_idx, indexes.e_idx]
+        return [indexes.c, indexes.e]
     }
 
     paramToAxis(param: string): "x" | "y" {
@@ -90,13 +92,13 @@ export class LayoutMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccesso
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
-        return {t_idx: x, h_idx: y}
+        return {t: x, h: y}
     }
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
-        if (indexes.t_idx === undefined || indexes.h_idx === undefined)
+        if (indexes.t === undefined || indexes.h === undefined)
             return "all"
 
-        return [indexes.t_idx, indexes.h_idx]
+        return [indexes.t, indexes.h]
     }
 
     paramToAxis(param: string): "x" | "y" {
@@ -224,8 +226,9 @@ export class Grid implements GridElement {
 
     lookupKey(indexes: PartialMultiNoiseIndexes, _mode: Mode): string {
         const cell = this.accessor.idsToCell(indexes)
-        if (cell === "all")
+        if (cell === "all"){
             return this.getKey()
+        }
 
         const result = this.array[cell[0]][cell[1]]
         if (result === undefined){
@@ -255,6 +258,9 @@ export class Grid implements GridElement {
         const new_mode = modechange === "unchanged" ? mode : modechange
 
         const element = this.lookup(indexes, new_mode)
+        if (element.getKey() === this.getKey()){
+            throw new Error("Lookup resulted in same element: " + JSON.stringify(indexes) + " mode: " + mode)
+        }
         if (stopAtHidden && element.hidden){
             if (this.accessor.type === "slice")
                 return {mode: new_mode, slice: this, layout: undefined, biome: undefined}
@@ -296,7 +302,7 @@ export class Grid implements GridElement {
     has(key: string, limit: PartialMultiNoiseIndexes){
         if (key === this.getKey()) return true
 
-        if (limit.h_idx === undefined || limit.t_idx === undefined){
+        if (limit.h === undefined || limit.t === undefined){
             return this.array.findIndex(row => row.findIndex(element => this.builder.getLayoutElement(element).has(key, limit)) >= 0) >= 0
         } else {
             return this.lookup(limit, "Any").has(key, limit)

@@ -41,12 +41,12 @@ export class Exporter {
                             array[d_idx][w_idx][c_idx][e_idx][t_idx] = []
                             for (let h_idx = 0; h_idx < this.builder.humidities.length; h_idx++) {
                                 const biome = this.builder.dimension.lookupRecursive({
-                                    d_idx: fixed_d_idx ?? d_idx,
-                                    w_idx: fixed_w_idx ?? w_idx,
-                                    c_idx: fixed_c_idx ?? c_idx,
-                                    e_idx: fixed_e_idx ?? e_idx,
-                                    h_idx: fixed_h_idx ?? h_idx,
-                                    t_idx: fixed_t_idx ?? t_idx
+                                    d: fixed_d_idx ?? d_idx,
+                                    w: fixed_w_idx ?? w_idx,
+                                    c: fixed_c_idx ?? c_idx,
+                                    e: fixed_e_idx ?? e_idx,
+                                    h: fixed_h_idx ?? h_idx,
+                                    t: fixed_t_idx ?? t_idx
                                 }, "Any")
                                 if (biome === undefined || biome instanceof GridElementUnassigned) {
                                     array[d_idx][w_idx][c_idx][e_idx][t_idx][h_idx] = { biome: "", done: true }

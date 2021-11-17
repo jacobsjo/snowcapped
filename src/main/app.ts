@@ -9,6 +9,7 @@ export const DATA_VERSION = 1
 
 const close_elements = document.getElementsByClassName("closable")
 
+
 for (let i = 0 ; i < close_elements.length ; i++){
     (close_elements[i].getElementsByClassName("button")[0] as HTMLElement).onclick = () => {
         if ((close_elements[i] as any).onopenchange !== undefined)

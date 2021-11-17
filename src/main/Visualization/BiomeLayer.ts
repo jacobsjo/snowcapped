@@ -32,7 +32,7 @@ export class BiomeLayer extends L.GridLayer{
                 tile.classList.add('leaflet-tile-loaded')
             }
 
-            const biomes = nv.idx.map(row => row.map(idxs => this.builder.lookup(idxs)))
+            const biomes = nv.idx.map(row => row.map(idxs => this.builder.lookupRecursiveWithTracking(idxs)))
             for (let x = 0 ; x<size.x/this.gridIndicesManager.resolution ; x++){
                 for (let z = 0 ; z<size.y/this.gridIndicesManager.resolution ; z++){
                     const biome = biomes[x][z].biome

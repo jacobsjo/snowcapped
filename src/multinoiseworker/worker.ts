@@ -5,7 +5,7 @@ import { LegacyRandom, NormalNoise, TerrainShaper, XoroshiroRandom } from "deeps
 
 export type NoiseSetting = { firstOctave: number, amplitudes: number[] }
 
-type MultiNoiseParameters = { weirdness: number, continentalness: number, erosion: number, humidity: number, temperature: number, depth: number }
+type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
 
 class MultiNoiseCalculator {
 
@@ -22,7 +22,7 @@ class MultiNoiseCalculator {
 
   getMultiNoiseValues(x: number, y: number, z: number): MultiNoiseParameters {
     if (!this.temperature)
-      return { temperature: 0, humidity: 0, continentalness: 0, erosion: 0, weirdness: 0, depth: 0 }
+      return { t: 0, h: 0, c: 0, e: 0, w: 0, d: 0 }
 
     const xx = x + this.getShift(x, 0, z)
     const yy = y + this.getShift(y, z, x)
@@ -35,7 +35,7 @@ class MultiNoiseCalculator {
     //const offset = TerrainShaper.offset(TerrainShaper.point(continentalness, erosion, weirdness))
     const depth = -0.01;//NoiseSampler.computeDimensionDensity (1, -0.51875, y * 4) + offset
 
-    return { temperature: temperature, humidity: humidity, continentalness: continentalness, erosion: erosion, weirdness: weirdness, depth: depth }
+    return { t: temperature, h: humidity, c: continentalness, e: erosion, w: weirdness, d: depth }
   }
 
   public getShift(x: number, y: number, z: number) {
@@ -79,12 +79,12 @@ function lerp(a: number, b: number, l: number) {
 
 function lerpMultiNoiseValues(a: MultiNoiseParameters, b: MultiNoiseParameters, l: number) {
   return {
-    weirdness: lerp(a.weirdness, b.weirdness, l),
-    continentalness: lerp(a.continentalness, b.continentalness, l),
-    erosion: lerp(a.erosion, b.erosion, l),
-    humidity: lerp(a.humidity, b.humidity, l),
-    temperature: lerp(a.temperature, b.temperature, l),
-    depth: lerp(a.depth, b.depth, l),
+    w: lerp(a.w, b.w, l),
+    c: lerp(a.c, b.c, l),
+    e: lerp(a.e, b.e, l),
+    h: lerp(a.h, b.h, l),
+    t: lerp(a.t, b.t, l),
+    d: lerp(a.d, b.d, l),
   }
 }
 

@@ -936,7 +936,7 @@ body:not(.light) #menu .button img{
 #visualization .visualization_controlls{
     position: absolute;
     top: 62pt;
-    left: 9;
+    left: 6pt;
     z-index: 400;
     width: 26pt;
 }
@@ -972,10 +972,37 @@ body:not(.light) #menu .button img{
     background-color: var(--primary-button-open-color);
 }
 
+.height_selection{
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5pt;
+    position: relative;
+    margin-top: 5pt;
+    padding-top: 5pt;
+    padding-bottom: 5pt;
+}
+
+.map_label{
+    background-color: var(--small-button-color);
+    color: white;
+    border-radius: 5pt;
+    min-width: 20pt;
+    height: 15pt;
+    padding: 3pt;
+    text-align: center;
+    line-height: 15pt;
+    font-size: smaller;
+    position: absolute;
+    left: 25pt;
+}
+
+.height_selection:not(:hover) .map_label{
+    display: none;
+}
+
 .map_range{
-    margin-top: 10pt;
     width: 26pt;
     height: 150pt;
+    -webkit-appearance: slider-vertical;
 }
 
 

@@ -214,7 +214,10 @@
                         <div id="visualization_map"></div>
                         <div class="visualization_controlls">
                             <img class="map_button" id="toggleIsolinesButton" src="isolines.svg" />
-                            <!--<input class="map_range" type="range" orient="vertical" />-->
+                            <div class="height_selection">
+                                <div class="map_label" id="mapHeightLabel">Surface</div>
+                                <input class="map_range" id="mapHeightSelection" type="range" value="200" min="-64" max="200" orient="vertical" />
+                            </div>
                         </div>
                         <img class="map_button" id="mapFullscreenButton" src="expand-arrows.svg" />
                     </div>

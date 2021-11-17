@@ -41,7 +41,7 @@ export class BiomeGridEditor {
             const renderer = this.layout.getRenderer() as BiomeGridRenderer
             this.mouse_position = this.getMousePosition(evt)
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, this.mouse_position.mouse_x, this.mouse_position.mouse_y)
-            if (ids === undefined || ids.indexes.d_idx === -1) {
+            if (ids === undefined || ids.indexes.d === -1) {
                 tooltip.classList.add("hidden")
                 MenuManager.toggleAction("paint", false)
                 MenuManager.toggleAction("paint-mode", false)
@@ -93,22 +93,22 @@ export class BiomeGridEditor {
             tooltip_noises.classList.remove("hidden")
 
             if (this.layout.getType() === "dimension"){
-                tooltip_noise_x.innerHTML = "Weirdness: [" + this.builder.weirdnesses[ids.indexes.w_idx].min.toFixed(3) + ", " + this.builder.weirdnesses[ids.indexes.w_idx].max.toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Depth: [" + this.builder.depths[ids.indexes.d_idx].min.toFixed(3) + ", " + this.builder.depths[ids.indexes.d_idx].max.toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Weirdness: [" + this.builder.weirdnesses[ids.indexes.w].min.toFixed(3) + ", " + this.builder.weirdnesses[ids.indexes.w].max.toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Depth: [" + this.builder.depths[ids.indexes.d].min.toFixed(3) + ", " + this.builder.depths[ids.indexes.d].max.toFixed(3) + "]"
             } else if (this.layout.getType() === "slice"){
-                tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.erosions[ids.indexes.e_idx].min.toFixed(3) + ", " + this.builder.erosions[ids.indexes.e_idx].max.toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.continentalnesses[ids.indexes.c_idx].min.toFixed(3) + ", " + this.builder.continentalnesses[ids.indexes.c_idx].max.toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.erosions[ids.indexes.e].min.toFixed(3) + ", " + this.builder.erosions[ids.indexes.e].max.toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.continentalnesses[ids.indexes.c].min.toFixed(3) + ", " + this.builder.continentalnesses[ids.indexes.c].max.toFixed(3) + "]"
             } else if (this.layout.getType() === "layout"){
-                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.humidities[ids.indexes.h_idx].min.toFixed(3) + ", " + this.builder.humidities[ids.indexes.h_idx].max.toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.temperatures[ids.indexes.t_idx].min.toFixed(3) + ", " + this.builder.temperatures[ids.indexes.t_idx].max.toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.humidities[ids.indexes.h].min.toFixed(3) + ", " + this.builder.humidities[ids.indexes.h].max.toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.temperatures[ids.indexes.t].min.toFixed(3) + ", " + this.builder.temperatures[ids.indexes.t].max.toFixed(3) + "]"
             }
 
                 // Update Spline display in slices
             if (this.layout instanceof Grid && this.layout.getType() === "slice"){
-                const cont = builder.continentalnesses[ids.indexes.c_idx]
+                const cont = builder.continentalnesses[ids.indexes.c]
                 const c = lerp(cont.min, cont.max, ids.local_t)
     
-                const ero = builder.erosions[ids.indexes.e_idx]
+                const ero = builder.erosions[ids.indexes.e]
                 const e = lerp(ero.min, ero.max, ids.local_h)
 
                 UI.getInstance().splineDisplayManager.setPos({c: c, e: e})
@@ -210,9 +210,9 @@ export class BiomeGridEditor {
     handleInteraction(indexes: PartialMultiNoiseIndexes, mode: "A" | "B", action: "add" | "add_alt" | "pick" | "open" | "remove") {
        
         console.log(indexes)
-        if (indexes.d_idx === -1){
+        if (indexes.d === -1){
             if (action === "add" || action === "add_alt"){
-                this.builder.modes[indexes.w_idx] = (this.builder.modes[indexes.w_idx] === "A") ? "B" : "A"
+                this.builder.modes[indexes.w] = (this.builder.modes[indexes.w] === "A") ? "B" : "A"
             }
             
             UI.getInstance().refresh()

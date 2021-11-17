@@ -10,7 +10,7 @@ export class GridMultiNoise {
 	private readonly builder: BiomeBuilder
 
 	private worker : Worker
-	private messageHandlers: Map<string, (values: {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]) => void>
+	private messageHandlers: Map<string, (values: MultiNoiseParameters[][]) => void>
 
 	constructor(
 		seed: bigint,
@@ -20,7 +20,7 @@ export class GridMultiNoise {
 
 		this.worker = new Worker("multinoiseworker.js")
 
-		this.messageHandlers = new Map<string, (values: {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]) => void>()
+		this.messageHandlers = new Map<string, (values: MultiNoiseParameters[][]) => void>()
 
 		this.worker.onmessage = (evt) => {
 			this.messageHandlers.get(evt.data.key)?.(evt.data.values)
@@ -31,16 +31,16 @@ export class GridMultiNoise {
 		const key = uniqueId()
 		this.worker.postMessage({ task: "calculate", key: key,  coords: { x: x, z: z, size: size, step: step } })
 
-		return new Promise<{weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]>(resolve => {
-			this.messageHandlers.set(key, (values:  {weirdness: number, continentalness:number, erosion: number, humidity: number, temperature: number, depth: number}[][]) => {
+		return new Promise<{w: number, c:number, e: number, h: number, t: number, d: number}[][]>(resolve => {
+			this.messageHandlers.set(key, (values:  MultiNoiseParameters[][]) => {
 				resolve(values.map(row=>row.map(value => {
 					return {
-						weirdness: this.builder.fixedNoises["weirdness"] ?? value.weirdness,
-						continentalness: this.builder.fixedNoises["continentalness"] ??value.continentalness,
-						erosion: this.builder.fixedNoises["erosion"] ??value.erosion,
-						humidity: this.builder.fixedNoises["humidity"] ??value.humidity,
-						temperature: this.builder.fixedNoises["temperature"] ??value.temperature,
-						depth: this.builder.fixedNoises["depth"] ??value.depth
+						w: this.builder.fixedNoises["weirdness"] ?? value.w,
+						c: this.builder.fixedNoises["continentalness"] ??value.c,
+						e: this.builder.fixedNoises["erosion"] ??value.e,
+						h: this.builder.fixedNoises["humidity"] ??value.h,
+						t: this.builder.fixedNoises["temperature"] ??value.t,
+						d: this.builder.fixedNoises["depth"] ??value.d
 					}
 				})))
 			})

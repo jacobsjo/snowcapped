@@ -20,8 +20,6 @@ export class VisualizationManger{
     private indicesManger: GridMultiNoiseIndicesManager
 
     private closeContainer: HTMLElement
-    private toggleIsolinesButton: HTMLElement
-    private toggleFullscreenButton: HTMLElement
 
     constructor(builder: BiomeBuilder){
         this.builder = builder
@@ -51,22 +49,55 @@ export class VisualizationManger{
         this.contourLayer = new ContourLayer(this.builder, this.indicesManger);
         //this.contourLayer.addTo(this.map)
 
-        this.toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
-        this.toggleFullscreenButton = document.getElementById('mapFullscreenButton')
+        const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
 
-        this.toggleIsolinesButton.onclick = (evt: MouseEvent) => {
+        toggleIsolinesButton.onclick = (evt: MouseEvent) => {
           if (this.map.hasLayer(this.contourLayer)){
             this.map.removeLayer(this.contourLayer)
-            this.toggleIsolinesButton.classList.remove("enabled")
+            toggleIsolinesButton.classList.remove("enabled")
           } else {
             this.map.addLayer(this.contourLayer)
-            this.toggleIsolinesButton.classList.add("enabled")
+            toggleIsolinesButton.classList.add("enabled")
           }
         }
 
-        this.toggleFullscreenButton.onclick = (evt: MouseEvent) => {
+        const heightSelectRange = document.getElementById('mapHeightSelection') as HTMLInputElement
+        const heightSelectLabel = document.getElementById('mapHeightLabel') 
+
+        heightSelectRange.value = heightSelectRange.max
+
+        heightSelectRange.oninput = () => {
+          const val = Number(heightSelectRange.value)
+          const min = Number(heightSelectRange.min)
+          const max = Number(heightSelectRange.max)
+
+          if (val === max){
+            heightSelectLabel.innerHTML = "Surface"
+          } else {
+            heightSelectLabel.innerHTML = val.toFixed(0)
+          }
+          const pos = (1 - ((val - min) / (max - min))) * 0.94 * parseInt(getComputedStyle(heightSelectRange).height)
+          heightSelectLabel.style.top = pos + "px"
+        }
+
+        heightSelectRange.onchange = () => {
+          const val = Number(heightSelectRange.value)
+          const min = Number(heightSelectRange.min)
+          const max = Number(heightSelectRange.max)
+
+          if (val === max){
+            this.builder.vis_y_level = "surface"
+          } else {
+            this.builder.vis_y_level = val
+          }
+          UI.getInstance().visualizationManager.invalidateIndices()
+          UI.getInstance().refresh()
+        }
+
+        const toggleFullscreenButton = document.getElementById('mapFullscreenButton')
+        toggleFullscreenButton.onclick = (evt: MouseEvent) => {
           const open = panel.classList.toggle("fullscreen")
-          this.toggleFullscreenButton.classList.toggle("enabled", open)
+          toggleFullscreenButton.classList.toggle("enabled", open)
           this.map.invalidateSize()
         }
 
@@ -84,25 +115,25 @@ export class VisualizationManger{
 
         this.map.addEventListener("click", (evt: L.LeafletMouseEvent) => {
           const idxs = this.getIdxs(evt.latlng)
-          const lookup = this.builder.lookup(idxs.idx)
+          const lookup = this.builder.lookupRecursiveWithTracking(idxs.idx)
 
           if (lookup.slice === undefined || lookup.slice instanceof GridElementUnassigned)
             return
 
           if (lookup.layout !== undefined && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)){
             UI.getInstance().sidebarManager.openElement({type:"layout", key:lookup.layout.getKey()})
-            UI.getInstance().layoutEditor.highlight(idxs.idx.t_idx, idxs.idx.h_idx)
+            UI.getInstance().layoutEditor.highlight(idxs.idx.t, idxs.idx.h)
             UI.getInstance().refresh()
           } else{
             UI.getInstance().sidebarManager.openElement({type:"slice", key:lookup.slice.getKey()})
-            UI.getInstance().layoutEditor.highlight(idxs.idx.c_idx, idxs.idx.e_idx)
+            UI.getInstance().layoutEditor.highlight(idxs.idx.c, idxs.idx.e)
             UI.getInstance().refresh()
           }
         })
 
         this.map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
           const idxs = this.getIdxs(evt.latlng);
-          const lookup = idxs ? this.builder.lookup(idxs.idx) : undefined
+          const lookup = idxs ? this.builder.lookupRecursiveWithTracking(idxs.idx) : undefined
 
           tooltip.style.left = (Math.min(evt.originalEvent.pageX + 20, document.body.clientWidth - tooltip.clientWidth)) + "px"
           tooltip.style.top = (evt.originalEvent.pageY + 15) + "px"
@@ -112,10 +143,10 @@ export class VisualizationManger{
             tooltip_mode.src = "mode_" + lookup?.mode + ".png"
 
           const pos = this.getPos(evt.latlng);
-          const y = idxs ? (builder.splines.offset.apply(idxs.values.continentalness, idxs.values.erosion, idxs.values.weirdness) * 128 + 64) : undefined
+          const y = idxs ? (builder.splines.offset.apply(idxs.values.c, idxs.values.e, idxs.values.w) * 128 + 64) : undefined
           tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + ", Z: " + pos.y.toFixed(0) + (y?(" -> Y: " + y.toFixed(0)):"")
-          tooltip_noise_values.innerHTML = "C: " + idxs.values.continentalness.toFixed(2) + ", E: " + idxs.values.erosion.toFixed(2) + ", W: " + 
-                    idxs.values.weirdness.toFixed(2) + "<br /> T: " + idxs.values.temperature.toFixed(2) + ", H: " + idxs.values.humidity.toFixed(2)
+          tooltip_noise_values.innerHTML = "C: " + idxs.values.c.toFixed(2) + ", E: " + idxs.values.e.toFixed(2) + ", W: " + 
+                    idxs.values.w.toFixed(2) + "<br /> T: " + idxs.values.t.toFixed(2) + ", H: " + idxs.values.h.toFixed(2)
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
           tooltip_biome.innerHTML = lookup?.biome?.name
@@ -127,7 +158,7 @@ export class VisualizationManger{
           tooltip_biome.parentElement.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof GridElementUnassigned)
 
           if (idxs){
-            UI.getInstance().splineDisplayManager.setPos({c: idxs.values.continentalness, e: idxs.values.erosion, w: idxs.values.weirdness})
+            UI.getInstance().splineDisplayManager.setPos({c: idxs.values.c, e: idxs.values.e, w: idxs.values.w})
             UI.getInstance().splineDisplayManager.refresh()
           }
 
