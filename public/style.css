@@ -746,18 +746,37 @@ body:not(.light) #menu .button img{
     flex-direction: column;
 }
 
-#layoutEditor #layoutName {
+#layoutEditor .titleBar{
     display: block;
-    width: 100%;
-    min-width: 300pt;
+    width: calc(100% - 20pt);
     padding: 10pt;
-    margin: 5pt;
+    margin: 0pt;
+    display: flex;
+    flex-direction: row;
+}
+
+#layoutEditor .button {
+    width: 15pt;
+    height: 15pt;
+    padding: 5pt;
+    background-color: var(--small-button-color);
+    border-radius: 5pt;
+    cursor: pointer;
+}
+
+#layoutEditor .button:hover {
+    background-color: var(--small-button-hover-color);
+}
+
+#layoutEditor #layoutName {
     background-color: rgba(0,0,0,0);
     color: var(--emph-text-color);
     border: 0pt;
     outline: 0pt;
     font-size: 20pt;
     text-align: center;
+    width: 10pt;
+    flex-grow: 1;
 }
 
 #layoutEditor .axis_label{

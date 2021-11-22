@@ -6,6 +6,7 @@ import { MenuManager } from "./MenuManager";
 import { UI } from "./UI";
 import { BiomeGridRenderer } from "./Renderer/BiomeGridRenderer";
 import { Grid } from "../BuilderData/Grid";
+import { thresholdSturges } from "d3";
 
 function lerp(a: number, b: number, l: number) {
     return ((1 - l) * a + l * b)
@@ -14,6 +15,7 @@ export class BiomeGridEditor {
     private builder: BiomeBuilder
     private title: HTMLInputElement
     private canvas: HTMLCanvasElement
+    private backButton: HTMLElement
 
     private mouse_position: { mouse_x: number, mouse_y: number }
     layout: Grid
@@ -23,6 +25,7 @@ export class BiomeGridEditor {
 
         this.title = document.getElementById("layoutName") as HTMLInputElement
         this.canvas = document.getElementById("layoutEditorCanvas") as HTMLCanvasElement
+        this.backButton = document.getElementById("backButton")
 
         const tooltip = document.getElementById("layoutEditorTooltip")
         const tooltip_name = tooltip.getElementsByClassName("name")[0] as HTMLElement
@@ -187,6 +190,10 @@ export class BiomeGridEditor {
                 evt.preventDefault
             }
         }
+
+        this.backButton.onclick = () => {
+            UI.getInstance().sidebarManager.back()
+        }
     }
 
     highlight(x_idx: number, y_idx: number){
@@ -292,7 +299,7 @@ export class BiomeGridEditor {
             // open
 
             if (exact_element instanceof Grid) {
-                UI.getInstance().sidebarManager.openElement({type:exact_element.getType(), key: exact_element.getKey()})
+                UI.getInstance().sidebarManager.openElement({type:exact_element.getType(), key: exact_element.getKey()}, true)
                 UI.getInstance().refresh()
             }
         }
@@ -329,6 +336,8 @@ export class BiomeGridEditor {
         ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
         this.layout.getRenderer().setDirty()
         this.layout.getRenderer().draw(ctx, 0, 0, this.canvas.width, this.canvas.height, {}, false)
+
+        this.backButton.classList.toggle("hidden", UI.getInstance().sidebarManager.parentElements.length == 0)
     }
 
     hide() {

@@ -13,6 +13,7 @@ export class SidebarManager {
     private dragKey: string;
     private lastDragedOverDiv: HTMLElement;
 
+    public parentElements: { type: string, key?: string }[] = []
     public openedElement: { type: string, key?: string } = { type: "dimension", key: "dimension" };
     public selectedElement: { type: string, key: string };
 
@@ -186,11 +187,18 @@ export class SidebarManager {
         bottom_spacer.style("height", bottom_spacer_height + "px")
     }
 
-    public openElement(openElement?: { type: string, key?: string }) {
+    public openElement(openElement?: { type: string, key?: string }, asChild: boolean = false, __from_back: boolean = false) {
         if (openElement.type === "biome" || openElement.type === "vanilla_biome")
             return
 
+        if (asChild){
+            this.parentElements.push(this.openedElement)
+        } else if (!__from_back) {
+            this.parentElements = []
+        }
+
         this.openedElement = openElement ?? this.openedElement
+
 
         if ((this.openedElement.type === "assign_slices" && this.selectedElement?.type !== "slice") ||
             (this.openedElement.type === "layout" && this.selectedElement?.type === "slice") ||
@@ -203,6 +211,13 @@ export class SidebarManager {
 //        UI.getInstance().selectedElement = this.selectedElement?.key ?? ""
 
         UI.getInstance().refresh()
+    }
+
+    public back(){
+        if (this.parentElements.length == 0){
+            return
+        }
+        this.openElement(this.parentElements.pop(), false, true)
     }
 
     public selectElement(selectElement?: { type: string, key: string }) {
