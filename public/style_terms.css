@@ -1,0 +1,21 @@
+body{
+    width: 450pt;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: rgb(255, 255, 255);
+}
+
+img{
+    width: 300pt;
+    margin-top: 10pt;
+}
+
+h1, h2{
+    color: #660000;
+}
+
+embed{
+    width: 450pt;
+    height: 400pt;
+    background-color: rgb(230, 230, 230);
+}

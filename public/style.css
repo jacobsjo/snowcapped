@@ -190,6 +190,15 @@ body:not(.light) #menu .button img{
     color: var(--help-emph-text-color); /* TODO */
 }
 
+#menu .link{
+    margin: auto;
+    margin-right: 5pt;
+}
+
+#menu .link a{
+    color: gray;
+}
+
 /* Editor */
 
 #content {
