@@ -1,8 +1,5 @@
-The below license applies to the whole project with the exception of the vanilla
-overworld configuration (loaded from minecraft_overworld.snowcapped.json) as well
-as the vanilla data in the source files in src/main/Vanilla in so far as they are
-copyrighted by Microsoft. They are provided in the assumption that such a use is
-tolerated.
+The below license applies to all parts of the project that Microsoft does not
+own the copyright of (the vanilla splines, the vanilla biome configuration). 
 
 MIT License
 
