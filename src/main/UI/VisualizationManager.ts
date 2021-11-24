@@ -4,6 +4,7 @@ import { last } from "lodash";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
 import { BiomeLayer } from "../Visualization/BiomeLayer";
+import { BiomeLayerGL } from "../Visualization/BiomeLayerGL";
 import { ContourLayer } from "../Visualization/ContourLayer";
 import { GridMultiNoise } from "../Visualization/GridMultiNoise";
 import { GridMultiNoiseIndicesManager } from "../Visualization/GridMultiNoiseIndicesManager";
@@ -24,6 +25,7 @@ export class VisualizationManger{
     constructor(builder: BiomeBuilder){
         this.builder = builder
 
+
         const panel = document.getElementById('visualization')
 
         this.closeContainer = panel.parentElement.parentElement;
@@ -37,14 +39,20 @@ export class VisualizationManger{
         this.map = L.map('visualization_map')
         this.map.setView([0,0], 15)
         this.map.setMaxZoom(18)
-        this.map.setMinZoom(13)
+        this.map.setMinZoom(11)
 
         this.indicesManger = new GridMultiNoiseIndicesManager(this.builder, this.biomeSource)
 
         this.updateNoises()
 
+        //const glLayerManager = new GLLayerManager()
+        //glLayerManager.addLayerTo(this.map)
+
+        const biomeLayerGL = new BiomeLayerGL();
+        biomeLayerGL.addTo(this.map);
+
         this.biomeLayer = new BiomeLayer(this.builder, this.indicesManger);
-        this.biomeLayer.addTo(this.map)
+        //this.biomeLayer.addTo(this.map)
 
         this.contourLayer = new ContourLayer(this.builder, this.indicesManger);
         //this.contourLayer.addTo(this.map)
@@ -133,6 +141,9 @@ export class VisualizationManger{
 
         this.map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
           const idxs = this.getIdxs(evt.latlng);
+          if (idxs === undefined){
+            return
+          }
           const lookup = idxs ? this.builder.lookupRecursiveWithTracking(idxs.idx) : undefined
 
           tooltip.style.left = (Math.min(evt.originalEvent.pageX + 20, document.body.clientWidth - tooltip.clientWidth)) + "px"

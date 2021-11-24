@@ -18,6 +18,7 @@ export type MultiNoiseIndexes = { d: number, w: number, c: number, e: number, h:
 export type PartialMultiNoiseIndexes = { d?: number, w?: number, c?: number, e?: number, h?: number, t?: number }
 
 export type NoiseSetting = { firstOctave: number, amplitudes: number[] }
+export type NoiseType = "continentalness" | "weirdness" | "erosion" | "temperature" | "humidity" | "shift"
 
 export class BiomeBuilder {
     hasChanges: boolean
