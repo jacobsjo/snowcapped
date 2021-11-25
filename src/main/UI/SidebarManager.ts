@@ -412,7 +412,7 @@ export class SidebarManager {
 
     dragover<T extends GridElement>(element: HTMLElement, c: string, list: T[], d: T): boolean {
         if (this.dragType === c && this.dragKey !== d.getKey()) {
-            const self_id = list.indexOf(d)
+            const self_id = list.findIndex(e => e.getKey() === d.getKey())
             const other_id = list.findIndex(e => e.getKey() === this.dragKey)
 
             if (self_id < other_id) {
