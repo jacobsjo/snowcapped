@@ -341,7 +341,7 @@ export class BiomeLayerGL extends L.GridLayer{
                                 }, "Any")
 
 								if (biome !== undefined && biome instanceof Biome){
-									const rgb = this._hexToRgb(biome.color)
+									const rgb = biome.raw_color
 									biomeArray.push(rgb.r, rgb.g, rgb.b, 255)
 								} else {
 									biomeArray.push(0, 0, 0, 0)
@@ -362,23 +362,7 @@ export class BiomeLayerGL extends L.GridLayer{
 		return biomeArray
 	}
 
-	private _hexToRgb(hex: string) {
-		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-		return result ? {
-		  r: parseInt(result[1], 16),
-		  g: parseInt(result[2], 16),
-		  b: parseInt(result[3], 16)
-		} : null;
-	  }
 
-
-    _addTile(coords: L.Coords, container: any) {
-		// This is quite an ugly hack, but WTF.
-		this.unwrappedKey = this._tileCoordsToKey(coords);
-
-        // @ts-ignore
-		L.GridLayer.prototype._addTile.call(this, coords, container);
-	}
 
 	createTile(coords: L.Coords, done: L.DoneCallback) {
 		var tile = L.DomUtil.create("canvas", "leaflet-tile");
@@ -394,10 +378,11 @@ export class BiomeLayerGL extends L.GridLayer{
 
         Promise.all([]).then(
             function() {
-                this.render(coords)
-                ctx.drawImage(this.renderer, 0, 0)
-
-                this.Tile2dContexts[this.unwrappedKey] = ctx;
+				requestAnimationFrame(() => {
+					this.render(coords)
+					ctx.drawImage(this.renderer, 0, 0)
+					this.Tile2dContexts[this._tileCoordsToKey(coords)] = ctx;
+				})
 
                 done();
             }.bind(this))
@@ -415,11 +400,16 @@ export class BiomeLayerGL extends L.GridLayer{
 
 	// Runs the shader (again) on all tiles
 	reRender() {
+		this.bindParametersTexture()
+		this.bindBiomeTexture()
 		for (var key in this._tiles) {
             //@ts-ignore
 			var coords = this._keyToTileCoords(key);
-			this.render(coords);
-			this.Tile2dContexts[key].drawImage(this.renderer, 0, 0);
+			requestAnimationFrame(() => {
+				this.render(coords);
+				this.Tile2dContexts[key].clearRect(0, 0, this.tileSize, this.tileSize);
+				//this.Tile2dContexts[key].drawImage(this.renderer, 0, 0);
+			})
 		}
 	}
 

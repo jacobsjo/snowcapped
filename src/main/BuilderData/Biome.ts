@@ -15,6 +15,11 @@ export class Biome implements GridElement{
     public color: string
     private renderer: BiomeRenderer
     private isVanilla: boolean
+    public raw_color: {
+        r: number,
+        g: number,
+        b: number
+    }
 
     private key: string
 
@@ -29,6 +34,7 @@ export class Biome implements GridElement{
             this.key = uniqid('biome_')
         this.allowEdit = !isVanilla
         this.isVanilla = isVanilla
+        this.raw_color = this._hexToRgb(color)
     }
 
     static create(builder: BiomeBuilder, name: string, color: string, key?: string, isVanilla: boolean = false): Biome{
@@ -40,6 +46,22 @@ export class Biome implements GridElement{
         return biome
     }
 
+    
+    public setColor(color: string){
+        this.color = color
+        this.raw_color = this._hexToRgb(color)
+    }
+
+	private _hexToRgb(hex: string) {
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? {
+		  r: parseInt(result[1], 16),
+		  g: parseInt(result[2], 16),
+		  b: parseInt(result[3], 16)
+		} : null;
+	  }
+      
+      
     static fromJSON(builder: BiomeBuilder, json: any){
         if (builder.vanillaBiomes.has(json.key)){
             const vanillaBiome = builder.vanillaBiomes.get(json.key)

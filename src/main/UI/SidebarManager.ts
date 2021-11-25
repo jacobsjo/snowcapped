@@ -285,7 +285,7 @@ export class SidebarManager {
                         .attr("disabled", fixed ? "" : undefined)
                         .property("value", (d : Biome) => d.color)
                         .on("change", function(evt, d ){
-                            (d as Biome).color = this.value
+                            (d as Biome).setColor(this.value)
                             UI.getInstance().refresh()
                         })
                 } else {

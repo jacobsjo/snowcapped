@@ -15,7 +15,7 @@ export class VisualizationManger{
     builder: BiomeBuilder
     private map: L.Map
     private biomeSource: GridMultiNoise
-    private biomeLayer: BiomeLayer
+    private biomeLayer: BiomeLayer | BiomeLayerGL
     private contourLayer: ContourLayer
 
     private indicesManger: GridMultiNoiseIndicesManager
@@ -48,10 +48,10 @@ export class VisualizationManger{
         //const glLayerManager = new GLLayerManager()
         //glLayerManager.addLayerTo(this.map)
 
-        const biomeLayerGL = new BiomeLayerGL();
-        biomeLayerGL.addTo(this.map);
+        this.biomeLayer = new BiomeLayerGL();
+        this.biomeLayer.addTo(this.map);
 
-        this.biomeLayer = new BiomeLayer(this.builder, this.indicesManger);
+        //this.biomeLayer = new BiomeLayer(this.builder, this.indicesManger);
         //this.biomeLayer.addTo(this.map)
 
         this.contourLayer = new ContourLayer(this.builder, this.indicesManger);
@@ -244,7 +244,11 @@ export class VisualizationManger{
 
     async refresh(){
       if (!this.closeContainer.classList.contains("closed")){
-        this.biomeLayer.redraw()
+        if (this.biomeLayer instanceof BiomeLayer){
+          this.biomeLayer.redraw()
+        } else {
+          this.biomeLayer.reRender()
+        }
         //this.contourLayer.redraw()
       }
     }
