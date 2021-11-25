@@ -95,9 +95,9 @@ export class BiomeBuilder {
 
         this.gridElements.clear()
         this.vanillaBiomes.clear()
-        this.layouts = []
-        this.biomes = []
-        this.slices = []
+        this.layouts.length = 0
+        this.biomes.length = 0
+        this.slices.length = 0
 
         this.dimension = Grid.fromJSON(this, json.dimension, new DimensionMultiNoiseIndexesAccessor(this))
         this.modes = json.modes
