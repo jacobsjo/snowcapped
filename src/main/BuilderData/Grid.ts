@@ -302,7 +302,8 @@ export class Grid implements GridElement {
     has(key: string, limit: PartialMultiNoiseIndexes){
         if (key === this.getKey()) return true
 
-        if (limit.h === undefined || limit.t === undefined){
+        const cell = this.accessor.idsToCell(limit)
+        if (cell === "all"){
             return this.array.findIndex(row => row.findIndex(element => this.builder.getLayoutElement(element).has(key, limit)) >= 0) >= 0
         } else {
             return this.lookup(limit, "Any").has(key, limit)
