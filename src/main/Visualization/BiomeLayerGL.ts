@@ -26,11 +26,18 @@ export class BiomeLayerGL extends L.GridLayer{
     private parameterTexture: WebGLTexture
     private biomeTexture: WebGLTexture
     private glProgram: WebGLProgram
-    private unwrappedKey: string
     private CRSBuffer: WebGLBuffer
     private Tile2dContexts: {[key: string]: CanvasRenderingContext2D} = {}
     private tileSize: number
     private builder: BiomeBuilder
+
+	private renderingQueue: {
+		key: string,
+		callback: () => void
+	}[] = []
+	private isRendering: boolean = false
+	private renderingDelay: number = 0
+	private hasWarnerdDelay: boolean = false
 
     constructor(){
         super()
@@ -376,16 +383,12 @@ export class BiomeLayerGL extends L.GridLayer{
             return;
         }
 
-        Promise.all([]).then(
-            function() {
-				requestAnimationFrame(() => {
-					this.render(coords)
-					ctx.drawImage(this.renderer, 0, 0)
-					this.Tile2dContexts[this._tileCoordsToKey(coords)] = ctx;
-				})
+		const key = this._tileCoordsToKey(coords)
+		this.Tile2dContexts[key] = ctx;
+		this.addRenderingTask(key, () => {
+			done()
+		});
 
-                done();
-            }.bind(this))
 
 		return tile;
 	}
@@ -403,14 +406,54 @@ export class BiomeLayerGL extends L.GridLayer{
 		this.bindParametersTexture()
 		this.bindBiomeTexture()
 		for (var key in this._tiles) {
-            //@ts-ignore
-			var coords = this._keyToTileCoords(key);
-			requestAnimationFrame(() => {
-				this.render(coords);
-				this.Tile2dContexts[key].clearRect(0, 0, this.tileSize, this.tileSize);
-				//this.Tile2dContexts[key].drawImage(this.renderer, 0, 0);
-			})
+			this.addRenderingTask(key, () => {});
 		}
+	}
+
+	addRenderingTask(key: string, callback: () => void){
+		if (this.renderingQueue.findIndex(t => t.key === key) >= 0){
+			return
+		}
+
+		this.renderingQueue.push({key: key, callback: callback})
+		if (!this.isRendering) {
+			this.isRendering = true
+			this.doNextRenderingTask()
+		}
+	}
+
+	doNextRenderingTask(){
+		var task: {key: string, callback: () => void}
+		do {
+			if (this.renderingQueue.length === 0){
+				this.isRendering = false
+				return
+			}
+			task = this.renderingQueue.shift()
+		} while (this.Tile2dContexts[task.key] === undefined)
+
+			//@ts-ignore
+		const coords = this._keyToTileCoords(task.key);
+		this.render(coords)
+		setTimeout(() => {
+			if (this.Tile2dContexts[task.key] !== undefined){
+				this.Tile2dContexts[task.key].clearRect(0, 0, this.tileSize, this.tileSize);
+				const start_time = performance.now()
+				this.Tile2dContexts[task.key].drawImage(this.renderer, 0, 0);
+				const duration = performance.now() - start_time
+				if (duration > 5){
+					this.renderingDelay = Math.min(Math.ceil(this.renderingDelay + duration), 500)
+				} else {
+					this.renderingDelay = Math.max(Math.floor(this.renderingDelay * 0.8), 0)
+				}
+				if (this.renderingDelay > 100 && !this.hasWarnerdDelay){
+					this.hasWarnerdDelay = true
+					console.warn("Rendering Map tiles takes more than 100ms")
+				}
+				task.callback()
+			}
+			this.doNextRenderingTask()
+		}, this.renderingDelay)
 	}
 
 };
