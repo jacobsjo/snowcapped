@@ -23,7 +23,7 @@ export class DimensionMultiNoiseIndexesAccessor implements MultiNoiseIndexesAcce
 
     type: "dimension" = "dimension"
     getSize(bulder: BiomeBuilder): [number, number] {
-        return [bulder.getNumWeirdnesses(), bulder.getNumDepths()]
+        return [bulder.getNumDepths(), bulder.getNumWeirdnesses()]
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
@@ -125,6 +125,7 @@ export class Grid implements GridElement {
 
     private accessor: MultiNoiseIndexesAccessor
     private array: string[][]
+    private lookup_cache: GridElement[][]
     private builder: BiomeBuilder
     private renderer: BiomeGridRenderer
     private key: string
@@ -137,6 +138,7 @@ export class Grid implements GridElement {
         this.accessor = accessor
         const size = accessor.getSize(builder)
         this.array = array ?? new Array(size[1]).fill(0).map(() => new Array(size[0]).fill("unassigned"))
+        this.lookup_cache = new Array(size[1]).fill(0).map(() => new Array(size[0]).fill(undefined))
         this.key = key ?? uniqid('layout_')
         this.undoActions = []
     }
@@ -230,16 +232,28 @@ export class Grid implements GridElement {
             return this.getKey()
         }
 
-        const result = this.array[cell[0]][cell[1]]
-        if (result === undefined){
-            console.log(cell)
-        }
         return this.array[cell[0]][cell[1]]
     }
 
     lookup(indexes: PartialMultiNoiseIndexes, mode: Mode): GridElement{
-        const key = this.lookupKey(indexes, mode)
-        return this.builder.getLayoutElement(key)
+        const cell = this.accessor.idsToCell(indexes)
+        if (cell === "all"){
+            return this
+        }
+
+        const key = this.array[cell[0]][cell[1]]
+        //console.log("array length: " + this.array.length + ", " + this.array[0].length + "   cache length: " + this.lookup_cache.length + ", " + this.lookup_cache[0].length)
+        const cached_element = this.lookup_cache[cell[0]][cell[1]]
+        if (cached_element !== undefined && cached_element.getKey() === key){
+            return cached_element
+        } else {
+            if (key === undefined){
+                console.log(indexes)
+            }
+            const lookup = this.builder.getLayoutElement(key)
+            this.lookup_cache[cell[0]][cell[1]] = lookup
+            return lookup
+        }
     }
 
     lookupRecursive(indexes: MultiNoiseIndexes, mode: Mode, stopAtHidden: boolean = false): GridElement{
