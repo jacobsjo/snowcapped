@@ -9,7 +9,7 @@ import { ContourLayer } from "../Visualization/ContourLayer";
 import { GridMultiNoise } from "../Visualization/GridMultiNoise";
 import { GridMultiNoiseIndicesManager } from "../Visualization/GridMultiNoiseIndicesManager";
 import { MenuManager } from "./MenuManager";
-import { UI } from "./UI";
+import { Change, UI } from "./UI";
 
 export class VisualizationManger{
     builder: BiomeBuilder
@@ -99,7 +99,7 @@ export class VisualizationManger{
             this.builder.vis_y_level = val
           }
           UI.getInstance().visualizationManager.invalidateIndices()
-          UI.getInstance().refresh()
+          this.refresh({biome: {}})
         }
 
         const toggleFullscreenButton = document.getElementById('mapFullscreenButton')
@@ -129,13 +129,11 @@ export class VisualizationManger{
             return
 
           if (lookup.layout !== undefined && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)){
-            UI.getInstance().sidebarManager.openElement({type:"layout", key:lookup.layout.getKey()})
             UI.getInstance().layoutEditor.highlight(idxs.idx.t, idxs.idx.h)
-            UI.getInstance().refresh()
+            UI.getInstance().sidebarManager.openElement({type:"layout", key:lookup.layout.getKey()})
           } else{
-            UI.getInstance().sidebarManager.openElement({type:"slice", key:lookup.slice.getKey()})
             UI.getInstance().layoutEditor.highlight(idxs.idx.c, idxs.idx.e)
-            UI.getInstance().refresh()
+            UI.getInstance().sidebarManager.openElement({type:"slice", key:lookup.slice.getKey()})
           }
         })
 
@@ -242,12 +240,12 @@ export class VisualizationManger{
       this.indicesManger.invalidateIndices()
     }
 
-    async refresh(){
+    async refresh(change: Change){
       if (!this.closeContainer.classList.contains("closed")){
         if (this.biomeLayer instanceof BiomeLayer){
           this.biomeLayer.redraw()
         } else {
-          this.biomeLayer.reRender()
+          this.biomeLayer.reRender(change)
         }
         //this.contourLayer.redraw()
       }

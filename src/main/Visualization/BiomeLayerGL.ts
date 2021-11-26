@@ -8,22 +8,57 @@
  *
  */
 
-import { NoiseSampler, NormalNoise, XoroshiroRandom } from "deepslate"
+import { NormalNoise, XoroshiroRandom } from "deepslate"
 import * as L from "leaflet"
-import { random } from "lodash"
 import { Biome } from "../BuilderData/Biome"
-import { BiomeBuilder, NoiseType } from "../BuilderData/BiomeBuilder"
-import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned"
-import { UI } from "../UI/UI"
+import { BiomeBuilder, NoiseType, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder"
+import { Change, UI } from "../UI/UI"
 
 const multinoiseShader = require('./Shader/multinoise.glsl')
+
+var starting_delay = 1
+var fail_counter = 5
+function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync, interval_ms: number) {
+	return new Promise<void>((resolve, reject) => {
+	  var is_first = true
+	  function test() {
+		const res = gl.clientWaitSync(sync, 0, 0);
+		if (res == gl.WAIT_FAILED) {
+			fail_counter--;
+			if (fail_counter === 0){
+				reject("Wait failed");
+			} else {
+				starting_delay += interval_ms
+				setTimeout(test, interval_ms);
+			}
+			return;
+		}
+		if (res == gl.TIMEOUT_EXPIRED) {
+			fail_counter = 5
+			is_first = false
+			starting_delay += interval_ms
+			setTimeout(test, interval_ms);
+			return;
+		}
+		fail_counter = 5
+		if (is_first){
+			starting_delay = Math.max(Math.floor(starting_delay * 0.8), 1);
+		}
+		resolve();
+	  }
+	  setTimeout(test, starting_delay);
+	});
+  }
 
 export class BiomeLayerGL extends L.GridLayer{
 
     private renderer: HTMLCanvasElement
     private glError: string | undefined
     private gl: WebGL2RenderingContext
-    private parameterTexture: WebGLTexture
+	private parameterArray: Float32Array
+	private parameterTexture: WebGLTexture
+	private biomeArray: Uint8Array
+	private biomeTextureSize: number
     private biomeTexture: WebGLTexture
     private glProgram: WebGLProgram
     private CRSBuffer: WebGLBuffer
@@ -36,8 +71,6 @@ export class BiomeLayerGL extends L.GridLayer{
 		callback: () => void
 	}[] = []
 	private isRendering: boolean = false
-	private renderingDelay: number = 0
-	private hasWarnerdDelay: boolean = false
 
     constructor(){
         super()
@@ -79,11 +112,8 @@ export class BiomeLayerGL extends L.GridLayer{
         this.biomeTexture = this.gl.createTexture();
         this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "biomeTexture"), 1);
 
-		this.bindParametersTexture()
-		this.bindBiomeTexture()
-
-		console.log("MAX_UNIFORM_BLOCK_SIZE: " + this.gl.getParameter(this.gl.MAX_UNIFORM_BLOCK_SIZE))
-
+		//this.bindParametersTexture()
+		//this.bindBiomeTexture()
 	}
 
 	// @method getGlError(): String|undefined
@@ -217,127 +247,152 @@ export class BiomeLayerGL extends L.GridLayer{
 		this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
 	}
 
-	bindParametersTexture(){
-		// Helper function. Binds a ImageData (HTMLImageElement, HTMLCanvasElement or
-		// ImageBitmap) to a texture, given its index (0 to 7).
-		// The image data is assumed to be in RGBA format.
+	bindParametersTexture(change: Change){
+
+		if (this.parameterArray === undefined){
+			const biomeArrayLenght = this.builder.depths.length * this.builder.humidities.length * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length
+			this.biomeTextureSize = Math.ceil(Math.sqrt(biomeArrayLenght))
+			this.parameterArray = new Float32Array(256 * 256);
+		}
+
+		this.fillParameterArray(change)
 
 		this.gl.activeTexture(this.gl.TEXTURE0);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.parameterTexture);
-		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.R32F, 256, 256, 0, this.gl.RED, this.gl.FLOAT, new Float32Array(this.getParameterArray(XoroshiroRandom.create(this.builder.seed))));
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.R32F, 256, 256, 0, this.gl.RED, this.gl.FLOAT, this.parameterArray);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
     }
 
-    getParameterArray(random: XoroshiroRandom){
+    fillParameterArray(change: Change){
+
+		const OCTAVE_COUNT = 20
+		const MAX_PARAMETER_CELLS_BORDERS = 20
+		const NOISE_STORAGE_LENGTH = (MAX_PARAMETER_CELLS_BORDERS + OCTAVE_COUNT * 259 * 2 + 2 + OCTAVE_COUNT);
 
 		const noises: NoiseType[] = ["weirdness", "continentalness", "erosion", "temperature", "humidity", "shift"];
-		const firstsecond: ("first" | "second")[] = ["first", "second"]
-		const noiseRandomForked = random.fork()
 
-		const normalnoises = {
-			temperature: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:temperature"), this.builder.noiseSettings.temperature),
-			humidity: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:vegetation"),  this.builder.noiseSettings.humidity),
-			continentalness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:continentalness"),  this.builder.noiseSettings.continentalness),
-			erosion: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:erosion"),  this.builder.noiseSettings.erosion),
-			weirdness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:ridge"),  this.builder.noiseSettings.weirdness),
-			shift: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:offset"),  this.builder.noiseSettings.shift)		
-		}
+		if (change.noises){
+			const random = XoroshiroRandom.create(this.builder.seed)
 
-		const noiseCells = {
-			"weirdness": this.builder.weirdnesses,
-			"continentalness": this.builder.continentalnesses,
-			"erosion": this.builder.erosions,
-			"temperature": this.builder.temperatures,
-			"humidity": this.builder.humidities,
-			"shift": this.builder.depths
-		}
+			const noiseRandomForked = random.fork()
 
-        const parameterArray = []
-        for (const noise of noises){
-
-			const noiseSetting = this.builder.noiseSettings[noise]
-            parameterArray.push(noiseSetting.firstOctave)
-
-			let min = +Infinity
-			let max = -Infinity
-			for (let i = 0; i < noiseSetting.amplitudes.length; i += 1) {
-				if (noiseSetting.amplitudes[i] !== 0) {
-					min = Math.min(min, i)
-					max = Math.max(max, i)
-				}
+			const normalnoises = {
+				temperature: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:temperature"), this.builder.noiseSettings.temperature),
+				humidity: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:vegetation"),  this.builder.noiseSettings.humidity),
+				continentalness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:continentalness"),  this.builder.noiseSettings.continentalness),
+				erosion: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:erosion"),  this.builder.noiseSettings.erosion),
+				weirdness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:ridge"),  this.builder.noiseSettings.weirdness),
+				shift: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:offset"),  this.builder.noiseSettings.shift)		
 			}
-	
-			const expectedDeviation = 0.1 * (1 + 1 / (max - min + 1))
-			const valueFactor = (1/6) / expectedDeviation
-			const lowestFreqValueFactor = Math.pow(2, (noiseSetting.amplitudes.length - 1)) / (Math.pow(2, noiseSetting.amplitudes.length) - 1)
-			parameterArray.push(valueFactor * lowestFreqValueFactor)
 
-			for (let i = 0 ; i<20 ; i++){
-                parameterArray.push(noiseSetting.amplitudes.length > i ? noiseSetting.amplitudes[i] : 0)
-            }
+			for (var noise_idx = 0 ; noise_idx < noises.length ; noise_idx ++){
+				const noise = noises[noise_idx]
 
-			for (let i = 0 ; i<20 ; i++){
-				if (i < noiseCells[noise].length - 1){
-	                parameterArray.push(noiseCells[noise][i].max)
-				} else {
-	                parameterArray.push(-200)
-				}
-            }
-			
-			var normal_noise_index: "first" | "second"
-            for (normal_noise_index of firstsecond){
-				for (let i = 0 ; i<20 ; i++){
-					if (i < normalnoises[noise][normal_noise_index].noiseLevels.length && normalnoises[noise][normal_noise_index].noiseLevels[i] !== undefined){
-						parameterArray.push(normalnoises[noise][normal_noise_index].noiseLevels[i].xo)
-						parameterArray.push(normalnoises[noise][normal_noise_index].noiseLevels[i].yo)
-						parameterArray.push(normalnoises[noise][normal_noise_index].noiseLevels[i].zo)
+				const noiseSetting = this.builder.noiseSettings[noise]
+				this.parameterArray[noise_idx * NOISE_STORAGE_LENGTH] = noiseSetting.firstOctave
 
-						const p = normalnoises[noise][normal_noise_index].noiseLevels[i].p
-						for (let i = 0 ; i< 256 ; i++){
-							parameterArray.push(p[i])
-						}                
-					} else {
-						for (let i = 0 ; i< 259 ; i++){
-							parameterArray.push(0)
-						}                
+				let min = +Infinity
+				let max = -Infinity
+				for (let i = 0; i < noiseSetting.amplitudes.length; i += 1) {
+					if (noiseSetting.amplitudes[i] !== 0) {
+						min = Math.min(min, i)
+						max = Math.max(max, i)
 					}
 				}
-            }
-        }
+		
+				const expectedDeviation = 0.1 * (1 + 1 / (max - min + 1))
+				const valueFactor = (1/6) / expectedDeviation
+				const lowestFreqValueFactor = Math.pow(2, (noiseSetting.amplitudes.length - 1)) / (Math.pow(2, noiseSetting.amplitudes.length) - 1)
+				this.parameterArray[noise_idx * NOISE_STORAGE_LENGTH + 1] = valueFactor * lowestFreqValueFactor
 
-        while (parameterArray.length < 256 * 256){
-            parameterArray.push(1.0)
-        }
+				for (let i = 0 ; i<20 ; i++){
+					this.parameterArray[noise_idx * NOISE_STORAGE_LENGTH + 2 + i] = noiseSetting.amplitudes.length > i ? noiseSetting.amplitudes[i] : 0
+				}
 
-		return parameterArray
+
+
+				for (var normal_noise_index = 0 ; normal_noise_index <= 1 ; normal_noise_index++){
+					const noise_levels = normalnoises[noise][normal_noise_index === 0 ? "first" : "second"].noiseLevels
+					for (let octave_index = 0 ; octave_index<20 ; octave_index++){
+						const start_pos =  noise_idx * NOISE_STORAGE_LENGTH + 2 + OCTAVE_COUNT + MAX_PARAMETER_CELLS_BORDERS + normal_noise_index * (OCTAVE_COUNT * 259) + 259 * octave_index
+						if (octave_index < noise_levels.length && noise_levels[octave_index] !== undefined){
+							
+							const noise_level = noise_levels[octave_index]
+
+							this.parameterArray[start_pos] = noise_level.xo
+							this.parameterArray[start_pos+1] = noise_level.yo
+							this.parameterArray[start_pos+2] = noise_level.zo
+
+							for (let i = 0 ; i< 256 ; i++){
+								this.parameterArray[start_pos+3+i] = noise_level.p[i]
+							}                
+						} else {
+							for (let i = 0 ; i< 259 ; i++){
+								this.parameterArray.fill(0, start_pos, start_pos+258)
+							}                
+						}
+					}
+				}
+			}
+		}
+
+		if (change.grids){
+			const noiseCells = {
+				"weirdness": this.builder.weirdnesses,
+				"continentalness": this.builder.continentalnesses,
+				"erosion": this.builder.erosions,
+				"temperature": this.builder.temperatures,
+				"humidity": this.builder.humidities,
+				"shift": this.builder.depths
+			}
+
+
+			for (var noise_idx = 0 ; noise_idx < noises.length ; noise_idx ++){
+				const noise = noises[noise_idx]
+
+				for (let i = 0 ; i<20 ; i++){
+					if (i < noiseCells[noise].length - 1){
+						this.parameterArray[noise_idx * NOISE_STORAGE_LENGTH + 2 + OCTAVE_COUNT + i] = noiseCells[noise][i].max
+					} else {
+						this.parameterArray[noise_idx * NOISE_STORAGE_LENGTH + 2 + OCTAVE_COUNT + i] = -200
+					}
+				}
+			}
+		}
     }
 
-	bindBiomeTexture(){
+	bindBiomeTexture(change: Change){
 		// Helper function. Binds a ImageData (HTMLImageElement, HTMLCanvasElement or
 		// ImageBitmap) to a texture, given its index (0 to 7).
 		// The image data is assumed to be in RGBA format.
 
+		if (change.grids || this.biomeArray === undefined){
+			const biomeArrayLenght = this.builder.depths.length * this.builder.humidities.length * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length
+			this.biomeTextureSize = Math.ceil(Math.sqrt(biomeArrayLenght))
+			this.biomeArray = new Uint8Array(this.biomeTextureSize * this.biomeTextureSize * 4);
+		}
+
+		this.fillBiomeArray(change.biome) // TODO limit based on change.biomes
+
 		this.gl.activeTexture(this.gl.TEXTURE1);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.biomeTexture);
-		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 512, 512, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(this.getBiomeArray()));
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.biomeTextureSize, this.biomeTextureSize, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.biomeArray);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
     }
 
-	getBiomeArray(){
-		const biomeArray = []
-
-		for (let d_idx = 0; d_idx < this.builder.depths.length; d_idx++) {
-			for (let h_idx = 0; h_idx < this.builder.humidities.length; h_idx++) {
-				for (let t_idx = 0; t_idx < this.builder.temperatures.length; t_idx++) {
-					for (let w_idx = 0; w_idx < this.builder.weirdnesses.length; w_idx++) {
-        	            for (let e_idx = 0; e_idx < this.builder.erosions.length; e_idx++) {
-		    	            for (let c_idx = 0; c_idx < this.builder.continentalnesses.length; c_idx++) {
+	fillBiomeArray(limit: PartialMultiNoiseIndexes){
+		for (let d_idx = (limit.d ?? 0); d_idx <= (limit.d ?? this.builder.depths.length - 1); d_idx++) {
+			for (let h_idx = (limit.h ?? 0); h_idx <= (limit.h ?? this.builder.humidities.length - 1); h_idx++) {
+				for (let t_idx = (limit.t ?? 0); t_idx <= (limit.t ?? this.builder.temperatures.length - 1); t_idx++) {
+					for (let w_idx = (limit.w ?? 0); w_idx <= (limit.w ?? this.builder.weirdnesses.length - 1); w_idx++) {
+        	            for (let e_idx = (limit.e ?? 0); e_idx <= (limit.e ?? this.builder.erosions.length - 1); e_idx++) {
+		    	            for (let c_idx = (limit.c ?? 0); c_idx <= (limit.c ?? this.builder.continentalnesses.length - 1); c_idx++) {
 								const biome = this.builder.dimension.lookupRecursive({
                                     d: d_idx,
                                     w: w_idx,
@@ -347,26 +402,31 @@ export class BiomeLayerGL extends L.GridLayer{
                                     t: t_idx
                                 }, "Any")
 
+								const index = 4 * (d_idx * this.builder.humidities.length * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length +
+										h_idx * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length +
+										t_idx * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length + 
+										w_idx * this.builder.erosions.length * this.builder.continentalnesses.length +
+										e_idx * this.builder.continentalnesses.length +
+										c_idx)
+
 								if (biome !== undefined && biome instanceof Biome){
 									const rgb = biome.raw_color
-									biomeArray.push(rgb.r, rgb.g, rgb.b, 255)
+									this.biomeArray[index] = rgb.r
+									this.biomeArray[index+1] = rgb.g
+									this.biomeArray[index+2] = rgb.b,
+									this.biomeArray[index+3] = 255
 								} else {
-									biomeArray.push(0, 0, 0, 0)
+									this.biomeArray[index] = 0
+									this.biomeArray[index+1] = 0
+									this.biomeArray[index+2] = 0
+									this.biomeArray[index+3] = 0
 								}
-
 							}
 						}
 					}
 				}
 			}
 		}
-
-		while (biomeArray.length < 512 * 512 * 4){
-            biomeArray.push(255)
-        }
-
-
-		return biomeArray
 	}
 
 
@@ -402,9 +462,15 @@ export class BiomeLayerGL extends L.GridLayer{
 
 
 	// Runs the shader (again) on all tiles
-	reRender() {
-		this.bindParametersTexture()
-		this.bindBiomeTexture()
+	reRender(change: Change) {
+		if (change.noises || change.grids){
+			this.bindParametersTexture(change)
+		}
+		
+		if (change.biome !== undefined){
+			this.bindBiomeTexture(change)
+		}
+
 		for (var key in this._tiles) {
 			this.addRenderingTask(key, () => {});
 		}
@@ -432,28 +498,23 @@ export class BiomeLayerGL extends L.GridLayer{
 			task = this.renderingQueue.shift()
 		} while (this.Tile2dContexts[task.key] === undefined)
 
-			//@ts-ignore
+		//@ts-ignore
 		const coords = this._keyToTileCoords(task.key);
 		this.render(coords)
-		setTimeout(() => {
+		const sync = this.gl.fenceSync(this.gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+		this.gl.flush()
+
+		clientWaitAsync(this.gl, sync, 2).then(() => {
 			if (this.Tile2dContexts[task.key] !== undefined){
 				this.Tile2dContexts[task.key].clearRect(0, 0, this.tileSize, this.tileSize);
-				const start_time = performance.now()
 				this.Tile2dContexts[task.key].drawImage(this.renderer, 0, 0);
-				const duration = performance.now() - start_time
-				if (duration > 5){
-					this.renderingDelay = Math.min(Math.ceil(this.renderingDelay + duration), 500)
-				} else {
-					this.renderingDelay = Math.max(Math.floor(this.renderingDelay * 0.8), 0)
-				}
-				if (this.renderingDelay > 100 && !this.hasWarnerdDelay){
-					this.hasWarnerdDelay = true
-					console.warn("Rendering Map tiles takes more than 100ms")
-				}
 				task.callback()
 			}
+		}).catch((e) =>
+			console.error(e)
+		).finally(() => {
 			this.doNextRenderingTask()
-		}, this.renderingDelay)
+		})
 	}
 
 };

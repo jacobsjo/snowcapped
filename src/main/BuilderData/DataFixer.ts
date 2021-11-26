@@ -4,10 +4,10 @@ import { DATA_VERSION } from "../app"
 
 export class DataFixer {
     public static fixJSON(json: any): any {
-        const json_version = json.version ?? 0
+        json.version = json.version ?? 0
 
         // update from version 0 to version 1
-        if (json_version === 0) {
+        if (json.version === 0) {
 
             const array: string[][] = []
             const modes: string[] = []
@@ -43,6 +43,11 @@ export class DataFixer {
                 { min: 1, max: 1.2 }
             ]
             json.version = 1
+        }
+
+        if (json.version === 1){
+            json.dimension.array = json.dimension.array[0].map((_: any, colIndex: any) => json.dimension.array.map((row : any) => row[colIndex]));
+            json.version = 2
         }
 
         return json

@@ -131,7 +131,10 @@ export class GridEditor {
 
             this.builder.hasChanges = true
             UI.getInstance().visualizationManager.invalidateIndices()
-            UI.getInstance().refresh()
+            UI.getInstance().refresh({
+                grids: true,
+                biome: {}
+            })
         }
 
         this.canvas.onmousedown = (evt: MouseEvent) => {
@@ -147,93 +150,79 @@ export class GridEditor {
         }
 
         this.canvas.onmouseup = (evt: MouseEvent) => {
-            if (draggingHandle) {
+            if (draggingHandle && (draggingHandle.handle_type === "x" || draggingHandle.handle_type === "y")) {
 
-                if (draggingHandle.handle_type === "x") {
-                    const min_value = (draggingHandle.id === 0) ? undefined : this.xs[draggingHandle.id - 1]
-                    const max_value = (draggingHandle.id === this.xs.length - 1) ? undefined : this.xs[draggingHandle.id + 1]
+                const values = draggingHandle.handle_type === "x" ? this.xs : this.ys
+                const value_array =  draggingHandle.handle_type === "x" ? this.x_array : this.y_array
+                const param = draggingHandle.handle_type === "x" ? this.x_param : this.y_param
 
-                    if (this.xs[draggingHandle.id] === min_value || this.xs[draggingHandle.id] === max_value) {
-                        if (this.xs.length <= 2 || !confirm("Deleting Segment. This will delete this segment from every defined Layout/Slice. Continue?")) {
-                            this.xs[draggingHandle.id] = dragStartValue
-                            this.drawRect()
-                            draggingHandle = undefined
-                            this.canvas.style.cursor = "default"
-                            return
-                        }
+                const min_value = (draggingHandle.id === 0) ? undefined : values[draggingHandle.id - 1]
+                const max_value = (draggingHandle.id === values.length - 1) ? undefined : values[draggingHandle.id + 1]
+
+                if (values[draggingHandle.id] === min_value || values[draggingHandle.id] === max_value) {
+                    if (values.length <= 2 || !confirm("Deleting Segment. This will delete this segment from every defined Layout/Slice. Continue?")) {
+                        values[draggingHandle.id] = dragStartValue
+                        this.drawRect()
+                        draggingHandle = undefined
+                        this.canvas.style.cursor = "default"
+
+                        UI.getInstance().refresh({
+                            grids: true,
+                            biome: {}
+                        })
+
+                        return
                     }
-
-                    if (this.x_array) {
-                        if (draggingHandle.id === 0) {
-                            this.x_array[0] = new Climate.Param(this.xs[0], this.x_array[0].max)
-                        } else if (draggingHandle.id < this.xs.length - 1) {
-                            this.x_array[draggingHandle.id - 1] = new Climate.Param(this.x_array[draggingHandle.id - 1].min, this.xs[draggingHandle.id])
-                            this.x_array[draggingHandle.id] = new Climate.Param(this.xs[draggingHandle.id], this.x_array[draggingHandle.id].max)
-                        } else {
-                            this.x_array[draggingHandle.id - 1] = new Climate.Param(this.x_array[draggingHandle.id - 1].min, this.xs[draggingHandle.id])
-                        }
-
-                        if (this.xs[draggingHandle.id] === min_value) {
-                            this.builder.deleteParam(this.x_param, draggingHandle.id - 1)
-                        } else if (this.xs[draggingHandle.id] === max_value) {
-                            this.builder.deleteParam(this.x_param, draggingHandle.id)
-                        }
-                    }
-                    else {
-                        if (this.xs[draggingHandle.id] === min_value || this.xs[draggingHandle.id] === max_value) {
-                            const id: number = draggingHandle.id
-                            this.xs.splice(id, 1)
-                            this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.forEach(row=>row.splice(id, 1))
-                        }
-                    }
-
-                    this.builder.hasChanges = true
-                } else if (draggingHandle.handle_type === "y") {
-                    const min_value = (draggingHandle.id === 0) ? undefined : this.ys[draggingHandle.id - 1]
-                    const max_value = (draggingHandle.id === this.ys.length - 1) ? undefined : this.ys[draggingHandle.id + 1]
-
-                    if (this.ys[draggingHandle.id] === min_value || this.ys[draggingHandle.id] === max_value) {
-                        if (this.ys.length <= 2 || !confirm("Deleting Segment. This will delete this segment from every defined Layout/Slice. Continue?")) {
-                            this.ys[draggingHandle.id] = dragStartValue
-                            this.drawRect()
-                            draggingHandle = undefined
-                            this.canvas.style.cursor = "default"
-                            return
-                        }
-                    }
-
-                    if (this.y_array) {
-                        if (draggingHandle.id === 0) {
-                            this.y_array[0] = new Climate.Param(this.ys[0], this.y_array[0].max)
-                        } else if (draggingHandle.id < this.ys.length - 1) {
-                            this.y_array[draggingHandle.id - 1] = new Climate.Param(this.y_array[draggingHandle.id - 1].min, this.ys[draggingHandle.id])
-                            this.y_array[draggingHandle.id] = new Climate.Param(this.ys[draggingHandle.id], this.y_array[draggingHandle.id].max)
-                        } else {
-                            this.y_array[draggingHandle.id - 1] = new Climate.Param(this.y_array[draggingHandle.id - 1].min, this.ys[draggingHandle.id])
-                        }
-
-                        if (this.ys[draggingHandle.id] === min_value) {
-                            this.builder.deleteParam(this.y_param, draggingHandle.id - 1)
-                        } else if (this.ys[draggingHandle.id] === max_value) {
-                            this.builder.deleteParam(this.y_param, draggingHandle.id)
-                        }
-                    }
-                    else {
-                        if (this.ys[draggingHandle.id] === min_value || this.ys[draggingHandle.id] === max_value) {
-                            const id: number = draggingHandle.id
-                            this.ys.splice(id, 1)
-                            this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.splice(id, 1)
-                        }
-                    }
-
-                    this.builder.hasChanges = true
                 }
+
+                if (value_array) {
+                    if (draggingHandle.id === 0) {
+                        value_array[0] = new Climate.Param(values[0], value_array[0].max)
+                    } else if (draggingHandle.id < values.length - 1) {
+                        value_array[draggingHandle.id - 1] = new Climate.Param(value_array[draggingHandle.id - 1].min, values[draggingHandle.id])
+                        value_array[draggingHandle.id] = new Climate.Param(values[draggingHandle.id], value_array[draggingHandle.id].max)
+                    } else {
+                        value_array[draggingHandle.id - 1] = new Climate.Param(value_array[draggingHandle.id - 1].min, values[draggingHandle.id])
+                    }
+
+                    if (values[draggingHandle.id] === min_value) {
+                        this.builder.deleteParam(param, draggingHandle.id - 1)
+
+                        UI.getInstance().refresh({
+                            grids: true,
+                            biome: {}
+                        })
+                    } else if (values[draggingHandle.id] === max_value) {
+                        this.builder.deleteParam(param, draggingHandle.id)
+
+                        UI.getInstance().refresh({
+                            grids: true,
+                            biome: {}
+                        })
+                    } else {
+                        UI.getInstance().refresh({
+                            grids: true
+                        })
+                    }
+    
+                }
+                else {
+                    if (values[draggingHandle.id] === min_value || values[draggingHandle.id] === max_value) {
+                        const id: number = draggingHandle.id
+                        values.splice(id, 1)
+                        this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.forEach(row=>row.splice(id, 1))
+                    }
+                    UI.getInstance().refresh({
+                        spline: true
+                    })
+                }
+
+                this.builder.hasChanges = true
 
                 draggingHandle = undefined
                 this.canvas.style.cursor = "default"
 
-                UI.getInstance().visualizationManager.invalidateIndices()
-                UI.getInstance().refresh()
+                //UI.getInstance().visualizationManager.invalidateIndices()
 
             }
         }

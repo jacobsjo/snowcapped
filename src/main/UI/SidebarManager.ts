@@ -29,7 +29,6 @@ export class SidebarManager {
                 } else {
                     self.openElement({ type: "spline", key: this.id })
                 }
-                UI.getInstance().refresh()
                 evt.stopPropagation()
             })
             .on("contextmenu", function(evt: Event) {
@@ -38,14 +37,12 @@ export class SidebarManager {
                 } else {
                     self.openElement({ type: "spline", key: this.id })
                 }
-                UI.getInstance().refresh()
                 evt.stopPropagation()
                 evt.preventDefault()
             })
             .selectAll<HTMLElement, unknown>(".edit_grid_button")
             .on("click", function(evt: Event) {
                 self.openElement({ type: "grid", key: this.parentElement.id })
-                UI.getInstance().refresh()
                 evt.stopPropagation()
             })
 
@@ -92,7 +89,6 @@ export class SidebarManager {
         sidebar.select("#edit_slices_grid_button")
             .on("click", (evt: Event) => {
                 this.openElement({ type: "grid", key: "slice" })
-                UI.getInstance().refresh()
                 evt.stopPropagation()
             })
             
@@ -108,7 +104,9 @@ export class SidebarManager {
             .on("click", (evt: Event) => {
                 const h = this.builder.slices.every(s => !s.hidden)
                 this.builder.slices.forEach(s => s.hidden = h)
-                UI.getInstance().refresh()
+                UI.getInstance().refresh({
+                    biome: {}
+                })
                 evt.stopPropagation()
             })
 
@@ -125,14 +123,15 @@ export class SidebarManager {
                 const h = this.builder.layouts.every(s => !s.hidden)
                 this.builder.layouts.forEach(s => s.hidden = h)
                 this.builder.hasChanges = true
-                UI.getInstance().refresh()
+                UI.getInstance().refresh({
+                    biome: {}
+                })
                 evt.stopPropagation()
             })
 
         sidebar.select("#edit_layout_grid_button")
             .on("click", (evt: Event) => {
                 this.openElement({ type: "grid", key: "layout" })
-                UI.getInstance().refresh()
                 evt.stopPropagation()
             })
 
@@ -143,7 +142,7 @@ export class SidebarManager {
                     return
                 const biome = Biome.create(this.builder, biome_name, "#888888")
                 this.builder.hasChanges = true
-                UI.getInstance().refresh()
+                this.refresh()
                 this.resizeBottomSpacer(sidebar)
                 evt.stopPropagation()
             })
@@ -152,7 +151,9 @@ export class SidebarManager {
             .on("click", (evt: Event) => {
                 const h = this.builder.biomes.every(s => !s.hidden)
                 this.builder.biomes.forEach(s => s.hidden = h)
-                UI.getInstance().refresh()
+                UI.getInstance().refresh({
+                    biome: {}
+                })
                 evt.stopPropagation()
             })
 
@@ -210,7 +211,7 @@ export class SidebarManager {
 //        UI.getInstance().openElement = openElement.type === "assign_slices" || openElement.type.startsWith("modify_") ? openElement.type : openElement.key
 //        UI.getInstance().selectedElement = this.selectedElement?.key ?? ""
 
-        UI.getInstance().refresh()
+        UI.getInstance().refresh({})
     }
 
     public back(){
@@ -228,8 +229,7 @@ export class SidebarManager {
 
         this.selectedElement = selectElement
 
-        UI.getInstance().refresh()
-
+        this.refresh()
     }
 
 
@@ -286,7 +286,9 @@ export class SidebarManager {
                         .property("value", (d : Biome) => d.color)
                         .on("change", function(evt, d ){
                             (d as Biome).setColor(this.value)
-                            UI.getInstance().refresh()
+                            UI.getInstance().refresh({
+                                biome: {}
+                            })
                         })
                 } else {
                     div.append("canvas")
@@ -305,7 +307,7 @@ export class SidebarManager {
                             const new_name = prompt("Edit name of " + d.constructor.name, d.name)
                             if (new_name === null) return
                             d.name = new_name;
-                            UI.getInstance().refresh()
+                            this.refresh()
                             evt.stopPropagation()
                         })
 
@@ -316,14 +318,18 @@ export class SidebarManager {
 
                             this.builder.hasChanges = true
                             this.builder.removeGridElement(d)
-                            UI.getInstance().refresh()
+                            UI.getInstance().refresh({
+                                biome: {}
+                            })
                             evt.stopPropagation()
                         })
 
                     div.append("img").classed("button", true).classed("hide", true).attr("src", "eye.svg").attr("title", "Hide/Show")
                         .on("click", (evt, d) => {
                             d.hidden = !d.hidden
-                            UI.getInstance().refresh()
+                            UI.getInstance().refresh({
+                                biome: {}
+                            })
                             evt.stopPropagation()
                         })
                 }
@@ -389,7 +395,8 @@ export class SidebarManager {
                     div.on("drop", function (evt, d) {
                         if (self.drop(this, c, list, d)) {
                             evt.preventDefault()
-                            UI.getInstance().refresh()
+                            self.refresh()
+                            //UI.getInstance().refresh()
                         }
                     })
                 }

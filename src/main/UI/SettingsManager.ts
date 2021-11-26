@@ -69,7 +69,7 @@ export class SettingsManager {
         const updateButton = document.getElementById("update")
         updateButton.onclick = (evt) => {
             UI.getInstance().visualizationManager.updateNoises()
-            UI.getInstance().refresh()
+            UI.getInstance().refresh({noises: true})
         }
     }
 

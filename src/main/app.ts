@@ -5,7 +5,7 @@ import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
 
-export const DATA_VERSION = 1
+export const DATA_VERSION = 2
 
 const close_elements = document.getElementsByClassName("closable")
 
@@ -15,7 +15,7 @@ for (let i = 0 ; i < close_elements.length ; i++){
         if ((close_elements[i] as any).onopenchange !== undefined)
             (close_elements[i] as any).onopenchange()
         close_elements[i].classList.toggle("closed")
-        UI.getInstance().refresh()
+        UI.getInstance().refresh({})
     }
 }
 

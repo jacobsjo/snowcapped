@@ -34,7 +34,7 @@ export class MenuManager {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().visualizationManager.updateNoises()
                 UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                UI.getInstance().refresh()
+                UI.getInstance().refresh({})
             })
         }
 
@@ -48,7 +48,7 @@ export class MenuManager {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().visualizationManager.updateNoises()
                 UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                UI.getInstance().refresh()
+                UI.getInstance().refresh({})
             })
         }
 
@@ -74,7 +74,7 @@ export class MenuManager {
                     UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                     UI.getInstance().visualizationManager.updateNoises()
                     UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                    UI.getInstance().refresh()
+                    UI.getInstance().refresh({})
                 }
 
                 console.log(file)
@@ -131,7 +131,7 @@ export class MenuManager {
         this.toggleDarkmodeButton.onclick = (evt: Event) => {
             const isLight = document.body.classList.toggle("light")
             ;(this.toggleDarkmodeButton.children[0] as (HTMLImageElement)).src = isLight ? "moon.svg" : "sun.svg"
-            UI.getInstance().refresh()
+            UI.getInstance().refresh({})
         }
 
         window.onbeforeunload = (evt: BeforeUnloadEvent) => {

@@ -23,23 +23,23 @@ export class DimensionMultiNoiseIndexesAccessor implements MultiNoiseIndexesAcce
 
     type: "dimension" = "dimension"
     getSize(bulder: BiomeBuilder): [number, number] {
-        return [bulder.getNumDepths(), bulder.getNumWeirdnesses()]
+        return [bulder.getNumWeirdnesses(), bulder.getNumDepths()]
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
-        return {w: y, d: x}
+        return {d: x, w: y}
     }
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
         if (indexes.w === undefined || indexes.d === undefined)
             return "all"
 
-        return [indexes.w, indexes.d]
+        return [indexes.d, indexes.w]
     }
 
     paramToAxis(param: string): "x" | "y" {
-        if (param === "weirdness")
+        if (param === "depth")
             return "x"
-        else if (param === "depth")
+        else if (param === "weirdness")
             return "y"
         else
             throw new Error("Invalid Parameter")

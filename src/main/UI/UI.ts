@@ -1,4 +1,4 @@
-import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
+import { BiomeBuilder, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { GridEditor } from "./GridEditor";
 import { BiomeGridEditor } from "./BiomeGridEditor";
 import { MenuManager } from "./MenuManager";
@@ -9,7 +9,12 @@ import { SplineEditor } from "./SplineEditor";
 import { VisualizationManger } from "./VisualizationManager";
 
 
-
+export type Change = {
+    biome?: PartialMultiNoiseIndexes,
+    spline?: boolean,
+    grids?: boolean,
+    noises?: boolean
+}
 export class UI {
     private static instance: UI = undefined
 
@@ -52,12 +57,17 @@ export class UI {
         this.horizonalLabel = document.getElementById("horizontal_label") as HTMLDivElement
         this.verticalLabel = document.getElementById("vertical_label") as HTMLDivElement
 
-        this.refresh()
+        this.refresh({
+            biome: {},
+            spline: true,
+            grids: true,
+            noises: true
+        })
 
         MenuManager.createClickHandlers()
     }
 
-    refresh() {
+    refresh(change: Change) {
         this.sidebarManager.refresh()
 
         if (this.sidebarManager.openedElement.type === "spline") {
@@ -77,7 +87,7 @@ export class UI {
 
         this.splineDisplayManager.refresh()
         setTimeout(() => {
-            this.visualizationManager.refresh()
+            this.visualizationManager.refresh(change)
         }, 5)
 
         this.settingsManager.refresh()

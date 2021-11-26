@@ -36,7 +36,7 @@ export class BiomeGridEditor {
         this.title.onchange = (evt: Event) => {
             this.layout.name = this.title.value
             this.builder.hasChanges = true
-            UI.getInstance().refresh()
+            UI.getInstance().refresh({})
         }
 
         this.canvas.onmousemove = (evt: MouseEvent) => {
@@ -173,7 +173,9 @@ export class BiomeGridEditor {
         this.canvas.onkeydown = (evt: KeyboardEvent) => {
             if (evt.key === "z" && (evt.ctrlKey || evt.metaKey)) {
                 this.undo()
-                UI.getInstance().refresh()
+                UI.getInstance().refresh({
+                    biome: {} // TODO define indices
+                 })
             }
         }
 
@@ -216,13 +218,12 @@ export class BiomeGridEditor {
 
     handleInteraction(indexes: PartialMultiNoiseIndexes, mode: "A" | "B", action: "add" | "add_alt" | "pick" | "open" | "remove") {
        
-        console.log(indexes)
         if (indexes.d === -1){
             if (action === "add" || action === "add_alt"){
                 this.builder.modes[indexes.w] = (this.builder.modes[indexes.w] === "A") ? "B" : "A"
             }
             
-            UI.getInstance().refresh()
+            UI.getInstance().refresh({biome: {w: indexes.w}})
             return
         }
 
@@ -246,7 +247,6 @@ export class BiomeGridEditor {
 
         if (action === "pick") {
             UI.getInstance().sidebarManager.selectElement({type: exact_element instanceof Grid ? exact_element.getType() : "biome", key: selectedElement = exact_element.getKey()})
-            UI.getInstance().refresh()
         } else if ((action === "add" || action === "add_alt") && selectedElement !== undefined) {
             
             var se = this.builder.gridElements.get(selectedElement)
@@ -293,14 +293,13 @@ export class BiomeGridEditor {
                     this.layout.set(indexes, selectedElement)
                 }
             }
-            UI.getInstance().refresh()
+            UI.getInstance().refresh({biome: indexes})
         } else if (action === "open") {
             // Right mouse button
             // open
 
             if (exact_element instanceof Grid) {
                 UI.getInstance().sidebarManager.openElement({type:exact_element.getType(), key: exact_element.getKey()}, true)
-                UI.getInstance().refresh()
             }
         }
     }
