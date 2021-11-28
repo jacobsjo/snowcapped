@@ -28,11 +28,20 @@ export class SettingsManager {
                 evt.preventDefault();
             }
         }
+
         seedInput.onchange = (evt) => {
             this.builder.hasChanges = true
             this.builder.seed = BigInt(seedInput.value)
+            UI.getInstance().refresh({noises: true})
         }
 
+        seedInput.onkeyup = (evt:KeyboardEvent) => {
+            if (evt.key === "Enter"){
+                seedInput.blur()
+            }
+        }        
+
+        
         /* const legacyInput = document.getElementById("useLegacyRandom") as HTMLInputElement;
         legacyInput.checked = this.builder.useLegacyRandom;
         legacyInput.onchange = (evt) => {
@@ -52,7 +61,7 @@ export class SettingsManager {
         resetButton.onclick = (evt) => {
             this.builder.hasChanges = true
             this.builder.noiseSettings = VanillaNoiseSettings.default()
-            this.refresh()
+            UI.getInstance().refresh({noises: true})
         }
 
         const copyButton = document.getElementById("copy_noise_settings")
@@ -65,12 +74,6 @@ export class SettingsManager {
         this.handleFixNoiseSetting(document.getElementById("fix_weirdness_setting"), "weirdness")
         this.handleFixNoiseSetting(document.getElementById("fix_temperature_setting"), "temperature")
         this.handleFixNoiseSetting(document.getElementById("fix_humidity_setting"), "humidity")
-
-        const updateButton = document.getElementById("update")
-        updateButton.onclick = (evt) => {
-            UI.getInstance().visualizationManager.updateNoises()
-            UI.getInstance().refresh({noises: true})
-        }
     }
 
     private handleFixNoiseSetting(div: HTMLElement, name: string){
@@ -90,11 +93,17 @@ export class SettingsManager {
             else 
                 this.builder.fixedNoises[name] = undefined
 
+            UI.getInstance().refresh({noises: true, biome: {}, grids: true})
+
         }
 
         rangeElement.oninput = (evt:Event) => {
             this.builder.fixedNoises[name] = parseFloat(rangeElement.value)
             displayElement.value = this.builder.fixedNoises[name].toFixed(2)
+        }
+
+        rangeElement.onchange = (evt:Event) => {
+            UI.getInstance().refresh({noises: true, biome: {}, grids: true})
         }
     }
 
@@ -130,7 +139,15 @@ export class SettingsManager {
             noiseSettings.firstOctave = parseInt(firstOctaveInput.value)
             firstOctaveInput.value = noiseSettings.firstOctave.toString()
             this.builder.hasChanges = true
+            UI.getInstance().refresh({noises: true})
         }
+
+        firstOctaveInput.onkeyup = (evt:KeyboardEvent) => {
+            if (evt.key === "Enter"){
+                firstOctaveInput.blur()
+            }
+        }
+
 
         firstOctaveLabel.appendChild(firstOctaveInput)
 
@@ -163,8 +180,15 @@ export class SettingsManager {
             amplitudeInput.onchange = (evt) => {
                 noiseSettings.amplitudes[aidx] = parseFloat(amplitudeInput.value)
                 this.builder.hasChanges = true
+                UI.getInstance().refresh({noises: true})
             }
 
+            amplitudeInput.onkeyup = (evt:KeyboardEvent) => {
+                if (evt.key === "Enter"){
+                    amplitudeInput.blur()
+                }
+            }
+    
             amplitudesLabel.appendChild(amplitudeInput)
         }
 
@@ -177,7 +201,7 @@ export class SettingsManager {
             deleteButton.onclick = (evt) => {
                 noiseSettings.amplitudes.splice(noiseSettings.amplitudes.length - 1, 1)
                 this.builder.hasChanges = true
-                this.refresh()
+                UI.getInstance().refresh({noises: true})
             }
             amplitudesLabel.appendChild(deleteButton)
         }
@@ -195,7 +219,7 @@ export class SettingsManager {
             firstOctaveInput.value = noiseSettings.firstOctave.toString()
 
             this.builder.hasChanges = true
-            this.refresh()
+            UI.getInstance().refresh({noises: true})
         }
 
         amplitudesLabel.appendChild(addButton)

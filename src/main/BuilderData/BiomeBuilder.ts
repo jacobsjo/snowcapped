@@ -228,7 +228,7 @@ export class BiomeBuilder {
         }
     }
 
-    private findIndex(array: Climate.Param[], number: number): number {
+    public findIndex(array: Climate.Param[], number: number): number {
         return number < array[0].min ? 0 : number > array[array.length - 1].max ? array.length - 1 : array.findIndex(e => e.min <= number && e.max > number)
     }
 

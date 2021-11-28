@@ -28,7 +28,7 @@ function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync, interval_m
 			if (fail_counter === 0){
 				reject("Wait failed");
 			} else {
-				starting_delay += interval_ms
+				starting_delay += interval_ms / 2
 				setTimeout(test, interval_ms);
 			}
 			return;
@@ -36,7 +36,7 @@ function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync, interval_m
 		if (res == gl.TIMEOUT_EXPIRED) {
 			fail_counter = 5
 			is_first = false
-			starting_delay += interval_ms
+			starting_delay += interval_ms / 2
 			setTimeout(test, interval_ms);
 			return;
 		}
@@ -394,13 +394,15 @@ export class BiomeLayerGL extends L.GridLayer{
         	            for (let e_idx = (limit.e ?? 0); e_idx <= (limit.e ?? this.builder.erosions.length - 1); e_idx++) {
 		    	            for (let c_idx = (limit.c ?? 0); c_idx <= (limit.c ?? this.builder.continentalnesses.length - 1); c_idx++) {
 								const biome = this.builder.dimension.lookupRecursive({
-                                    d: d_idx,
-                                    w: w_idx,
-                                    c: c_idx,
-                                    e: e_idx,
-                                    h: h_idx,
-                                    t: t_idx
-                                }, "Any")
+                                    d: this.builder.fixedNoises["depth"] !== undefined ? this.builder.findIndex(this.builder.depths, this.builder.fixedNoises["depth"]) : d_idx,
+                                    w: this.builder.fixedNoises["weirdness"] !== undefined ? this.builder.findIndex(this.builder.weirdnesses, this.builder.fixedNoises["weirdness"]) : w_idx,
+                                    c: this.builder.fixedNoises["continentalness"] !== undefined ? this.builder.findIndex(this.builder.continentalnesses, this.builder.fixedNoises["continentalness"]) : c_idx,
+                                    e: this.builder.fixedNoises["erosion"] !== undefined ? this.builder.findIndex(this.builder.erosions, this.builder.fixedNoises["erosion"]) : e_idx,
+                                    h: this.builder.fixedNoises["humidity"] !== undefined ? this.builder.findIndex(this.builder.humidities, this.builder.fixedNoises["humidity"]) : h_idx,
+                                    t: this.builder.fixedNoises["temperature"] !== undefined ? this.builder.findIndex(this.builder.temperatures, this.builder.fixedNoises["temperature"]) : t_idx
+                                }, "Any", true)
+
+								//console.log(this.builder.fixedNoises["continentalness"] ? this.builder.findIndex(this.builder.continentalnesses, this.builder.fixedNoises["continentalness"]) : c_idx)
 
 								const index = 4 * (d_idx * this.builder.humidities.length * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length +
 										h_idx * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length +
