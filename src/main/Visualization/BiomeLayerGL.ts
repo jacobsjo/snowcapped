@@ -11,7 +11,7 @@
 import { NormalNoise, XoroshiroRandom } from "deepslate"
 import * as L from "leaflet"
 import { Biome } from "../BuilderData/Biome"
-import { BiomeBuilder, NoiseType, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder"
+import { BiomeBuilder, MultiNoiseIndexes, MultiNoiseParameters, NoiseType, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder"
 import { Change, UI } from "../UI/UI"
 
 const multinoiseShader = require('./Shader/multinoise.glsl')
@@ -65,6 +65,16 @@ export class BiomeLayerGL extends L.GridLayer{
     private Tile2dContexts: {[key: string]: CanvasRenderingContext2D} = {}
     private tileSize: number
     private builder: BiomeBuilder
+
+	public normalnoises: {
+		temperature: NormalNoise,
+		humidity: NormalNoise,
+		continentalness: NormalNoise,
+		erosion: NormalNoise,
+		weirdness: NormalNoise,
+		shift: NormalNoise		
+
+	}
 
 	private renderingQueue: {
 		key: string,
@@ -202,6 +212,26 @@ export class BiomeLayerGL extends L.GridLayer{
 
 	}
 
+	getIdxs(latlng: L.LatLng){
+		const crs =  this._map.options.crs
+		const pos = crs.project(latlng).multiplyBy(0.25)
+
+		const xx = pos.x + this.normalnoises.shift.sample(pos.x, 0.0, -pos.y) * 4.0;
+		const zz = -pos.y + this.normalnoises.shift.sample(-pos.y, pos.x, 0.0) * 4.0;
+  
+		const params: MultiNoiseParameters = {
+			c: this.builder.fixedNoises["continentalness"] ?? this.normalnoises.continentalness.sample( xx, 0.0, zz),
+			e: this.builder.fixedNoises["erosion"] ?? this.normalnoises.erosion.sample(xx, 0.0, zz),
+			w: this.builder.fixedNoises["weirdness"] ?? this.normalnoises.weirdness.sample( xx, 0.0, zz),
+			t: this.builder.fixedNoises["temperature"] ?? this.normalnoises.temperature.sample( xx, 0.0, zz),
+			h: this.builder.fixedNoises["humidity"] ?? this.normalnoises.humidity.sample(xx, 0.0, zz),
+			d: -0.01
+		}
+
+		return {idx: this.builder.getIndexes(params), values: params, position: {x: pos.x * 4, z: -pos.y * 4}}
+
+	}
+
 	// This is called once per tile - uses the layer's GL context to
 	//   render a tile, passing the complex space coordinates to the
 	//   GPU, and asking to render the vertexes (as triangles) again.
@@ -275,18 +305,7 @@ export class BiomeLayerGL extends L.GridLayer{
 		const noises: NoiseType[] = ["weirdness", "continentalness", "erosion", "temperature", "humidity", "shift"];
 
 		if (change.noises){
-			const random = XoroshiroRandom.create(this.builder.seed)
 
-			const noiseRandomForked = random.fork()
-
-			const normalnoises = {
-				temperature: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:temperature"), this.builder.noiseSettings.temperature),
-				humidity: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:vegetation"),  this.builder.noiseSettings.humidity),
-				continentalness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:continentalness"),  this.builder.noiseSettings.continentalness),
-				erosion: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:erosion"),  this.builder.noiseSettings.erosion),
-				weirdness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:ridge"),  this.builder.noiseSettings.weirdness),
-				shift: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:offset"),  this.builder.noiseSettings.shift)		
-			}
 
 			for (var noise_idx = 0 ; noise_idx < noises.length ; noise_idx ++){
 				const noise = noises[noise_idx]
@@ -315,7 +334,7 @@ export class BiomeLayerGL extends L.GridLayer{
 
 
 				for (var normal_noise_index = 0 ; normal_noise_index <= 1 ; normal_noise_index++){
-					const noise_levels = normalnoises[noise][normal_noise_index === 0 ? "first" : "second"].noiseLevels
+					const noise_levels = this.normalnoises[noise][normal_noise_index === 0 ? "first" : "second"].noiseLevels
 					for (let octave_index = 0 ; octave_index<20 ; octave_index++){
 						const start_pos =  noise_idx * NOISE_STORAGE_LENGTH + 2 + OCTAVE_COUNT + MAX_PARAMETER_CELLS_BORDERS + normal_noise_index * (OCTAVE_COUNT * 259) + 259 * octave_index
 						if (octave_index < noise_levels.length && noise_levels[octave_index] !== undefined){
@@ -465,6 +484,19 @@ export class BiomeLayerGL extends L.GridLayer{
 
 	// Runs the shader (again) on all tiles
 	reRender(change: Change) {
+		if (change.noises){
+			const random = XoroshiroRandom.create(this.builder.seed)
+			const noiseRandomForked = random.fork()
+			this.normalnoises = {
+				temperature: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:temperature"), this.builder.noiseSettings.temperature),
+				humidity: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:vegetation"),  this.builder.noiseSettings.humidity),
+				continentalness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:continentalness"),  this.builder.noiseSettings.continentalness),
+				erosion: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:erosion"),  this.builder.noiseSettings.erosion),
+				weirdness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:ridge"),  this.builder.noiseSettings.weirdness),
+				shift: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:offset"),  this.builder.noiseSettings.shift)		
+			}
+		}
+
 		if (change.noises || change.grids){
 			this.bindParametersTexture(change)
 		}

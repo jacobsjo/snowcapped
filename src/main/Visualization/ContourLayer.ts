@@ -11,10 +11,9 @@ export class ContourLayer extends L.GridLayer {
     private builder: BiomeBuilder
     private gridIndicesManager: GridMultiNoiseIndicesManager
 
-    constructor(builder: BiomeBuilder, gridIndicesManager: GridMultiNoiseIndicesManager) {
+    constructor(builder: BiomeBuilder) {
         super()
         this.builder = builder
-        this.gridIndicesManager = gridIndicesManager
     }
 
     protected createTile(coords: L.Coords, done: L.DoneCallback): HTMLElement {

@@ -130,7 +130,6 @@ export class GridEditor {
             }
 
             this.builder.hasChanges = true
-            UI.getInstance().visualizationManager.invalidateIndices()
             UI.getInstance().refresh({
                 grids: true,
                 biome: {}

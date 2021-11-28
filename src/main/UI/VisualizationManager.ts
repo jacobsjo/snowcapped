@@ -1,4 +1,4 @@
-import { lerp2, TerrainShaper } from "deepslate";
+import { lerp2, MultiNoise, TerrainShaper } from "deepslate";
 import * as L from "leaflet";
 import { last } from "lodash";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
@@ -14,11 +14,8 @@ import { Change, UI } from "./UI";
 export class VisualizationManger{
     builder: BiomeBuilder
     private map: L.Map
-    private biomeSource: GridMultiNoise
-    private biomeLayer: BiomeLayer | BiomeLayerGL
+    private biomeLayer: BiomeLayerGL
     private contourLayer: ContourLayer
-
-    private indicesManger: GridMultiNoiseIndicesManager
 
     private closeContainer: HTMLElement
 
@@ -30,32 +27,19 @@ export class VisualizationManger{
 
         this.closeContainer = panel.parentElement.parentElement;
         (this.closeContainer as any).onopenchange = () => {
-          this.biomeLayer.redraw()
+          this.biomeLayer.reRender({biome: {}, grids: true, noises: true, spline: true})
         }
 
-
-        this.biomeSource = new GridMultiNoise(BigInt("0"), builder)
 
         this.map = L.map('visualization_map')
         this.map.setView([0,0], 15)
         this.map.setMaxZoom(18)
         this.map.setMinZoom(11)
 
-        this.indicesManger = new GridMultiNoiseIndicesManager(this.builder, this.biomeSource)
-
-        this.updateNoises()
-
-        //const glLayerManager = new GLLayerManager()
-        //glLayerManager.addLayerTo(this.map)
-
         this.biomeLayer = new BiomeLayerGL();
         this.biomeLayer.addTo(this.map);
 
-        //this.biomeLayer = new BiomeLayer(this.builder, this.indicesManger);
-        //this.biomeLayer.addTo(this.map)
-
-        this.contourLayer = new ContourLayer(this.builder, this.indicesManger);
-        //this.contourLayer.addTo(this.map)
+        this.contourLayer = new ContourLayer(this.builder);
 
         const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
 
@@ -98,7 +82,6 @@ export class VisualizationManger{
           } else {
             this.builder.vis_y_level = val
           }
-          UI.getInstance().visualizationManager.invalidateIndices()
           this.refresh({biome: {}})
         }
 
@@ -118,7 +101,7 @@ export class VisualizationManger{
         const tooltip_layout = tooltip.getElementsByClassName("layout")[0] as HTMLElement
         const tooltip_biome = tooltip.getElementsByClassName("biome")[0] as HTMLElement
 
-        let lastPos: L.Point;
+        let lastPos: {x: number, z: number};
         let lastY: number;
 
         this.map.addEventListener("click", (evt: L.LeafletMouseEvent) => {
@@ -151,8 +134,6 @@ export class VisualizationManger{
           if (lookup) 
             tooltip_mode.src = "mode_" + lookup?.mode + ".png"
 
-          const pos = this.getPos(evt.latlng);
-
           const offset = builder.splines.offset.apply(idxs.values.c, idxs.values.e, idxs.values.w)
 
           var y
@@ -165,7 +146,7 @@ export class VisualizationManger{
             depth = -(builder.vis_y_level - 64) / 128 + offset
           }
 
-          tooltip_position.innerHTML = "X: " + pos.x.toFixed(0) + (y?(", Y: " + y.toFixed(0)):"") + ", Z: " + pos.y.toFixed(0)
+          tooltip_position.innerHTML = "X: " + idxs.position.x.toFixed(0) + (y?(", Y: " + y.toFixed(0)):"") + ", Z: " + idxs.position.z.toFixed(0)
           tooltip_noise_values.innerHTML = "C: " + idxs.values.c.toFixed(2) + ", E: " + idxs.values.e.toFixed(2) + ", W: " + 
                     idxs.values.w.toFixed(2) + "<br /> T: " + idxs.values.t.toFixed(2) + ", H: " + idxs.values.h.toFixed(2) + ", D: " + depth.toFixed(2)
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
@@ -187,7 +168,7 @@ export class VisualizationManger{
           MenuManager.toggleAction("open-layout", lookup?.layout !== undefined)
           MenuManager.toggleAction("copy", true)
 
-          lastPos = pos
+          lastPos = idxs.position
           lastY = y
         })
 
@@ -202,52 +183,19 @@ export class VisualizationManger{
 
         this.map.addEventListener("keydown", (evt: L.LeafletKeyboardEvent) => {
           if (evt.originalEvent.key === "c" && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)){
-            navigator.clipboard.writeText("/execute in " + builder.dimensionName + " run tp @s " + lastPos.x.toFixed(0) + " " + (lastY + 10).toFixed(0) + " " + lastPos.y.toFixed(0))
+            navigator.clipboard.writeText("/execute in " + builder.dimensionName + " run tp @s " + lastPos.x.toFixed(0) + " " + (lastY + 10).toFixed(0) + " " + lastPos.z.toFixed(0))
           }
         })
     }
 
-    private getPos(latlng: L.LatLng){
-      var tileSize = new L.Point(256, 256)
-      var pixelPoint = this.map.project(latlng, this.map.getZoom())
-      var pos = pixelPoint.unscaleBy(tileSize)
-      return pos.scaleBy(tileSize).divideBy(Math.pow(2, this.map.getZoom() - 16)).subtract( new L.Point(Math.pow(2, 23), Math.pow(2, 23), false))
-    }
-
     private getIdxs(latlng: L.LatLng){
-      var tileSize = new L.Point(256, 256)
-      var pixelPoint = this.map.project(latlng, this.map.getZoom())
-      var pos = pixelPoint.unscaleBy(tileSize) 
+      return this.biomeLayer.getIdxs(latlng)
 
-      var coords = pos.floor() as L.Coords
-      coords.z = this.map.getZoom()
-      const values = this.indicesManger.get(coords)
-
-      var pixel = new L.Point(pos.x % 1, pos.y % 1).scaleBy(tileSize).divideBy(this.indicesManger.resolution).round()
-
-      if (values instanceof Promise)
-        return
-
-      return {idx: values.idx[pixel.x][pixel.y], values: values.values[pixel.x][pixel.y]}
-    }
-
-    updateNoises(){
-      this.biomeSource.updateNoiseSettings()      
-      this.indicesManger.invalidateNoises()
-    }
-
-    invalidateIndices(){
-      this.indicesManger.invalidateIndices()
     }
 
     async refresh(change: Change){
       if (!this.closeContainer.classList.contains("closed")){
-        if (this.biomeLayer instanceof BiomeLayer){
-          this.biomeLayer.redraw()
-        } else {
-          this.biomeLayer.reRender(change)
-        }
-        //this.contourLayer.redraw()
+        this.biomeLayer.reRender(change)
       }
     }
 }
