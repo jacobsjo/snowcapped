@@ -13,6 +13,7 @@ import * as L from "leaflet"
 import { Biome } from "../BuilderData/Biome"
 import { BiomeBuilder, MultiNoiseIndexes, MultiNoiseParameters, NoiseType, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder"
 import { Change, UI } from "../UI/UI"
+import { VisualizationManger } from "../UI/VisualizationManager"
 
 const multinoiseShader = require('./Shader/multinoise.glsl')
 
@@ -59,12 +60,16 @@ export class BiomeLayerGL extends L.GridLayer{
 	private parameterTexture: WebGLTexture
 	private biomeArray: Uint8Array
 	private biomeTextureSize: number
+	private splinesArray: Float32Array
+	private splinesTexture: WebGLTexture
     private biomeTexture: WebGLTexture
     private glProgram: WebGLProgram
     private CRSBuffer: WebGLBuffer
     private Tile2dContexts: {[key: string]: CanvasRenderingContext2D} = {}
     private tileSize: number
     private builder: BiomeBuilder
+
+	private uniformLocations: {[key: string]: WebGLUniformLocation}
 
 	public normalnoises: {
 		temperature: NormalNoise,
@@ -82,7 +87,7 @@ export class BiomeLayerGL extends L.GridLayer{
 	}[] = []
 	private isRendering: boolean = false
 
-    constructor(){
+    constructor(private visualization_manager: VisualizationManger ){
         super()
 
     }
@@ -121,6 +126,10 @@ export class BiomeLayerGL extends L.GridLayer{
 
         this.biomeTexture = this.gl.createTexture();
         this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "biomeTexture"), 1);
+
+        this.splinesTexture = this.gl.createTexture();
+        this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "splineTexture"), 2);
+
 
 		//this.bindParametersTexture()
 		//this.bindBiomeTexture()
@@ -168,6 +177,7 @@ export class BiomeLayerGL extends L.GridLayer{
 		if (!this.gl.getShaderParameter(fragmentShader, this.gl.COMPILE_STATUS)) {
 			this.glError = this.gl.getShaderInfoLog(fragmentShader);
 			console.error(this.glError);
+			//console.log((fragmentShaderHeader + multinoiseShader))
 			return null;
 		}
 
@@ -209,6 +219,18 @@ export class BiomeLayerGL extends L.GridLayer{
 			this.gl.enableVertexAttribArray(aVertexPosition);
 			this.gl.vertexAttribPointer(aVertexPosition, 2, this.gl.FLOAT, false, 8, 0);
 		}
+
+		this.uniformLocations = {
+			enable_isolines: this.gl.getUniformLocation(this.glProgram, "enable_isolines"),
+			enable_hillshading: this.gl.getUniformLocation(this.glProgram, "enable_hillshading"),
+			y_level: this.gl.getUniformLocation(this.glProgram, "y_level"),
+			fixed_continentalness: this.gl.getUniformLocation(this.glProgram, "fixed_continentalness"),
+			fixed_erosion: this.gl.getUniformLocation(this.glProgram, "fixed_erosion"),
+			fixed_weirdness: this.gl.getUniformLocation(this.glProgram, "fixed_weirdness"),
+			fixed_temperature: this.gl.getUniformLocation(this.glProgram, "fixed_temperature"),
+			fixed_humidity: this.gl.getUniformLocation(this.glProgram, "fixed_humidity"),
+		}
+
 
 	}
 
@@ -273,6 +295,15 @@ export class BiomeLayerGL extends L.GridLayer{
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.CRSBuffer);
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(crsData), this.gl.STATIC_DRAW);
 
+		this.gl.uniform1i(this.uniformLocations.enable_isolines, this.visualization_manager.enable_isolines ? 1 : 0)
+		this.gl.uniform1i(this.uniformLocations.enable_hillshading, this.visualization_manager.enable_hillshading ? 1 : 0)
+		this.gl.uniform1i(this.uniformLocations.y_level, this.builder.vis_y_level === "surface" ? 10000 : this.builder.vis_y_level)
+		this.gl.uniform1f(this.uniformLocations.fixed_continentalness, this.builder.fixedNoises.continentalness === undefined ? 10000 : this.builder.fixedNoises.continentalness)
+		this.gl.uniform1f(this.uniformLocations.fixed_erosion, this.builder.fixedNoises.erosion === undefined ? 10000 : this.builder.fixedNoises.erosion)
+		this.gl.uniform1f(this.uniformLocations.fixed_weirdness, this.builder.fixedNoises.weirdness === undefined ? 10000 : this.builder.fixedNoises.weirdness)
+		this.gl.uniform1f(this.uniformLocations.fixed_temperature, this.builder.fixedNoises.temperature === undefined ? 10000 : this.builder.fixedNoises.temperature)
+		this.gl.uniform1f(this.uniformLocations.fixed_humidity, this.builder.fixedNoises.humidity === undefined ? 10000 : this.builder.fixedNoises.humidity)
+
 		// ... and then the magic happens.
 		this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
 	}
@@ -280,8 +311,6 @@ export class BiomeLayerGL extends L.GridLayer{
 	bindParametersTexture(change: Change){
 
 		if (this.parameterArray === undefined){
-			const biomeArrayLenght = this.builder.depths.length * this.builder.humidities.length * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length
-			this.biomeTextureSize = Math.ceil(Math.sqrt(biomeArrayLenght))
 			this.parameterArray = new Float32Array(256 * 256);
 		}
 
@@ -384,9 +413,6 @@ export class BiomeLayerGL extends L.GridLayer{
     }
 
 	bindBiomeTexture(change: Change){
-		// Helper function. Binds a ImageData (HTMLImageElement, HTMLCanvasElement or
-		// ImageBitmap) to a texture, given its index (0 to 7).
-		// The image data is assumed to be in RGBA format.
 
 		if (change.grids || this.biomeArray === undefined){
 			const biomeArrayLenght = this.builder.depths.length * this.builder.humidities.length * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length
@@ -413,12 +439,12 @@ export class BiomeLayerGL extends L.GridLayer{
         	            for (let e_idx = (limit.e ?? 0); e_idx <= (limit.e ?? this.builder.erosions.length - 1); e_idx++) {
 		    	            for (let c_idx = (limit.c ?? 0); c_idx <= (limit.c ?? this.builder.continentalnesses.length - 1); c_idx++) {
 								const biome = this.builder.dimension.lookupRecursive({
-                                    d: this.builder.fixedNoises["depth"] !== undefined ? this.builder.findIndex(this.builder.depths, this.builder.fixedNoises["depth"]) : d_idx,
-                                    w: this.builder.fixedNoises["weirdness"] !== undefined ? this.builder.findIndex(this.builder.weirdnesses, this.builder.fixedNoises["weirdness"]) : w_idx,
-                                    c: this.builder.fixedNoises["continentalness"] !== undefined ? this.builder.findIndex(this.builder.continentalnesses, this.builder.fixedNoises["continentalness"]) : c_idx,
-                                    e: this.builder.fixedNoises["erosion"] !== undefined ? this.builder.findIndex(this.builder.erosions, this.builder.fixedNoises["erosion"]) : e_idx,
-                                    h: this.builder.fixedNoises["humidity"] !== undefined ? this.builder.findIndex(this.builder.humidities, this.builder.fixedNoises["humidity"]) : h_idx,
-                                    t: this.builder.fixedNoises["temperature"] !== undefined ? this.builder.findIndex(this.builder.temperatures, this.builder.fixedNoises["temperature"]) : t_idx
+                                    d: d_idx,
+                                    w: w_idx,
+                                    c: c_idx,
+                                    e: e_idx,
+                                    h: h_idx,
+                                    t: t_idx
                                 }, "Any", true)
 
 								//console.log(this.builder.fixedNoises["continentalness"] ? this.builder.findIndex(this.builder.continentalnesses, this.builder.fixedNoises["continentalness"]) : c_idx)
@@ -448,6 +474,56 @@ export class BiomeLayerGL extends L.GridLayer{
 				}
 			}
 		}
+	}
+
+
+	bindSplinesTexture(){
+
+		if (this.splinesArray === undefined){
+			this.splinesArray = new Float32Array(256 * 256);
+		}
+
+		this.fillSplinesArray() // TODO limit based on change.biomes
+		//console.log(this.splinesArray)
+
+		this.gl.activeTexture(this.gl.TEXTURE2);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.splinesTexture);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.R32F, 256, 256, 0, this.gl.RED, this.gl.FLOAT, this.splinesArray);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    }
+
+	fillSplinesArray(){
+		//console.log(this.builder.splines["offset"].splines[5][0].points.length)
+
+		this.splinesArray[0] = this.builder.splines["offset"].continentalnesses.length
+		for (var i = 0 ; i<this.builder.splines["offset"].continentalnesses.length ; i++){
+			this.splinesArray[i+1] = this.builder.splines["offset"].continentalnesses[i]
+		}
+		this.splinesArray[21] = this.builder.splines["offset"].erosions.length
+		for (var i = 0 ; i<this.builder.splines["offset"].erosions.length ; i++){
+			this.splinesArray[i+22] = this.builder.splines["offset"].erosions[i]
+		}
+
+		for (var c = 0 ; c<this.builder.splines["offset"].continentalnesses.length ; c++){
+			for (var e = 0 ; e<this.builder.splines["offset"].erosions.length ; e++){
+				const index = 42 + (c * 20 + e) * (40 * 4 + 1)
+				if (this.builder.splines["offset"].splines[c][e] === undefined){
+					this.splinesArray[index] = 0
+				} else {
+					this.splinesArray[index] = this.builder.splines["offset"].splines[c][e].points.length
+					for (var w = 0 ; w<this.builder.splines["offset"].splines[c][e].points.length; w++){
+						this.splinesArray[index + 1 + w * 4] = this.builder.splines["offset"].splines[c][e].points[w].location
+						this.splinesArray[index + 1 + w * 4 + 1] = this.builder.splines["offset"].splines[c][e].points[w].value
+						this.splinesArray[index + 1 + w * 4 + 2] = this.builder.splines["offset"].splines[c][e].points[w].derivative_left
+						this.splinesArray[index + 1 + w * 4 + 3] = this.builder.splines["offset"].splines[c][e].points[w].derivative_right
+					}
+				}
+			}
+		}
+
 	}
 
 
@@ -503,6 +579,10 @@ export class BiomeLayerGL extends L.GridLayer{
 		
 		if (change.biome !== undefined){
 			this.bindBiomeTexture(change)
+		}
+
+		if (change.spline){
+			this.bindSplinesTexture()
 		}
 
 		for (var key in this._tiles) {

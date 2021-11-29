@@ -68,6 +68,7 @@ export class UI {
     }
 
     refresh(change: Change) {
+        console.log("Refreshing: " + JSON.stringify(change))
         this.sidebarManager.refresh()
 
         if (this.sidebarManager.openedElement.type === "spline") {

@@ -33,7 +33,7 @@ export class MenuManager {
             fetch('minecraft_overworld.snowcapped.json').then( r => r.text()).then(jsonString => {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                UI.getInstance().refresh({})
+                UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
             })
         }
 
@@ -46,7 +46,7 @@ export class MenuManager {
             fetch('empty.snowcapped.json').then( r => r.text()).then(jsonString => {
                 UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                 UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                UI.getInstance().refresh({})
+                UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
             })
         }
 
@@ -71,7 +71,7 @@ export class MenuManager {
                     const jsonString = evt.target.result as string
                     UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
                     UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                    UI.getInstance().refresh({})
+                    UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
                 }
 
                 console.log(file)

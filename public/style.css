@@ -969,11 +969,6 @@ body:not(.light) #menu .button img{
     width: 26pt;
 }
 
-#visualization #toggleIsolinesButton{
-    width: 20pt;
-    padding: 3pt;
-}
-
 #visualization #mapFullscreenButton {
     position: absolute;
     top: 9pt;
@@ -986,6 +981,10 @@ body:not(.light) #menu .button img{
 .map_button{
     background-color: var(--small-button-color);
     border-radius: 5pt;
+    width: 20pt;
+    height: 20pt;
+    padding: 3pt;
+    margin-top: 5pt;
 }
 
 .map_button.enabled{

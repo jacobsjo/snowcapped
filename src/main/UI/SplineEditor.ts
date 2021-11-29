@@ -240,7 +240,7 @@ export class SplineEditor {
             self.builder.hasChanges = true
 
             this.builder.splines[spline_name].createSpline(d.row, d.col)
-            this.refresh()
+            UI.getInstance().refresh({spline: true})
         })
 
         const splines = svgs.selectAll("g.splines")
@@ -329,7 +329,7 @@ export class SplineEditor {
                         spline.points.splice(mirrorId, 1)
                     }
                     
-                    self.refresh()
+                    UI.getInstance().refresh({spline: true})
                 })
             )
         var dragmode: "value" | "derivative" | "derivative_left" | "derivative_right"
@@ -368,7 +368,7 @@ export class SplineEditor {
                     self.builder.splines[spline_name].splines[spline.row][spline.col] = undefined
                 }
 
-                self.refresh()
+                UI.getInstance().refresh({spline: true})
                 evt.preventDefault()
             })
             .call(d3.drag<SVGGElement, {
@@ -496,7 +496,7 @@ export class SplineEditor {
                         spline.points.splice(mirrorId, 1)
                     }
 
-                    self.refresh()
+                    UI.getInstance().refresh({spline: true})
                 })
             )
 
@@ -566,7 +566,7 @@ export class SplineEditor {
                     self.builder.hasChanges = true
 
                     self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = undefined
-                    this.refresh()
+                    UI.getInstance().refresh({spline: true})
                 } else if (evt.code === "KeyC" && (evt.ctrlKey || evt.metaKey)){
                     this.copy = this.hover.spline
                 } else if (evt.code === "KeyV" && (evt.ctrlKey || evt.metaKey) && this.copy){
@@ -574,12 +574,12 @@ export class SplineEditor {
                     self.builder.hasChanges = true
 
                     self.builder.splines[spline_name].splines[this.hover.row][this.hover.col] = new SimpleSpline(this.copy.points.map(p => Object.create(p)))
-                    this.refresh()
+                    UI.getInstance().refresh({spline: true})
                 } else if (evt.code === "KeyZ" && (evt.ctrlKey || evt.metaKey)){
                     self.builder.splines[spline_name].undo()
                     self.builder.hasChanges = true
 
-                    this.refresh()
+                    UI.getInstance().refresh({spline: true})
                 }
             }
         })

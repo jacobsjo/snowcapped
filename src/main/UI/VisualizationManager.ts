@@ -19,6 +19,9 @@ export class VisualizationManger{
 
     private closeContainer: HTMLElement
 
+    public enable_isolines: boolean = false
+    public enable_hillshading: boolean = true
+
     constructor(builder: BiomeBuilder){
         this.builder = builder
 
@@ -36,7 +39,7 @@ export class VisualizationManger{
         this.map.setMaxZoom(18)
         this.map.setMinZoom(11)
 
-        this.biomeLayer = new BiomeLayerGL();
+        this.biomeLayer = new BiomeLayerGL(this);
         this.biomeLayer.addTo(this.map);
 
         this.contourLayer = new ContourLayer(this.builder);
@@ -44,13 +47,17 @@ export class VisualizationManger{
         const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
 
         toggleIsolinesButton.onclick = (evt: MouseEvent) => {
-          if (this.map.hasLayer(this.contourLayer)){
-            this.map.removeLayer(this.contourLayer)
-            toggleIsolinesButton.classList.remove("enabled")
-          } else {
-            this.map.addLayer(this.contourLayer)
-            toggleIsolinesButton.classList.add("enabled")
-          }
+          this.enable_isolines = !this.enable_isolines
+          toggleIsolinesButton.classList.toggle("enabled", this.enable_isolines)
+          UI.getInstance().refresh({})
+        }
+
+        const toggleHillshadeButton = document.getElementById('toggleHillshadeButton')
+
+        toggleHillshadeButton.onclick = (evt: MouseEvent) => {
+          this.enable_hillshading = !this.enable_hillshading
+          toggleHillshadeButton.classList.toggle("enabled", this.enable_hillshading)
+          UI.getInstance().refresh({})
         }
 
         const heightSelectRange = document.getElementById('mapHeightSelection') as HTMLInputElement
@@ -82,7 +89,7 @@ export class VisualizationManger{
           } else {
             this.builder.vis_y_level = val
           }
-          this.refresh({biome: {}})
+          this.refresh({})
         }
 
         const toggleFullscreenButton = document.getElementById('mapFullscreenButton')
