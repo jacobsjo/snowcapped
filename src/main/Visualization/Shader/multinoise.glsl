@@ -58,7 +58,16 @@ void main(void) {
 	float hillshade = 1.0;
 	if (enable_hillshading && depth < 0.0){
 		float slope = atan(20.0 / pixel_scale * sqrt(offset_slope_x * offset_slope_x + offset_slope_y * offset_slope_y));
-		float aspect = atan(offset_slope_y, -offset_slope_x);
+		float aspect;
+		if (offset_slope_x == 0.0){
+			if (offset_slope_y < 0.0){
+				aspect = M_PI;
+			} else {
+				aspect = 0.0;
+			}
+		} else {
+			aspect = atan(offset_slope_y, -offset_slope_x);
+		}
 
 		hillshade = ((cos(zenith) * cos(slope)) + (sin(zenith) * sin(slope) * cos(azimuth - aspect)));
 		if (hillshade < 0.0)
