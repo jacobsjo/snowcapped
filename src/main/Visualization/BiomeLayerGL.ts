@@ -120,15 +120,6 @@ export class BiomeLayerGL extends L.GridLayer{
 
 		this.loadGLProgram();
 
-		// Init textures
-        this.parameterTexture = this.gl.createTexture();
-        this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "parameterTexture"), 0);
-
-        this.biomeTexture = this.gl.createTexture();
-        this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "biomeTexture"), 1);
-
-        this.splinesTexture = this.gl.createTexture();
-        this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "splineTexture"), 2);
 
 
 		//this.bindParametersTexture()
@@ -167,6 +158,10 @@ export class BiomeLayerGL extends L.GridLayer{
 		this.gl.compileShader(vertexShader);
 		this.gl.compileShader(fragmentShader);
 
+		this.gl.attachShader(this.glProgram, vertexShader);
+		this.gl.attachShader(this.glProgram, fragmentShader);
+		this.gl.linkProgram(this.glProgram);
+
 		// @event shaderError
 		// Fired when there was an error creating the shaders.
 		if (!this.gl.getShaderParameter(vertexShader, this.gl.COMPILE_STATUS)) {
@@ -181,9 +176,6 @@ export class BiomeLayerGL extends L.GridLayer{
 			return null;
 		}
 
-		this.gl.attachShader(this.glProgram, vertexShader);
-		this.gl.attachShader(this.glProgram, fragmentShader);
-		this.gl.linkProgram(this.glProgram);
 		this.gl.useProgram(this.glProgram);
 
 		// aCRSCoords (both geographical and per-tile).
@@ -231,7 +223,15 @@ export class BiomeLayerGL extends L.GridLayer{
 			fixed_humidity: this.gl.getUniformLocation(this.glProgram, "fixed_humidity"),
 		}
 
+		// Init textures
+		this.parameterTexture = this.gl.createTexture();
+		this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "parameterTexture"), 0);
 
+		this.biomeTexture = this.gl.createTexture();
+		this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "biomeTexture"), 1);
+
+		this.splinesTexture = this.gl.createTexture();
+		this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "splineTexture"), 2);
 	}
 
 	getIdxs(latlng: L.LatLng){
@@ -498,21 +498,20 @@ export class BiomeLayerGL extends L.GridLayer{
 	fillSplinesArray(){
 		//console.log(this.builder.splines["offset"].splines[5][0].points.length)
 
-		this.splinesArray[0] = this.builder.splines["offset"].continentalnesses.length
-		for (var i = 0 ; i<this.builder.splines["offset"].continentalnesses.length ; i++){
-			this.splinesArray[i+1] = this.builder.splines["offset"].continentalnesses[i]
-		}
 		this.splinesArray[21] = this.builder.splines["offset"].erosions.length
 		for (var i = 0 ; i<this.builder.splines["offset"].erosions.length ; i++){
 			this.splinesArray[i+22] = this.builder.splines["offset"].erosions[i]
 		}
 
+		var skip_c_count = 0
 		for (var c = 0 ; c<this.builder.splines["offset"].continentalnesses.length ; c++){
+			var has_spline = false
 			for (var e = 0 ; e<this.builder.splines["offset"].erosions.length ; e++){
-				const index = 42 + (c * 20 + e) * (40 * 4 + 1)
+				const index = 42 + ((c - skip_c_count) * 20 + e) * (40 * 4 + 1)
 				if (this.builder.splines["offset"].splines[c][e] === undefined){
 					this.splinesArray[index] = 0
 				} else {
+					has_spline = true
 					this.splinesArray[index] = this.builder.splines["offset"].splines[c][e].points.length
 					for (var w = 0 ; w<this.builder.splines["offset"].splines[c][e].points.length; w++){
 						this.splinesArray[index + 1 + w * 4] = this.builder.splines["offset"].splines[c][e].points[w].location
@@ -522,7 +521,15 @@ export class BiomeLayerGL extends L.GridLayer{
 					}
 				}
 			}
+			if (!has_spline){
+				skip_c_count++
+			} else {
+				this.splinesArray[c+1 - skip_c_count] = this.builder.splines["offset"].continentalnesses[c]
+			}
 		}
+
+		this.splinesArray[0] = this.builder.splines["offset"].continentalnesses.length - skip_c_count
+
 
 	}
 
