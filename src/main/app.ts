@@ -6,6 +6,7 @@ import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
 
 export const DATA_VERSION = 2
+export const IS_EXPERIMENTAL = true
 
 const close_elements = document.getElementsByClassName("closable")
 

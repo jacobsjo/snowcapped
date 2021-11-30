@@ -1,4 +1,5 @@
 import { read } from "deepslate"
+import { IS_EXPERIMENTAL } from "../app"
 import { Exporter } from "../BuilderData/Exporter"
 import { UI } from "./UI"
 
@@ -82,10 +83,14 @@ export class MenuManager {
         }
 
         this.saveButton.onclick = (evt: Event) => {
+            if (IS_EXPERIMENTAL && !confirm("You are currently using an experimental version of Snowcapped. Save files from this version can not be loaded in the sable release. Please don't override your old file!")){
+                return
+            }
+
             const jsonString = JSON.stringify(UI.getInstance().builder.toJSON())
             const bb = new Blob([jsonString], {type: 'text/plain'})
             const a = document.createElement('a')
-            a.download = UI.getInstance().builder.dimensionName.replace(new RegExp(":|\/"), "_") + ".snowcapped.json"
+            a.download = UI.getInstance().builder.dimensionName.replace(new RegExp(":|\/"), "_") + (IS_EXPERIMENTAL ? "_experimental" : "") + ".snowcapped.json"
             a.href = window.URL.createObjectURL(bb)
             a.click()
             UI.getInstance().builder.hasChanges = false
