@@ -8,8 +8,10 @@
  *
  */
 
+import { thresholdSturges } from "d3"
 import { NormalNoise, XoroshiroRandom } from "deepslate"
 import * as L from "leaflet"
+import { takeWhile } from "lodash"
 import { Biome } from "../BuilderData/Biome"
 import { BiomeBuilder, MultiNoiseIndexes, MultiNoiseParameters, NoiseType, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder"
 import { Change, UI } from "../UI/UI"
@@ -17,19 +19,33 @@ import { VisualizationManger } from "../UI/VisualizationManager"
 
 const multinoiseShader = require('./Shader/multinoise.glsl')
 
-var starting_delay = 1
-var fail_counter = 5
+function waitForProgramLinkAsync(gl: WebGL2RenderingContext, glProgram: WebGLProgram, ext: any){
+	return new Promise<void>(resolve => {
+		function test(){
+			if (gl.getProgramParameter(glProgram, ext.COMPLETION_STATUS_KHR)){
+				resolve()
+			} else {
+				setTimeout(() => test(), 10)
+			}
+		}
+		setTimeout(() => test(), 10)
+	})
+}
+
 function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync, interval_ms: number) {
-	return new Promise<void>((resolve, reject) => {
+
+	return new Promise<number>((resolve, reject) => {
+	  var fail_counter = 2
+	  var counter = 0
 	  var is_first = true
 	  function test() {
+		counter ++
 		const res = gl.clientWaitSync(sync, 0, 0);
 		if (res == gl.WAIT_FAILED) {
 			fail_counter--;
 			if (fail_counter === 0){
 				reject("Wait failed");
 			} else {
-				starting_delay += interval_ms / 2
 				setTimeout(test, interval_ms);
 			}
 			return;
@@ -37,25 +53,41 @@ function clientWaitAsync(gl: WebGL2RenderingContext, sync: WebGLSync, interval_m
 		if (res == gl.TIMEOUT_EXPIRED) {
 			fail_counter = 5
 			is_first = false
-			starting_delay += interval_ms / 2
 			setTimeout(test, interval_ms);
 			return;
 		}
 		fail_counter = 5
-		if (is_first){
-			starting_delay = Math.max(Math.floor(starting_delay * 0.8), 1);
-		}
-		resolve();
+		resolve(counter * interval_ms);
 	  }
-	  setTimeout(test, starting_delay);
+	  setTimeout(test, interval_ms);
 	});
   }
+
+function waitForTimerAsync(gl: WebGL2RenderingContext, timer_query_ext: any, query: WebGLQuery, interval_ms: number){
+	return new Promise<void>((resolve, reject) => {
+		function test() {
+			let available = gl.getQueryParameter(query, gl.QUERY_RESULT_AVAILABLE);
+			let disjoint = gl.getParameter(timer_query_ext.GPU_DISJOINT_EXT);
+		
+			if (available && !disjoint) {
+				resolve()
+			} else if (disjoint) {
+				reject("Disjoint Timer")
+			} else {
+				setTimeout(test, interval_ms)
+			}
+		}
+		setTimeout(test, interval_ms)
+	})
+}
 
 export class BiomeLayerGL extends L.GridLayer{
 
     private renderer: HTMLCanvasElement
     private glError: string | undefined
     private gl: WebGL2RenderingContext
+	private timer_query_ext: any
+	private timer_query: WebGLQuery = null
 	private parameterArray: Float32Array
 	private parameterTexture: WebGLTexture
 	private biomeArray: Uint8Array
@@ -65,9 +97,11 @@ export class BiomeLayerGL extends L.GridLayer{
     private biomeTexture: WebGLTexture
     private glProgram: WebGLProgram
     private CRSBuffer: WebGLBuffer
-    private Tile2dContexts: {[key: string]: CanvasRenderingContext2D} = {}
+    private Tiles: {[key: string]: {canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D}} = {}
     private tileSize: number
+	private resolution: number
     private builder: BiomeBuilder
+	private isCompiled: boolean
 
 	private uniformLocations: {[key: string]: WebGLUniformLocation}
 
@@ -87,8 +121,8 @@ export class BiomeLayerGL extends L.GridLayer{
 	}[] = []
 	private isRendering: boolean = false
 
-    constructor(private visualization_manager: VisualizationManger ){
-        super()
+    constructor(private visualization_manager: VisualizationManger, options?: L.GridLayerOptions ){
+        super(options)
 
     }
 
@@ -98,6 +132,7 @@ export class BiomeLayerGL extends L.GridLayer{
 	//   and upload the shaders to the GPU, along with the vertex buffer
 	//   (the vertices will stay the same for all tiles).
 	initialize(options: any) {
+		this.isCompiled = false
         if (options === undefined)
             options = {}
 
@@ -106,24 +141,24 @@ export class BiomeLayerGL extends L.GridLayer{
         options.noWrap = true
 		options = L.setOptions(this, options);
 
+        this.tileSize = options.tileSize;
+
+		this.resolution = 1/16
 
 		this.renderer = L.DomUtil.create("canvas");
-		this.renderer.width = this.renderer.height = options.tileSize;
-
-        this.tileSize = options.tileSize;
+		this.renderer.width = this.renderer.height = this.tileSize * this.resolution;
 
 		this.gl = this.renderer.getContext("webgl2", {
 				premultipliedAlpha: false,
 			});
-		this.gl.viewport(0,0, options.tileSize, options.tileSize);
+		this.gl.viewport(0,0, this.tileSize * this.resolution, this.tileSize * this.resolution);
 
+
+		this.timer_query_ext = this.gl.getExtension('EXT_disjoint_timer_query_webgl2' );
 
 		this.loadGLProgram();
 
 
-
-		//this.bindParametersTexture()
-		//this.bindBiomeTexture()
 	}
 
 	// @method getGlError(): String|undefined
@@ -131,6 +166,17 @@ export class BiomeLayerGL extends L.GridLayer{
 	// with information about that error. If there was no error, returns `undefined`.
 	getGlError(): String | undefined {
 		return this.glError;
+	}
+
+	private updateResolution(){
+		console.log("New resolution: " + this.resolution)
+		this.renderer.width = this.renderer.height = this.tileSize * this.resolution;
+		this.gl.viewport(0,0, this.tileSize * this.resolution, this.tileSize * this.resolution);
+
+		for (var key in this._tiles) {
+			if (this.Tiles[key].canvas.width < this.tileSize * this.resolution)
+				this.addRenderingTask(key, () => {});
+		}
 	}
 
 	private loadGLProgram(): void {
@@ -145,96 +191,123 @@ export class BiomeLayerGL extends L.GridLayer{
 			"	vCRSCoords = aCRSCoords;  " +
 			"}";
 
-		var fragmentShaderHeader =
-			"#version 300 es\n" +
-			"precision highp float;\n" +
-			"in vec2 vCRSCoords;\n"
-
+		const ext = this.gl.getExtension('KHR_parallel_shader_compile');
 		this.glProgram = this.gl.createProgram();
 		var vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
 		var fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
 		this.gl.shaderSource(vertexShader, vertexShaderCode);
-		this.gl.shaderSource(fragmentShader, fragmentShaderHeader + multinoiseShader);
+		this.gl.shaderSource(fragmentShader, multinoiseShader);
 		this.gl.compileShader(vertexShader);
 		this.gl.compileShader(fragmentShader);
 
 		this.gl.attachShader(this.glProgram, vertexShader);
 		this.gl.attachShader(this.glProgram, fragmentShader);
-		this.gl.linkProgram(this.glProgram);
-
-		// @event shaderError
-		// Fired when there was an error creating the shaders.
-		if (!this.gl.getShaderParameter(vertexShader, this.gl.COMPILE_STATUS)) {
-			this.glError = this.gl.getShaderInfoLog(vertexShader);
-			console.error(this.glError);
-			return null;
-		}
-		if (!this.gl.getShaderParameter(fragmentShader, this.gl.COMPILE_STATUS)) {
-			this.glError = this.gl.getShaderInfoLog(fragmentShader);
-			console.error(this.glError);
-			//console.log((fragmentShaderHeader + multinoiseShader))
-			return null;
-		}
-
-		this.gl.useProgram(this.glProgram);
-
-		// aCRSCoords (both geographical and per-tile).
-		const aCRSPosition = this.gl.getAttribLocation(this.glProgram, "aCRSCoords");
-        const aVertexPosition = this.gl.getAttribLocation(this.glProgram, "aVertexCoords");
 
 
-		// Create three data buffer with 8 elements each - the (easting,northing)
-		// CRS coords, the (s,t) texture coords and the viewport coords for each
-		// of the 4 vertices
-		// Data for the texel and viewport coords is totally static, and
-		// needs to be declared only once.
-		this.CRSBuffer = this.gl.createBuffer();
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.CRSBuffer);
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(8), this.gl.STATIC_DRAW);
-		if (aCRSPosition !== -1) {
-			this.gl.enableVertexAttribArray(aCRSPosition);
-			this.gl.vertexAttribPointer(aCRSPosition, 2, this.gl.FLOAT, false, 8, 0);
-		}
+		var promise = new Promise<void>(resolve => {
+			setTimeout(() => {
+				this.gl.linkProgram(this.glProgram)
+				if (ext) {
+					waitForProgramLinkAsync(this.gl, this.glProgram, ext).then(resolve)
+				} else {
+					this.gl.getProgramParameter(this.glProgram, this.gl.LINK_STATUS);
+					resolve()
+				}
+			}, 0)
+		})
+
+		console.log("pre compile")
+
+		promise.then(() => {
+			console.log("is compiled")
+			// @event shaderError
+			// Fired when there was an error creating the shaders.
+			if (!this.gl.getShaderParameter(vertexShader, this.gl.COMPILE_STATUS)) {
+				this.glError = this.gl.getShaderInfoLog(vertexShader);
+				console.error(this.glError);
+				return null;
+			}
+			if (!this.gl.getShaderParameter(fragmentShader, this.gl.COMPILE_STATUS)) {
+				this.glError = this.gl.getShaderInfoLog(fragmentShader);
+				console.error(this.glError);
+				//console.log((fragmentShaderHeader + multinoiseShader))
+				return null;
+			}
+
+			this.gl.useProgram(this.glProgram);
+
+			// aCRSCoords (both geographical and per-tile).
+			const aCRSPosition = this.gl.getAttribLocation(this.glProgram, "aCRSCoords");
+			const aVertexPosition = this.gl.getAttribLocation(this.glProgram, "aVertexCoords");
 
 
-		const vertexCoordsBuffer = this.gl.createBuffer();
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexCoordsBuffer);
+			// Create three data buffer with 8 elements each - the (easting,northing)
+			// CRS coords, the (s,t) texture coords and the viewport coords for each
+			// of the 4 vertices
+			// Data for the texel and viewport coords is totally static, and
+			// needs to be declared only once.
+			this.CRSBuffer = this.gl.createBuffer();
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.CRSBuffer);
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(8), this.gl.STATIC_DRAW);
+			if (aCRSPosition !== -1) {
+				this.gl.enableVertexAttribArray(aCRSPosition);
+				this.gl.vertexAttribPointer(aCRSPosition, 2, this.gl.FLOAT, false, 8, 0);
+			}
 
-		// prettier-ignore
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
-			 1,  1,
-			-1,  1,
-			 1, -1,
-			-1, -1
-		]), this.gl.STATIC_DRAW);
-		if (aVertexPosition !== -1) {
-			this.gl.enableVertexAttribArray(aVertexPosition);
-			this.gl.vertexAttribPointer(aVertexPosition, 2, this.gl.FLOAT, false, 8, 0);
-		}
 
-		this.uniformLocations = {
-			enable_isolines: this.gl.getUniformLocation(this.glProgram, "enable_isolines"),
-			enable_hillshading: this.gl.getUniformLocation(this.glProgram, "enable_hillshading"),
-			y_level: this.gl.getUniformLocation(this.glProgram, "y_level"),
-			fixed_continentalness: this.gl.getUniformLocation(this.glProgram, "fixed_continentalness"),
-			fixed_erosion: this.gl.getUniformLocation(this.glProgram, "fixed_erosion"),
-			fixed_weirdness: this.gl.getUniformLocation(this.glProgram, "fixed_weirdness"),
-			fixed_temperature: this.gl.getUniformLocation(this.glProgram, "fixed_temperature"),
-			fixed_humidity: this.gl.getUniformLocation(this.glProgram, "fixed_humidity"),
-		}
+			const vertexCoordsBuffer = this.gl.createBuffer();
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexCoordsBuffer);
 
-		// Init textures
-		this.parameterTexture = this.gl.createTexture();
-		this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "parameterTexture"), 0);
+			// prettier-ignore
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
+				1,  1,
+				-1,  1,
+				1, -1,
+				-1, -1
+			]), this.gl.STATIC_DRAW);
+			if (aVertexPosition !== -1) {
+				this.gl.enableVertexAttribArray(aVertexPosition);
+				this.gl.vertexAttribPointer(aVertexPosition, 2, this.gl.FLOAT, false, 8, 0);
+			}
 
-		this.biomeTexture = this.gl.createTexture();
-		this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "biomeTexture"), 1);
+			this.uniformLocations = {
+				enable_isolines: this.gl.getUniformLocation(this.glProgram, "enable_isolines"),
+				enable_hillshading: this.gl.getUniformLocation(this.glProgram, "enable_hillshading"),
+				y_level: this.gl.getUniformLocation(this.glProgram, "y_level"),
+				fixed_continentalness: this.gl.getUniformLocation(this.glProgram, "fixed_continentalness"),
+				fixed_erosion: this.gl.getUniformLocation(this.glProgram, "fixed_erosion"),
+				fixed_weirdness: this.gl.getUniformLocation(this.glProgram, "fixed_weirdness"),
+				fixed_temperature: this.gl.getUniformLocation(this.glProgram, "fixed_temperature"),
+				fixed_humidity: this.gl.getUniformLocation(this.glProgram, "fixed_humidity"),
+			}
 
-		this.splinesTexture = this.gl.createTexture();
-		this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "splineTexture"), 2);
+			// Init textures
+			this.parameterTexture = this.gl.createTexture();
+			this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "parameterTexture"), 0);
+
+			this.biomeTexture = this.gl.createTexture();
+			this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "biomeTexture"), 1);
+
+			this.splinesTexture = this.gl.createTexture();
+			this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "splineTexture"), 2);
+
+			console.log("is setup")
+			this.isCompiled = true
+
+			this.reRender({biome: {}, grids: true, noises: true, spline: true})
+			if (!this.isRendering && this.renderingQueue.length > 0) {
+				this.isRendering = true
+				this.doNextRenderingTask()
+			}
+	
+		})
 	}
 
 	getIdxs(latlng: L.LatLng){
+		if (this.normalnoises === undefined){
+			return undefined
+		}
+		
 		const crs =  this._map.options.crs
 		const pos = crs.project(latlng).multiplyBy(0.25)
 
@@ -254,12 +327,7 @@ export class BiomeLayerGL extends L.GridLayer{
 
 	}
 
-	// This is called once per tile - uses the layer's GL context to
-	//   render a tile, passing the complex space coordinates to the
-	//   GPU, and asking to render the vertexes (as triangles) again.
-	// Every pixel will be opaque, so there is no need to clear the scene.
 	render(coords: L.Coords) {
-		this.gl.viewport(0, 0, this.gl.drawingBufferWidth, this.gl.drawingBufferHeight);
 		this.gl.clearColor(0.5, 0.5, 0.5, 0);
 		this.gl.enable(this.gl.BLEND);
 
@@ -295,16 +363,7 @@ export class BiomeLayerGL extends L.GridLayer{
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.CRSBuffer);
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(crsData), this.gl.STATIC_DRAW);
 
-		this.gl.uniform1i(this.uniformLocations.enable_isolines, this.visualization_manager.enable_isolines ? 1 : 0)
-		this.gl.uniform1i(this.uniformLocations.enable_hillshading, this.visualization_manager.enable_hillshading ? 1 : 0)
-		this.gl.uniform1i(this.uniformLocations.y_level, this.builder.vis_y_level === "surface" ? 10000 : this.builder.vis_y_level)
-		this.gl.uniform1f(this.uniformLocations.fixed_continentalness, this.builder.fixedNoises.continentalness === undefined ? 10000 : this.builder.fixedNoises.continentalness)
-		this.gl.uniform1f(this.uniformLocations.fixed_erosion, this.builder.fixedNoises.erosion === undefined ? 10000 : this.builder.fixedNoises.erosion)
-		this.gl.uniform1f(this.uniformLocations.fixed_weirdness, this.builder.fixedNoises.weirdness === undefined ? 10000 : this.builder.fixedNoises.weirdness)
-		this.gl.uniform1f(this.uniformLocations.fixed_temperature, this.builder.fixedNoises.temperature === undefined ? 10000 : this.builder.fixedNoises.temperature)
-		this.gl.uniform1f(this.uniformLocations.fixed_humidity, this.builder.fixedNoises.humidity === undefined ? 10000 : this.builder.fixedNoises.humidity)
 
-		// ... and then the magic happens.
 		this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
 	}
 
@@ -537,7 +596,7 @@ export class BiomeLayerGL extends L.GridLayer{
 
 	createTile(coords: L.Coords, done: L.DoneCallback) {
 		var tile = L.DomUtil.create("canvas", "leaflet-tile");
-		tile.width = tile.height = this.tileSize;
+		tile.width = tile.height = this.tileSize * this.resolution;
 
 		tile.onselectstart = tile.onmousemove = L.Util.falseFn;
 
@@ -548,7 +607,7 @@ export class BiomeLayerGL extends L.GridLayer{
         }
 
 		const key = this._tileCoordsToKey(coords)
-		this.Tile2dContexts[key] = ctx;
+		this.Tiles[key] = {canvas: tile, ctx: ctx}
 		this.addRenderingTask(key, () => {
 			done()
 		});
@@ -558,42 +617,53 @@ export class BiomeLayerGL extends L.GridLayer{
 	}
 
 	_removeTile(key: string) {
-        delete this.Tile2dContexts[key];
+		delete this.Tiles[key]
 
         // @ts-ignore
-        L.TileLayer.prototype._removeTile.call(this, key);
+        L.TileLayer.prototype._removeTile.call(this, key)
 	}
 
 
 	// Runs the shader (again) on all tiles
 	reRender(change: Change) {
-		if (change.noises){
-			const random = XoroshiroRandom.create(this.builder.seed)
-			const noiseRandomForked = random.fork()
-			this.normalnoises = {
-				temperature: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:temperature"), this.builder.noiseSettings.temperature),
-				humidity: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:vegetation"),  this.builder.noiseSettings.humidity),
-				continentalness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:continentalness"),  this.builder.noiseSettings.continentalness),
-				erosion: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:erosion"),  this.builder.noiseSettings.erosion),
-				weirdness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:ridge"),  this.builder.noiseSettings.weirdness),
-				shift: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:offset"),  this.builder.noiseSettings.shift)		
+		if (this.isCompiled){
+			if (change.noises){
+				const random = XoroshiroRandom.create(this.builder.seed)
+				const noiseRandomForked = random.fork()
+				this.normalnoises = {
+					temperature: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:temperature"), this.builder.noiseSettings.temperature),
+					humidity: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:vegetation"),  this.builder.noiseSettings.humidity),
+					continentalness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:continentalness"),  this.builder.noiseSettings.continentalness),
+					erosion: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:erosion"),  this.builder.noiseSettings.erosion),
+					weirdness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:ridge"),  this.builder.noiseSettings.weirdness),
+					shift: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:offset"),  this.builder.noiseSettings.shift)		
+				}
 			}
-		}
 
-		if (change.noises || change.grids){
-			this.bindParametersTexture(change)
-		}
-		
-		if (change.biome !== undefined){
-			this.bindBiomeTexture(change)
-		}
+			if (change.noises || change.grids){
+				this.bindParametersTexture(change)
+			}
+			
+			if (change.biome !== undefined){
+				this.bindBiomeTexture(change)
+			}
 
-		if (change.spline){
-			this.bindSplinesTexture()
-		}
+			if (change.spline){
+				this.bindSplinesTexture()
+			}
 
-		for (var key in this._tiles) {
-			this.addRenderingTask(key, () => {});
+			this.gl.uniform1i(this.uniformLocations.enable_isolines, this.visualization_manager.enable_isolines ? 1 : 0)
+			this.gl.uniform1i(this.uniformLocations.enable_hillshading, this.visualization_manager.enable_hillshading ? 1 : 0)
+			this.gl.uniform1i(this.uniformLocations.y_level, this.builder.vis_y_level === "surface" ? 10000 : this.builder.vis_y_level)
+			this.gl.uniform1f(this.uniformLocations.fixed_continentalness, this.builder.fixedNoises.continentalness === undefined ? 10000 : this.builder.fixedNoises.continentalness)
+			this.gl.uniform1f(this.uniformLocations.fixed_erosion, this.builder.fixedNoises.erosion === undefined ? 10000 : this.builder.fixedNoises.erosion)
+			this.gl.uniform1f(this.uniformLocations.fixed_weirdness, this.builder.fixedNoises.weirdness === undefined ? 10000 : this.builder.fixedNoises.weirdness)
+			this.gl.uniform1f(this.uniformLocations.fixed_temperature, this.builder.fixedNoises.temperature === undefined ? 10000 : this.builder.fixedNoises.temperature)
+			this.gl.uniform1f(this.uniformLocations.fixed_humidity, this.builder.fixedNoises.humidity === undefined ? 10000 : this.builder.fixedNoises.humidity)
+
+			for (var key in this._tiles) {
+				this.addRenderingTask(key, () => {});
+			}
 		}
 	}
 
@@ -603,11 +673,13 @@ export class BiomeLayerGL extends L.GridLayer{
 		}
 
 		this.renderingQueue.push({key: key, callback: callback})
-		if (!this.isRendering) {
+		if (!this.isRendering && this.isCompiled) {
 			this.isRendering = true
 			this.doNextRenderingTask()
 		}
 	}
+
+	private gpu_timer_results: number[] = []
 
 	doNextRenderingTask(){
 		var task: {key: string, callback: () => void}
@@ -617,23 +689,90 @@ export class BiomeLayerGL extends L.GridLayer{
 				return
 			}
 			task = this.renderingQueue.shift()
-		} while (this.Tile2dContexts[task.key] === undefined)
-
+		} while (this.Tiles[task.key] === undefined)
+		this.isRendering = true
 		//@ts-ignore
 		const coords = this._keyToTileCoords(task.key);
-		this.render(coords)
-		const sync = this.gl.fenceSync(this.gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
-		this.gl.flush()
 
-		clientWaitAsync(this.gl, sync, 2).then(() => {
-			if (this.Tile2dContexts[task.key] !== undefined){
-				this.Tile2dContexts[task.key].clearRect(0, 0, this.tileSize, this.tileSize);
-				this.Tile2dContexts[task.key].drawImage(this.renderer, 0, 0);
-				task.callback()
+		requestAnimationFrame(async () => {
+			const tile = this.Tiles[task.key]
+			if (tile !== undefined){
+				var end_query = false
+				var timer_query: WebGLQuery
+				if (this.timer_query_ext){
+					timer_query = this.gl.createQuery()
+					this.gl.beginQuery(this.timer_query_ext.TIME_ELAPSED_EXT, timer_query)
+					end_query = true
+				}
+
+				this.render(coords)
+
+				if (!this.timer_query_ext){
+					const sync = this.gl.fenceSync(this.gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
+					this.gl.flush()
+					this.gpu_timer_results.push(await clientWaitAsync(this.gl, sync, 2))
+				}
+
+				tile.canvas.width = tile.canvas.height = this.tileSize * this.resolution
+
+				tile.ctx.clearRect(0, 0, this.tileSize * this.resolution, this.tileSize * this.resolution);
+				tile.ctx.drawImage(this.renderer, 0, 0);
+
+				if (end_query){
+					this.gl.endQuery(this.timer_query_ext.TIME_ELAPSED_EXT)
+
+					waitForTimerAsync(this.gl, this.timer_query_ext, timer_query, 2)
+						.then(() => {
+							this.gpu_timer_results.push(this.gl.getQueryParameter(timer_query, this.gl.QUERY_RESULT) * 1e-6);
+							if (this.gpu_timer_results.length >= 6){
+								const wait_time = this.gpu_timer_results.reduce((s, v) => s+v) / this.gpu_timer_results.length
+
+								if (this.gpu_timer_results.length > 20)
+									this.gpu_timer_results.shift()
+
+								if (wait_time > 18){
+									this.gpu_timer_results.length = 0
+									this.resolution /= 2
+									if (this.resolution < 0.125){
+										//TODO cancel the layer
+									}
+									this.updateResolution()
+								}
+								if (wait_time < 6 && this.resolution < 1){
+									this.gpu_timer_results.length = 0
+									this.resolution = Math.min(1, this.resolution * 2)
+									this.updateResolution()
+								}
+							}
+						})
+						.catch((e) => {
+							console.warn("failed to read timer: " + e)
+						})
+						.finally(() => {
+							this.gl.deleteQuery(timer_query)
+						})
+
+				} else {
+					if (this.gpu_timer_results.length >= 6){
+						const wait_time = this.gpu_timer_results.reduce((s, v) => s+v) / this.gpu_timer_results.length
+
+						if (this.gpu_timer_results.length > 20)
+							this.gpu_timer_results.shift()
+
+						if (wait_time > 18){
+							this.gpu_timer_results.length = 0
+							this.resolution /= 2
+							this.updateResolution()
+						}
+						if (wait_time < 6 && this.resolution < 1){
+							this.gpu_timer_results.length = 0
+							this.resolution = Math.min(1, this.resolution * 2)
+							this.updateResolution()
+						}
+					}
+				}
+				setTimeout(task.callback, 0)
 			}
-		}).catch((e) =>
-			console.error(e)
-		).finally(() => {
 			this.doNextRenderingTask()
 		})
 	}

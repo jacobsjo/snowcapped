@@ -1,3 +1,9 @@
+#version 300 es
+precision highp float;
+precision highp int;
+precision highp sampler2D;
+in vec2 vCRSCoords;
+
 @import ./ParameterAccess;
 @import ./NormalNoise;
 @import ./BiomeLookup;

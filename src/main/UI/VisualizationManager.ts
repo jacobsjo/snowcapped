@@ -39,7 +39,7 @@ export class VisualizationManger{
         this.map.setMaxZoom(18)
         this.map.setMinZoom(11)
 
-        this.biomeLayer = new BiomeLayerGL(this);
+        this.biomeLayer = new BiomeLayerGL(this, {tileSize: 256});
         this.biomeLayer.addTo(this.map);
 
         this.contourLayer = new ContourLayer(this.builder);
@@ -136,7 +136,7 @@ export class VisualizationManger{
           }
           const lookup = idxs ? this.builder.lookupRecursiveWithTracking(idxs.idx) : undefined
 
-          tooltip.style.left = (Math.min(evt.originalEvent.pageX + 20, document.body.clientWidth - tooltip.clientWidth)) + "px"
+          tooltip.style.left = (Math.min(evt.originalEvent.pageX + 20, document.body.clientWidth - 300)) + "px"
           tooltip.style.top = (evt.originalEvent.pageY + 15) + "px"
           tooltip.classList.remove("hidden")
 
