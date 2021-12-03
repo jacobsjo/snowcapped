@@ -414,6 +414,7 @@ export class SidebarManager {
             d.getRenderer().draw(ctx, 0, 0, gridSize, gridSize, {}, true)
         })
         slices_divs.select("span.name").text(d => d.name)
+        slices_divs.select("input.color_selector").attr("aria-label", d => "Color of Biome " + d.name)
         slices_divs.select("img.button.hide").classed("enabled", d => d.hidden)
     }
 

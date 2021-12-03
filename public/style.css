@@ -120,6 +120,7 @@ body {
 
 #menu .logo img{
     height: 20pt;
+    width: 110pt;
 }
 
 #menu .button {
@@ -196,7 +197,7 @@ body:not(.light) #menu .button img{
 }
 
 #menu .link a{
-    color: gray;
+    color: lightgray;
 }
 
 /* Editor */
@@ -432,18 +433,22 @@ body:not(.light) #menu .button img{
 
 #sidebar .sidebar_entry.spline .grid {
     height: 40pt;
+    width: 40pt
 }
 
 #sidebar .sidebar_entry.slice .grid {
     height: 60pt;
+    width: 60pt;
 }
 
 #sidebar .sidebar_entry.layout .grid {
     height: 40pt;
+    width: 40pt;
 }
 
 #sidebar .sidebar_entry.biome .grid, #sidebar .sidebar_entry.vanilla_biome .grid {
     height: 22pt;
+    width: 22pt
 }
 
 
