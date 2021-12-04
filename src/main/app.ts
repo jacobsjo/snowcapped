@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
+import { BiomeLayerGL } from './Visualization/BiomeLayerGL';
 
 export const DATA_VERSION = 2
 export const IS_EXPERIMENTAL = true
@@ -20,6 +21,8 @@ for (let i = 0; i < close_elements.length; i++) {
     }
 }
 
+BiomeLayerGL.preInitalize(false)  // dont yet compile shaders on firefox (firefox can't do async shader compilation)
+
 const builder = new BiomeBuilder()
 UI.create(builder)
 
@@ -31,4 +34,4 @@ fetch('minecraft_overworld.snowcapped.json').then(r => r.text()).then(jsonString
         grids: true,
         noises: true
     })
-})
+}) 

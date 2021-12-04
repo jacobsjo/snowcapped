@@ -9,7 +9,7 @@ module.exports = {
         multinoiseworker: './src/multinoiseworker/worker.ts'
     },
     devtool: 'inline-source-map',
-    mode: 'development',
+    mode: 'production',
     module: {
         rules: [{
             test: /\.tsx?$/,
@@ -25,6 +25,11 @@ module.exports = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
     },
+    performance: {
+        hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
+    },    
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
