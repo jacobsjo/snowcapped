@@ -8,8 +8,6 @@ module.exports = {
         bundle: './src/main/app.ts',
         multinoiseworker: './src/multinoiseworker/worker.ts'
     },
-    devtool: 'inline-source-map',
-    mode: 'production',
     module: {
         rules: [{
             test: /\.tsx?$/,

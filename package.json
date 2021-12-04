@@ -4,9 +4,9 @@
   "description": "",
   "private": true,
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack watch",
-    "start": "webpack serve",
+    "build": "webpack --config webpack.prod.js",
+    "watch": "webpack watch  --config webpack.prod.js",
+    "start": "webpack serve --config webpack.dev.js",
     "deploy": "gh-pages -d dist",
     "deploy_experimental": "gh-pages -d dist -e ./experimental/"
   },
@@ -27,7 +27,8 @@
     "webpack": "^5.52.1",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.2.1",
-    "webpack-glsl-loader": "^1.0.1"
+    "webpack-glsl-loader": "^1.0.1",
+    "webpack-merge": "^5.8.0"
   },
   "dependencies": {
     "d3": "^7.1.1",

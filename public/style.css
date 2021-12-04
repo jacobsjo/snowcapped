@@ -831,6 +831,7 @@ body:not(.light) #menu .button img{
     margin: auto;
     max-width: 100%;
     max-height: 100%;
+    aspect-ratio: 1;
     outline: 0;
     flex-shrink: 2;
 }
