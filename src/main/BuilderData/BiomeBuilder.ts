@@ -63,7 +63,7 @@ export class BiomeBuilder {
     dimensionName: string = "minecraft:overworld"
     useLegacyRandom: boolean = false;
 
-    constructor(json: any) {
+    constructor() {
         this.gridElements = new Map<string, GridElement>();
         this.vanillaBiomes = new Map<string, Biome>();
         this.slices = []
@@ -72,7 +72,22 @@ export class BiomeBuilder {
 
         this.layoutElementUnassigned = GridElementUnassigned.create(this)
 
-        this.loadJSON(json)
+        this.dimensionName = ""
+        this.seed = BigInt(1)
+        this.noiseSettings = {
+            continentalness: {firstOctave: 0, amplitudes:[1.0]},
+            erosion: {firstOctave: 0, amplitudes:[1.0]},
+            weirdness: {firstOctave: 0, amplitudes:[1.0]},
+            temperature: {firstOctave: 0, amplitudes:[1.0]},
+            humidity: {firstOctave: 0, amplitudes:[1.0]},
+            shift: {firstOctave: 0, amplitudes:[1.0]},
+        }
+
+
+
+
+
+        //this.loadJSON(json)
     }
 
     loadJSON(json: any) {

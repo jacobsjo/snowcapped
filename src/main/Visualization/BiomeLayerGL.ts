@@ -8,10 +8,10 @@
  *
  */
 
-import { thresholdSturges } from "d3"
+import { text, thresholdSturges } from "d3"
 import { NormalNoise, XoroshiroRandom } from "deepslate"
 import * as L from "leaflet"
-import { takeWhile } from "lodash"
+import { takeWhile, uniqueId } from "lodash"
 import { Biome } from "../BuilderData/Biome"
 import { BiomeBuilder, MultiNoiseIndexes, MultiNoiseParameters, NoiseType, PartialMultiNoiseIndexes } from "../BuilderData/BiomeBuilder"
 import { Change, UI } from "../UI/UI"
@@ -21,14 +21,13 @@ const multinoiseShader = require('./Shader/multinoise.glsl')
 
 function waitForProgramLinkAsync(gl: WebGL2RenderingContext, glProgram: WebGLProgram, ext: any){
 	return new Promise<void>(resolve => {
+		const interval:any = setInterval(() => test(), 200)
 		function test(){
 			if (gl.getProgramParameter(glProgram, ext.COMPLETION_STATUS_KHR)){
+				clearInterval(interval)
 				resolve()
-			} else {
-				setTimeout(() => test(), 10)
 			}
 		}
-		setTimeout(() => test(), 10)
 	})
 }
 
@@ -180,6 +179,8 @@ export class BiomeLayerGL extends L.GridLayer{
 	}
 
 	private loadGLProgram(): void {
+		console.time("Load GL Program")
+
 		// Just copy all attributes to predefined variants and set the vertex positions
 		var vertexShaderCode =
 			"#version 300 es\n" +
@@ -293,12 +294,14 @@ export class BiomeLayerGL extends L.GridLayer{
 
 			console.log("is setup")
 			this.isCompiled = true
+			console.timeEnd("Load GL Program")
 
 			this.reRender({biome: {}, grids: true, noises: true, spline: true})
 			if (!this.isRendering && this.renderingQueue.length > 0) {
 				this.isRendering = true
 				this.doNextRenderingTask()
 			}
+
 	
 		})
 	}
@@ -506,8 +509,6 @@ export class BiomeLayerGL extends L.GridLayer{
                                     t: t_idx
                                 }, "Any", true)
 
-								//console.log(this.builder.fixedNoises["continentalness"] ? this.builder.findIndex(this.builder.continentalnesses, this.builder.fixedNoises["continentalness"]) : c_idx)
-
 								const index = 4 * (d_idx * this.builder.humidities.length * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length +
 										h_idx * this.builder.temperatures.length * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length +
 										t_idx * this.builder.weirdnesses.length * this.builder.erosions.length * this.builder.continentalnesses.length + 
@@ -626,6 +627,7 @@ export class BiomeLayerGL extends L.GridLayer{
 
 	// Runs the shader (again) on all tiles
 	reRender(change: Change) {
+		console.time("reRender BiomeLayerGL")
 		if (this.isCompiled){
 			if (change.noises){
 				const random = XoroshiroRandom.create(this.builder.seed)
@@ -665,6 +667,7 @@ export class BiomeLayerGL extends L.GridLayer{
 				this.addRenderingTask(key, () => {});
 			}
 		}
+		console.timeEnd("reRender BiomeLayerGL")
 	}
 
 	addRenderingTask(key: string, callback: () => void){
@@ -721,7 +724,7 @@ export class BiomeLayerGL extends L.GridLayer{
 				if (end_query){
 					this.gl.endQuery(this.timer_query_ext.TIME_ELAPSED_EXT)
 
-					waitForTimerAsync(this.gl, this.timer_query_ext, timer_query, 2)
+					waitForTimerAsync(this.gl, this.timer_query_ext, timer_query, 20)
 						.then(() => {
 							this.gpu_timer_results.push(this.gl.getQueryParameter(timer_query, this.gl.QUERY_RESULT) * 1e-6);
 							if (this.gpu_timer_results.length >= 6){

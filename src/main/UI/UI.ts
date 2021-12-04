@@ -57,12 +57,12 @@ export class UI {
         this.horizonalLabel = document.getElementById("horizontal_label") as HTMLDivElement
         this.verticalLabel = document.getElementById("vertical_label") as HTMLDivElement
 
-        this.refresh({
+        /*this.refresh({
             biome: {},
             spline: true,
             grids: true,
             noises: true
-        })
+        })*/
 
         MenuManager.createClickHandlers()
     }

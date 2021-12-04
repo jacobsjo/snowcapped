@@ -11,7 +11,7 @@ export const IS_EXPERIMENTAL = true
 const close_elements = document.getElementsByClassName("closable")
 
 
-for (let i = 0 ; i < close_elements.length ; i++){
+for (let i = 0; i < close_elements.length; i++) {
     (close_elements[i].getElementsByClassName("button")[0] as HTMLElement).onclick = () => {
         if ((close_elements[i] as any).onopenchange !== undefined)
             (close_elements[i] as any).onopenchange()
@@ -20,7 +20,15 @@ for (let i = 0 ; i < close_elements.length ; i++){
     }
 }
 
-fetch('minecraft_overworld.snowcapped.json').then( r => r.text()).then(jsonString => {
-    const builder = new BiomeBuilder(JSON.parse(jsonString));
-    UI.create(builder)
+const builder = new BiomeBuilder()
+UI.create(builder)
+
+fetch('minecraft_overworld.snowcapped.json').then(r => r.text()).then(jsonString => {
+    builder.loadJSON(JSON.parse(jsonString));
+    UI.getInstance().refresh({
+        biome: {},
+        spline: true,
+        grids: true,
+        noises: true
+    })
 })
