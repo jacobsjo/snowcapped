@@ -26,6 +26,7 @@ BiomeLayerGL.preInitalize(false)  // dont yet compile shaders on firefox (firefo
 const builder = new BiomeBuilder()
 UI.create(builder)
 
+
 fetch('minecraft_overworld.snowcapped.json').then(r => r.text()).then(jsonString => {
     builder.loadJSON(JSON.parse(jsonString));
     UI.getInstance().refresh({
@@ -34,4 +35,4 @@ fetch('minecraft_overworld.snowcapped.json').then(r => r.text()).then(jsonString
         grids: true,
         noises: true
     })
-}) 
+})

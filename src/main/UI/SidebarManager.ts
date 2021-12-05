@@ -354,8 +354,8 @@ export class SidebarManager {
                     if (selection.classed("compact")){
                         const bb = this.getBoundingClientRect()
                         tooltip.select(".name").text(d.name)
-                        tooltip.style("left", bb.left)
-                        tooltip.style("top", bb.bottom)
+                        tooltip.style("left", bb.left + "px")
+                        tooltip.style("top", bb.bottom + "px")
                         tooltip.classed("hidden", false)
                         tooltip.select(".noises").classed("hidden", true)
                     }

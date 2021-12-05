@@ -109,6 +109,7 @@ body {
 
 #menu {
     width: 100vw;
+    height: 28pt;
     display: flex;
     background-color: var(--tertiary-bg-color);
 }
@@ -431,6 +432,22 @@ body:not(.light) #menu .button img{
     display: block;
 }
 
+#sidebar .sidebar_entry.spline{
+    height: 40pt;
+}
+
+#sidebar .sidebar_entry.slice{
+    height: 60pt;
+}
+
+#sidebar .sidebar_entry.layout{
+    height: 40pt;
+}
+
+#sidebar .sidebar_entry.biome, #sidebar .sidebar_entry.vanilla_biome{
+    height: 22pt;
+}
+
 #sidebar .sidebar_entry.spline .grid {
     height: 40pt;
     width: 40pt
@@ -467,12 +484,17 @@ body:not(.light) #menu .button img{
     z-index: 2;
 }
 
+.color_selector::-webkit-color-swatch-wrapper {
+    padding: 0pt;
+}
+
 #sidebar .sidebar_header {
     display: flex;
+    margin-top: 10pt;
 }
 
 #sidebar .sidebar_header .name {
-    font-size: 22;
+    font-size: 17pt;
     padding: 5pt;
     color: var(--emph-text-color);
     flex-grow: 1;
@@ -637,6 +659,8 @@ body:not(.light) #menu .button img{
     width: fit-content;
     display: inline-block;
     position: relative;
+    margin-bottom: 0pt;
+    margin-right: 2pt;
 }
 
 #sidebar .sidebar_entry_list.compact .sidebar_entry .name{ 
@@ -674,7 +698,7 @@ body:not(.light) #menu .button img{
 }
 
 #sidebar .search_bar {
-    width: 233pt;
+    width: 217pt;
     padding: 5pt;
     margin: 5pt;
     background-color: var(--input-color);
@@ -820,20 +844,29 @@ body:not(.light) #menu .button img{
     width: 100%;
 }
 
-#layoutEditor #layoutEditorDiv, #layoutEditor #gridEditorDiv{
+#layoutEditor .main_editor_panel{
     margin: 5pt;
     width: 300pt;
     min-width: 300pt;
     flex-grow: 1;
+    position: relative;
 }
 
-#layoutEditor #layoutEditorCanvas, #layoutEditor #gridEditorCanvas {
-    margin: auto;
-    max-width: 100%;
-    max-height: 100%;
-    aspect-ratio: 1;
-    outline: 0;
-    flex-shrink: 2;
+#layoutEditor .main_editor_panel div.main_editor_panel_div{
+    min-width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#layoutEditor .main_editor_panel div.main_editor_panel_div.hidden{
+    visibility: hidden;
+    display: block !important;
+}
+
+
+#layoutEditor .main_editor_panel canvas{
+    width: 100%;
 }
 
 
@@ -842,6 +875,12 @@ body:not(.light) #menu .button img{
     height: 100%;
     overflow: hidden;
 }
+
+#layoutEditor #splineEditorDiv .zoomDiv{
+    width: max-content;
+    height: fit-content;
+}
+
 
 #layoutEditor #splineEditorDiv #splineEditorSvg{
     width: calc(100% - 20pt);
@@ -978,7 +1017,7 @@ body:not(.light) #menu .button img{
 #visualization #mapFullscreenButton {
     position: absolute;
     top: 9pt;
-    right: 9;
+    right: 9pt;
     z-index: 400;
     width: 16pt;
     padding: 5pt;

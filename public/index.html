@@ -19,7 +19,8 @@
         crossorigin="" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"-->
         
-    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="preload" as="fetch" href="/minecraft_overworld.snowcapped.json" crossorigin=""/>
     <script defer src="bundle.js"></script>
 </head>
 
@@ -64,7 +65,6 @@
                 <div id="editor">
                     <div id="sidebar">
                         <div id="sidebar_menu">
-                            <div class="spacer"></div>
                             <div class="sidebar_header">
                                 <div class="name">Dimension:</div>
                                 <img class="button" id="splines_grid_view_button" title="Grid View"
@@ -91,7 +91,6 @@
                             </div>
                         <!--<div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices
                             </div>-->
-                            <div class="spacer"></div>
                             <div class="sidebar_header">
                                 <div class="name">Slices: </div>
                                 <img class="button" id="slices_grid_view_button" title="Grid View"
@@ -104,7 +103,6 @@
                                     src="eye.svg">
                             </div>
                             <div class="sidebar_entry_list" id="slices"></div>
-                            <div class="spacer"></div>
                             <div class="sidebar_header">
                                 <div class="name">Layouts: </div>
                                 <img class="button" id="layouts_grid_view_button" title="Grid View"
@@ -116,7 +114,6 @@
                                     src="eye.svg">
                             </div>
                             <div class="sidebar_entry_list" id="layouts"></div>
-                            <div class="spacer"></div>
                             <div class="sidebar_header">
                                 <div class="name">Biomes: </div>
                                 <img class="button" id="biomes_grid_view_button" title="Grid View"
@@ -154,17 +151,19 @@
                         <div class="axis_label" id="horizontal_label">Humidity</div>
                         <div class="label_with_content">
                             <div class="axis_label"><div id="vertical_label">Temperature</div></div>
-                            <div id="layoutEditorDiv">
-                                <div style="display:none;">
-                                    <img id="aModeImg" src="mode_A.png">
-                                    <img id="bModeImg" src="mode_B.png">
+                            <div class="main_editor_panel">
+                                <div class="main_editor_panel_div" id="layoutEditorDiv">
+                                    <div style="display:none;">
+                                        <img id="aModeImg" src="mode_A.png">
+                                        <img id="bModeImg" src="mode_B.png">
+                                    </div>
+                                    <canvas tabindex='0' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
                                 </div>
-                                <canvas tabindex='0' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
-                            </div>
-                            <div id="gridEditorDiv">
-                                <canvas tabindex='0' id="gridEditorCanvas" width="1300" height="1300"></canvas>
-                            </div>
-                            <div id="splineEditorDiv">
+                                <div class="main_editor_panel_div" id="gridEditorDiv">
+                                    <canvas tabindex='0' id="gridEditorCanvas" width="1300" height="1300"></canvas>
+                                </div>
+                                <div class="main_editor_panel_div" id="splineEditorDiv">
+                                </div>
                             </div>
                         </div>
 

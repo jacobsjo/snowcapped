@@ -56,8 +56,8 @@ export class SplineEditor {
             div.property("scrollTop", (zoom_x * this.zoom) - 0.5 * width)
             div.property("scrollLeft", (zoom_y * this.zoom) - 0.5 * height)
 
-            evt.preventDefault()
-        }).call(d3.drag<HTMLDivElement, any>()
+            //evt.preventDefault()
+        }, {passive: true}).call(d3.drag<HTMLDivElement, any>()
             .filter(evt => evt.button === 2)
             .on("start", function (evt, d) {
 
