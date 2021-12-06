@@ -290,23 +290,23 @@ body:not(.light) #menu .button img{
 }
 
 .closable.closable.horizontal:not(.closed) .button {
-    -webkit-mask: url('close_right.svg') no-repeat center;
-    mask: url('close_right.svg') no-repeat center;
+    -webkit-mask: url('images/close_right.svg') no-repeat center;
+    mask: url('images/close_right.svg') no-repeat center;
 }
 
 .closable.horizontal.closed .button {
-    -webkit-mask: url('close_left.svg') no-repeat center;
-    mask: url('close_left.svg') no-repeat center;
+    -webkit-mask: url('images/close_left.svg') no-repeat center;
+    mask: url('images/close_left.svg') no-repeat center;
 }
 
 .closable.closable.vertical:not(.closed) .button {
-    -webkit-mask: url('close_down.svg') no-repeat center;
-    mask: url('close_down.svg') no-repeat center;
+    -webkit-mask: url('images/close_down.svg') no-repeat center;
+    mask: url('images/close_down.svg') no-repeat center;
 }
 
 .closable.vertical.closed .button {
-    -webkit-mask: url('close_up.svg') no-repeat center;
-    mask: url('close_up.svg') no-repeat center;
+    -webkit-mask: url('images/close_up.svg') no-repeat center;
+    mask: url('images/close_up.svg') no-repeat center;
 }
 
 .closable .button:hover {

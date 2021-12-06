@@ -1,7 +1,3 @@
-import { DATA_VERSION } from "../app"
-
-
-
 export class DataFixer {
     public static fixJSON(json: any): any {
         json.version = json.version ?? 0

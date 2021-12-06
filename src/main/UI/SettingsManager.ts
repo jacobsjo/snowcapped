@@ -196,7 +196,7 @@ export class SettingsManager {
             const deleteButton = document.createElement("button")
             deleteButton.classList.add("delete")
             const deleteIcon = document.createElement("img")
-            deleteIcon.src = "trash-bin.svg"
+            deleteIcon.src = "images/trash-bin.svg"
             deleteButton.appendChild(deleteIcon)
             deleteButton.onclick = (evt) => {
                 noiseSettings.amplitudes.splice(noiseSettings.amplitudes.length - 1, 1)
@@ -209,7 +209,7 @@ export class SettingsManager {
         const addButton = document.createElement("button")
         addButton.classList.add("add")
         const addIcon = document.createElement("img")
-        addIcon.src = "add.svg"
+        addIcon.src = "images/add.svg"
         addButton.appendChild(addIcon)
 
         addButton.onclick = (evt) => {

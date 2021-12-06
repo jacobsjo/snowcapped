@@ -6,14 +6,14 @@
     <meta property="og:title" content="Snowcapped" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://snowcapped.jacobsjo.eu" />
-    <meta property="og:image" content="https://snowcapped.jacobsjo.eu/icon.png" />
+    <meta property="og:image" content="https://snowcapped.jacobsjo.eu/icons/icon.png" />
     <meta property="og:description"
         content="A Minecraft: Java Edition 1.18+ dimension editor. Exports a multi-noise dimension file and a spline configuration." />
     <meta name="description"
         content="A Minecraft: Java Edition 1.18+ dimension editor. Exports a multi-noise dimension file and a spline configuration." />
     <meta property="og:determiner" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="icon.svg" sizes="any" types="image/svg+xml">
+    <link rel="icon" href="icons/icon.svg" sizes="any" types="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <link rel="preload" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin="" as="style" onload="this.onload=null;this.rel='stylesheet'" />
@@ -27,22 +27,22 @@
 <body class="light">
     <div id="main">
         <div id="menu">
-            <div class="logo"><img alt="Snowcapped" src="header.svg" /></div>
-            <div class="button" id="newButton"><img alt="New" label="New" src="blank-file.svg" />
+            <div class="logo"><img alt="Snowcapped" src="images/header.svg" /></div>
+            <div class="button" id="newButton"><img alt="New" label="New" src="images/blank-file.svg" />
                 <div class="dropdown">
                     <div class="button" id="loadEmptyButton">New: Empty</div>
                     <div class="button" id="loadVanillaButton">New: Vanilla Overworld</div>
                 </div>
             </div>
-            <div class="button" id="openButton" title="Open"><img alt="Open" src="open-file-folder.svg" /></div>
-            <div class="button" id="saveButton" title="Save"><img alt="Save" src="save.svg" /></div>
-            <div class="button" id="exportButton"><img alt="Export" src="export-file.svg" />
+            <div class="button" id="openButton" title="Open"><img alt="Open" src="images/open-file-folder.svg" /></div>
+            <div class="button" id="saveButton" title="Save"><img alt="Save" src="images/save.svg" /></div>
+            <div class="button" id="exportButton"><img alt="Export" src="images/export-file.svg" />
                 <div class="dropdown">
                     <div class="button" id="exportDimensionButton">Export dimension.json</div>
                     <div class="button" id="exportSplinesButton">Export Splines</div>
                 </div>
             </div>
-            <div class="button" id="settingsButton" title="Settings" s><img alt="Settings" title="Settings" src="settings-gear.svg" /></div>
+            <div class="button" id="settingsButton" title="Settings" s><img alt="Settings" title="Settings" src="images/settings-gear.svg" /></div>
             <div class="help" id="help">
                 <div class="help-entry hidden" id="select"><span class="b">[Left Click]</span> Select</div>
                 <div class="help-entry hidden" id="paint"><span class="b">[Left Click]</span> Paint</div>
@@ -58,7 +58,7 @@
                 <div class="help-entry hidden" id="copy"><span class="b">[Ctrl]+[C]</span> Copy Teleport Command</div>
             </div>
             <div class="link"><a href="about.html" target="_blank">About</a></div>
-            <div class="button" id="toggleDarkmodeButton"><img alt="Toggle Dark Mode" title="Toggle Dark Mode" src="moon.svg" /></div>
+            <div class="button" id="toggleDarkmodeButton"><img alt="Toggle Dark Mode" title="Toggle Dark Mode" src="images/moon.svg" /></div>
         </div>
         <div id="content">
             <div class="main_content">
@@ -68,25 +68,25 @@
                             <div class="sidebar_header">
                                 <div class="name">Dimension:</div>
                                 <img class="button" id="splines_grid_view_button" title="Grid View"
-                                src="grid-view.svg">
+                                src="images/grid-view.svg">
                             </div>
                             <div class="sidebar_entry_list" id="splines">
                                 <div class="sidebar_entry spline" id="offset">
-                                    <img class="grid" src="offset-icon.svg" alt="">
+                                    <img class="grid" src="images/offset-icon.svg" alt="">
                                     <span class="name">Offset</span>
-                                    <img class="button edit edit_grid_button important" src="grid.svg" title="Edit Grid" />
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
                                 </div><div class="sidebar_entry spline" id="factor">
-                                    <img class="grid" src="factor-icon.svg" alt="">
+                                    <img class="grid" src="images/factor-icon.svg" alt="">
                                     <span class="name">Factor</span>
-                                    <img class="button edit edit_grid_button important" src="grid.svg" title="Edit Grid" />
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
                                 </div><div class="sidebar_entry spline" id="jaggedness">
-                                    <img class="grid" src="jaggedness-icon.svg" alt="">
+                                    <img class="grid" src="images/jaggedness-icon.svg" alt="">
                                     <span class="name">Jaggedness</span>
-                                    <img class="button edit edit_grid_button important" src="grid.svg" title="Edit Grid" />
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
                                 </div><div class="sidebar_entry spline open" id="dimension">
-                                    <img class="grid" src="biomes-icon.svg" alt="">
+                                    <img class="grid" src="images/biomes-icon.svg" alt="">
                                     <span class="name">Biomes</span>
-                                    <img class="button edit edit_grid_button important" src="grid.svg" title="Edit Grid" />
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
                                 </div>
                             </div>
                         <!--<div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices
@@ -94,33 +94,33 @@
                             <div class="sidebar_header">
                                 <div class="name">Slices: </div>
                                 <img class="button" id="slices_grid_view_button" title="Grid View"
-                                    src="grid-view.svg">
-                                <img class="button" id="add_slices_button" title="Add Slice" src="add.svg">
+                                    src="images/grid-view.svg">
+                                <img class="button" id="add_slices_button" title="Add Slice" src="images/add.svg">
                                 <img class="button" id="edit_slices_grid_button" title="Edit Slices Grid"
-                                    src="grid.svg">
-                                <!--<img class="button" id="edit_splines_button" title="Edit Splines" src="spline.svg">-->
+                                    src="images/grid.svg">
+                                <!--<img class="button" id="edit_splines_button" title="Edit Splines" src="images/spline.svg">-->
                                 <img class="button hide" id="hide_all_slices_button" title="Hide/Show all Slices"
-                                    src="eye.svg">
+                                    src="images/eye.svg">
                             </div>
                             <div class="sidebar_entry_list" id="slices"></div>
                             <div class="sidebar_header">
                                 <div class="name">Layouts: </div>
                                 <img class="button" id="layouts_grid_view_button" title="Grid View"
-                                    src="grid-view.svg">
-                                <img class="button" id="add_layout_button" title="Add Layout" src="add.svg">
+                                    src="images/grid-view.svg">
+                                <img class="button" id="add_layout_button" title="Add Layout" src="images/add.svg">
                                 <img class="button" id="edit_layout_grid_button" title="Edit Layout Grid"
-                                    src="grid.svg">
+                                    src="images/grid.svg">
                                 <img class="button hide" id="hide_all_layouts_button" title="Hide/Show all Slices"
-                                    src="eye.svg">
+                                    src="images/eye.svg">
                             </div>
                             <div class="sidebar_entry_list" id="layouts"></div>
                             <div class="sidebar_header">
                                 <div class="name">Biomes: </div>
                                 <img class="button" id="biomes_grid_view_button" title="Grid View"
-                                    src="grid-view.svg">
-                                <img class="button" id="add_biome_button" title="Add Biome" src="add.svg">
+                                    src="images/grid-view.svg">
+                                <img class="button" id="add_biome_button" title="Add Biome" src="images/add.svg">
                                 <img class="button hide" id="hide_all_biomes_button" title="Hide/Show all Biomes"
-                                    src="eye.svg">
+                                    src="images/eye.svg">
                             </div>
                             <input type="text" placeholder="Seach..." class="search_bar" title="Seach for Biomes"
                                 id="biome_search_bar">
@@ -145,7 +145,7 @@
                     </div>
                     <div id="layoutEditor">
                         <div class="titleBar">
-                            <img class="button hidden" id="backButton" src="back-arrow.svg" />
+                            <img class="button hidden" id="backButton" src="images/back-arrow.svg" />
                             <input type="text" id="layoutName" aria-label="Name" />
                         </div>
                         <div class="axis_label" id="horizontal_label">Humidity</div>
@@ -154,8 +154,8 @@
                             <div class="main_editor_panel">
                                 <div class="main_editor_panel_div" id="layoutEditorDiv">
                                     <div style="display:none;">
-                                        <img id="aModeImg" src="mode_A.png">
-                                        <img id="bModeImg" src="mode_B.png">
+                                        <img id="aModeImg" src="images/mode_A.png">
+                                        <img id="bModeImg" src="images/mode_B.png">
                                     </div>
                                     <canvas tabindex='0' id="layoutEditorCanvas" width="1300" height="1300"></canvas>
                                 </div>
@@ -219,14 +219,14 @@
                     <div id="visualization">
                         <div id="visualization_map"></div>
                         <div class="visualization_controlls">
-                            <img class="map_button" id="toggleIsolinesButton" src="isolines.svg" title="Toggle Isolines" />
-                            <img class="map_button enabled" id="toggleHillshadeButton" src="mountain.svg" title="Toggle Hillshade" />
+                            <img class="map_button" id="toggleIsolinesButton" src="images/isolines.svg" title="Toggle Isolines" />
+                            <img class="map_button enabled" id="toggleHillshadeButton" src="images/mountain.svg" title="Toggle Hillshade" />
                             <div class="height_selection">
                                 <div class="map_label" id="mapHeightLabel">Surface</div>
                                 <input class="map_range" id="mapHeightSelection" type="range" value="200" min="-64" max="200" orient="vertical" aria-label="Height Selection" />
                             </div>
                         </div>
-                        <img class="map_button" id="mapFullscreenButton" alt="Fullscreen" title="Fullscreen" src="expand-arrows.svg" />
+                        <img class="map_button" id="mapFullscreenButton" alt="Fullscreen" title="Fullscreen" src="images/expand-arrows.svg" />
                     </div>
                 </div>
                 <div class="tooltip hidden" id="visualizationTooltip">

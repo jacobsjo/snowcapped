@@ -1,7 +1,8 @@
 {
     "extends": "../generic-tsconfig.json",
     "include": [
-      "../../typings-custom/**/*.ts"
+      "../../typings-custom/**/*.ts",
+      "../SharedConstants.ts"
     ],
     "references": [
       {"path": "../multinoiseworker/"}

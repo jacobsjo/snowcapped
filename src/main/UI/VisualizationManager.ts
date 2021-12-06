@@ -141,7 +141,7 @@ export class VisualizationManger{
           tooltip.classList.remove("hidden")
 
           if (lookup) 
-            tooltip_mode.src = "mode_" + lookup?.mode + ".png"
+            tooltip_mode.src = "images/mode_" + lookup?.mode + ".png"
 
           const offset = builder.splines.offset.apply(idxs.values.c, idxs.values.e, idxs.values.w)
 

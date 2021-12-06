@@ -50,21 +50,21 @@ export class SidebarManager {
             .on("click", (evt: Event) => {
                 const isCompact = !sidebar.select('#splines').classed("compact")
                 sidebar.select('#splines').classed("compact", isCompact)
-                sidebar.select("#splines_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+                sidebar.select("#splines_grid_view_button").attr("src", isCompact ? "images/list-view.svg" : "images/grid-view.svg")
             })
 
         sidebar.select("#slices_grid_view_button")
             .on("click", (evt: Event) => {
                 const isCompact = !sidebar.select('#slices').classed("compact")
                 sidebar.select('#slices').classed("compact", isCompact)
-                sidebar.select("#slices_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+                sidebar.select("#slices_grid_view_button").attr("src", isCompact ? "images/list-view.svg" : "images/grid-view.svg")
             })
 
         sidebar.select("#layouts_grid_view_button")
             .on("click", (evt: Event) => {
                 const isCompact = !sidebar.select('#layouts').classed("compact")
                 sidebar.select('#layouts').classed("compact", isCompact)
-                sidebar.select("#layouts_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+                sidebar.select("#layouts_grid_view_button").attr("src", isCompact ? "images/list-view.svg" : "images/grid-view.svg")
             })
 
         sidebar.select("#biomes_grid_view_button")
@@ -72,7 +72,7 @@ export class SidebarManager {
                 const isCompact = !sidebar.select('#biomes').classed("compact")
                 sidebar.select('#biomes').classed("compact", isCompact)
                 sidebar.select('#vanilla_biomes').classed("compact", isCompact)
-                sidebar.select("#biomes_grid_view_button").attr("src", isCompact ? "list-view.svg" : "grid-view.svg")
+                sidebar.select("#biomes_grid_view_button").attr("src", isCompact ? "images/list-view.svg" : "images/grid-view.svg")
             })
 
 
@@ -302,7 +302,7 @@ export class SidebarManager {
                 div.attr("draggable", !fixed)
 
                 if (!fixed) {
-                    div.filter(d => d.allowEdit).append("img").classed("button", true).classed("edit", true).attr("src", "edit-pen.svg").attr("title", "Rename")
+                    div.filter(d => d.allowEdit).append("img").classed("button", true).classed("edit", true).attr("src", "images/edit-pen.svg").attr("title", "Rename")
                         .on("click", (evt, d) => {
                             const new_name = prompt("Edit name of " + d.constructor.name, d.name)
                             if (new_name === null) return
@@ -311,7 +311,7 @@ export class SidebarManager {
                             evt.stopPropagation()
                         })
 
-                    div.append("img").classed("button", true).classed("delete", true).attr("src", "trash-bin.svg").attr("title", "Delete")
+                    div.append("img").classed("button", true).classed("delete", true).attr("src", "images/trash-bin.svg").attr("title", "Delete")
                         .on("click", (evt, d) => {
                             if (!confirm("Deleting " + d.constructor.name + " \"" + d.name + "\""))
                                 return
@@ -324,7 +324,7 @@ export class SidebarManager {
                             evt.stopPropagation()
                         })
 
-                    div.append("img").classed("button", true).classed("hide", true).attr("src", "eye.svg").attr("title", "Hide/Show")
+                    div.append("img").classed("button", true).classed("hide", true).attr("src", "images/eye.svg").attr("title", "Hide/Show")
                         .on("click", (evt, d) => {
                             d.hidden = !d.hidden
                             UI.getInstance().refresh({

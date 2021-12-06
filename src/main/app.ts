@@ -6,11 +6,16 @@ import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
 import { BiomeLayerGL } from './Visualization/BiomeLayerGL';
 
-export const DATA_VERSION = 2
-export const IS_EXPERIMENTAL = true
-
 const close_elements = document.getElementsByClassName("closable")
 
+// Register ServiceWorker script, if serviceWorker is available.
+const serviceWorker = navigator.serviceWorker;
+if (serviceWorker) {
+    serviceWorker
+        .register("/service-worker.js")
+        .then(() => console.log("ServiceWorker Registered to the Application!"))
+        .catch(() => console.log("Failed to Register the ServiceWorker."));
+}
 
 for (let i = 0; i < close_elements.length; i++) {
     (close_elements[i].getElementsByClassName("button")[0] as HTMLElement).onclick = () => {

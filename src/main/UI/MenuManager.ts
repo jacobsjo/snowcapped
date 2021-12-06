@@ -1,5 +1,5 @@
 import { read } from "deepslate"
-import { IS_EXPERIMENTAL } from "../app"
+import { IS_EXPERIMENTAL } from "../../SharedConstants"
 import { Exporter } from "../BuilderData/Exporter"
 import { UI } from "./UI"
 
@@ -132,7 +132,7 @@ export class MenuManager {
 
         this.toggleDarkmodeButton.onclick = (evt: Event) => {
             const isLight = document.body.classList.toggle("light")
-            ;(this.toggleDarkmodeButton.children[0] as (HTMLImageElement)).src = isLight ? "moon.svg" : "sun.svg"
+            ;(this.toggleDarkmodeButton.children[0] as (HTMLImageElement)).src = isLight ? "images/moon.svg" : "images/sun.svg"
             UI.getInstance().refresh({})
         }
 

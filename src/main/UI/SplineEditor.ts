@@ -204,7 +204,7 @@ export class SplineEditor {
             .join((enter) => {
                 const svg = enter.append("svg").attr("id", (d, id) => "col_" + id)
                 svg.append("rect").classed("water", true)
-                svg.append("image").classed("add", true).attr("href", "add-gray.svg")
+                svg.append("image").classed("add", true).attr("href", "images/add-gray.svg")
                 const splines = svg.append("g").classed("splines", true)
                 splines.append("path").classed("spline", true)
                 splines.append("path").classed("spline_pointer", true)

@@ -9,7 +9,7 @@ import { GridElement, Mode } from "./GridElement"
 import { GridElementUnassigned } from "./GridElementUnassigned"
 import { DimensionMultiNoiseIndexesAccessor, Grid, LayoutMultiNoiseIndexesAccessor, SliceMultiNoiseIndexesAccessor } from "./Grid"
 import { DataFixer } from "./DataFixer"
-import { DATA_VERSION } from "../app"
+import { DATA_VERSION } from "../../SharedConstants"
 import { version } from "leaflet"
 import { sortedIndexBy, takeWhile } from "lodash"
 

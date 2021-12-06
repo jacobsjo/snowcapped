@@ -6,7 +6,8 @@ const LicenseWebpackPlugin = require('license-webpack-plugin').LicenseWebpackPlu
 module.exports = {
     entry: {
         bundle: './src/main/app.ts',
-        multinoiseworker: './src/multinoiseworker/worker.ts'
+        multinoiseworker: './src/multinoiseworker/worker.ts',
+        "service-worker": './src/service-worker/service-worker.ts'
     },
     module: {
         rules: [{
