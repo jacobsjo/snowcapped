@@ -22,6 +22,7 @@ export type NoiseType = "continentalness" | "weirdness" | "erosion" | "temperatu
 
 export class BiomeBuilder {
     hasChanges: boolean
+    is_experimental_upgraded: boolean
 
     continentalnesses: Climate.Param[]
     erosions: Climate.Param[]
@@ -142,6 +143,8 @@ export class BiomeBuilder {
             this.splines.factor = GridSpline.fromMinecraftJSON(VanillaSpline.factor);
             this.splines.jaggedness = GridSpline.fromMinecraftJSON(VanillaSpline.jaggedness);
         }
+
+        this.is_experimental_upgraded = json.is_experimental_upgraded
     }
 
     toJSON() {

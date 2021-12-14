@@ -59,6 +59,7 @@ const PRECACHE_URLS = [
     "/images/offset-icon.svg",
     "/images/open-file-folder.svg",
     "/images/save.svg",
+    "/images/save-as.svg",
     "/images/settings-gear.svg",
     "/images/sun.svg",
     "/images/trash-bin.svg",

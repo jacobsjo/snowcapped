@@ -92,6 +92,8 @@ export class UI {
         }, 5)
 
         this.settingsManager.refresh()
+
+        MenuManager.updateTitle()
     }
 
     setLabels(horizontal: string, vertical: string){
