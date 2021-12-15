@@ -121,7 +121,7 @@ export class MenuManager {
 
 
         const saveAs = async () => {
-            if (UI.getInstance().builder.is_experimental_upgraded && !confirm("You are currently using an experimental version of Snowcapped. Save files from this version can not be loaded in the sable release. Please don't override your old file!")){
+            if (UI.getInstance().builder.is_experimental_upgraded && !confirm("You are currently using an experimental version of Snowcapped. Save files from this version can not be loaded in the stable release. Please don't override your old file!")){
                 return 
             }
 
