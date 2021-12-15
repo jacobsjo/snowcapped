@@ -119,13 +119,11 @@ export class VisualizationManger{
             return
 
           if (lookup.layout !== undefined && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)){
+            lookup.layout.getRenderer().setHighlight(idxs.idx.t, idxs.idx.h)
             UI.getInstance().sidebarManager.openElement({type:"layout", key:lookup.layout.getKey()})
-            UI.getInstance().layoutEditor.highlight(idxs.idx.t, idxs.idx.h)
-            UI.getInstance().refresh({})
           } else{
+            lookup.slice.getRenderer().setHighlight(idxs.idx.c, idxs.idx.e)
             UI.getInstance().sidebarManager.openElement({type:"slice", key:lookup.slice.getKey()})
-            UI.getInstance().layoutEditor.highlight(idxs.idx.c, idxs.idx.e)
-            UI.getInstance().refresh({})
           }
         })
 
