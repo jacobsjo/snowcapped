@@ -62,6 +62,11 @@ export class BiomeBuilder {
 
     seed: bigint = BigInt("1")
     dimensionName: string = "minecraft:overworld"
+    exportDimension: boolean = true;
+    noiseSettingsName: string = "minecraft:overworld"
+    exportSplines: boolean = true;
+    exportNoises: boolean = true;
+
     useLegacyRandom: boolean = false;
 
     constructor() {

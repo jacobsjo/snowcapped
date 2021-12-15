@@ -64,10 +64,12 @@ export class SettingsManager {
             UI.getInstance().refresh({noises: true})
         }
 
+        /*
         const copyButton = document.getElementById("copy_noise_settings")
         copyButton.onclick = (evt) => {
             navigator.clipboard.writeText("\"octaves\": " + JSON.stringify(this.builder.noiseSettings))
         }
+        */
 
         this.handleFixNoiseSetting(document.getElementById("fix_continentalness_setting"), "continentalness")
         this.handleFixNoiseSetting(document.getElementById("fix_erosion_setting"), "erosion")

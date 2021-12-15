@@ -1,4 +1,8 @@
 import { Climate } from "deepslate";
+import * as JSZip from "jszip";
+import { create } from "lodash";
+import { MenuManager } from "../UI/MenuManager";
+import { UI } from "../UI/UI";
 import { Biome } from "./Biome";
 import { BiomeBuilder } from "./BiomeBuilder";
 import { GridElementUnassigned } from "./GridElementUnassigned";
@@ -18,7 +22,131 @@ export class Exporter {
         return params.findIndex(r => r.min < value && value < r.max)
     }
 
-    public export(): string {
+    public async generateZip(){
+        const zip = new JSZip()
+        const dataFolder = zip.folder("data")
+
+        zip.file("pack.mcmeta", `
+{
+    "pack": {
+        "pack_format": 8,
+        "description": "Snowcapped exported Datapack"
+    }
+}`)
+
+        zip.file("pack.png", (await fetch("icons/icon_128.png")).blob() )
+
+        if (this.builder.exportDimension){
+            const [namespace, path] = this.builder.dimensionName.split(":", 2)
+            var folder = dataFolder.folder(namespace).folder("dimension")
+            
+            const folders = path.split("/")
+            const filename = folders[folders.length - 1]
+
+            for (var i = 0 ; i < folders.length - 1 ; i++){
+                folder = folder.folder(folders[i])
+            }
+            folder.file(filename + ".json", this.getDimensionJSON())
+        }
+
+        if (this.builder.exportSplines){
+            const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
+            var folder = dataFolder.folder(namespace).folder("worldgen").folder("noise_settings")
+            
+            const folders = path.split("/")
+            const filename = folders[folders.length - 1]
+
+            for (var i = 0 ; i < folders.length - 1 ; i++){
+                folder = folder.folder(folders[i])
+            }
+            folder.file(filename + ".json", await this.getNoiseSettingJSON())
+        }
+
+        if (this.builder.exportNoises){
+            const noiseFolder = dataFolder.folder("minecraft").folder("worldgen").folder("noise")
+            noiseFolder.file("continentalness.json", JSON.stringify(this.builder.noiseSettings.continentalness))
+            noiseFolder.file("erosion.json", JSON.stringify(this.builder.noiseSettings.erosion))
+            noiseFolder.file("ridge.json", JSON.stringify(this.builder.noiseSettings.weirdness))
+            noiseFolder.file("temperature.json", JSON.stringify(this.builder.noiseSettings.temperature))
+            noiseFolder.file("vegetation.json", JSON.stringify(this.builder.noiseSettings.humidity))
+            noiseFolder.file("offset.json", JSON.stringify(this.builder.noiseSettings.shift))
+        }
+
+        return zip
+    }
+
+    async insertIntoDirectory(dirHandle: FileSystemDirectoryHandle){
+
+        const writables: FileSystemWritableFileStream[] = []
+        try{
+            const dataFolder = await dirHandle.getDirectoryHandle("data")
+
+            if (this.builder.exportDimension){
+                const [namespace, path] = this.builder.dimensionName.split(":", 2)
+                var folder = await (await dataFolder.getDirectoryHandle(namespace, {create: true})).getDirectoryHandle("dimension", {create: true})
+                
+                const folders = path.split("/")
+                const filename = folders[folders.length - 1]
+
+                for (var i = 0 ; i < folders.length - 1 ; i++){
+                    folder = await folder.getDirectoryHandle(folders[i], {create: true})
+                }
+                const file = await folder.getFileHandle(filename + ".json", {create: true})
+                const writable = await file.createWritable()
+                await writable.write(this.getDimensionJSON())
+                writables.push(writable)
+            }
+
+            if (this.builder.exportSplines){
+                const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
+                var folder = await ( await ( await dataFolder.getDirectoryHandle(namespace, {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("noise_settings", {create: true})
+                
+                const folders = path.split("/")
+                const filename = folders[folders.length - 1]
+
+                for (var i = 0 ; i < folders.length - 1 ; i++){
+                    folder = await folder.getDirectoryHandle(folders[i], {create: true})
+                }
+
+                const fileHandle = await folder.getFileHandle(filename + ".json", {create: true})
+                const file = await fileHandle.getFile()
+
+                const text = await file.text()
+                const writable = await fileHandle.createWritable()
+                await writable.write(await this.getNoiseSettingJSON(text))
+                writables.push(writable)
+        }
+
+            if (this.builder.exportNoises){
+
+                const writeToFileHandle = async (fileHandle: FileSystemFileHandle, text: string) => {
+                    const writable = await fileHandle.createWritable()
+                    writable.write(text)
+                    writables.push(writable)
+                }
+
+                const noiseFolder = await ( await ( await dataFolder.getDirectoryHandle("minecraft", {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("noise", {create: true})
+                await writeToFileHandle(await noiseFolder.getFileHandle("continentalness.json", {create: true}) , JSON.stringify(this.builder.noiseSettings.continentalness))
+                await writeToFileHandle(await noiseFolder.getFileHandle("erosion.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.erosion))
+                await writeToFileHandle(await noiseFolder.getFileHandle("ridge.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.weirdness))
+                await writeToFileHandle(await noiseFolder.getFileHandle("temperature.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.temperature))
+                await writeToFileHandle(await noiseFolder.getFileHandle("vegetation.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.humidity))
+                await writeToFileHandle(await noiseFolder.getFileHandle("offset.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.shift))
+            }
+
+            writables.forEach(writable => {
+                writable.close()
+            });
+        } catch (e){
+            writables.forEach(writable => {
+                writable.abort()
+            });
+            throw e
+        }
+    }
+
+
+    public getDimensionJSON(): string {
         const array: { biome: string, done: boolean }[][][][][][] = []
 
         const fixed_d_idx = this.builder.fixedNoises["depth"] ? this.findIdx(this.builder.fixedNoises["depth"], this.builder.weirdnesses) : undefined
@@ -163,7 +291,7 @@ export class Exporter {
                     type: "minecraft:multi_noise"
                 },
                 seed: Number(this.builder.seed),
-                settings: "minecraft:overworld",
+                settings: this.builder.noiseSettingsName,
                 type: "minecraft:noise"
             }
         }
@@ -213,4 +341,61 @@ export class Exporter {
         }
     }
 
+    public async getNoiseSettingJSON(old_json?: string){
+        const json = {
+            offset: UI.getInstance().builder.splines.offset.export(UI.getInstance().builder.fixedNoises),
+            factor: UI.getInstance().builder.splines.factor.export(UI.getInstance().builder.fixedNoises),
+            jaggedness: UI.getInstance().builder.splines.jaggedness.export(UI.getInstance().builder.fixedNoises)
+        }
+        const jsonString = JSON.stringify(json)
+
+        if (old_json === undefined || old_json === ""){
+            return fetch("noise_setting_preset.json").then(s => s.text()).then(s => s.replace("%s", jsonString))
+        } else {
+            const parsed_old = JSON.parse(old_json)
+            const terrain_shaper_id = old_json.indexOf(`"terrain_shaper":`)
+            const start_id = old_json.indexOf("{", terrain_shaper_id)
+            const next_comma = old_json.indexOf(",", terrain_shaper_id)
+            if (next_comma < start_id){
+                throw new Error("terrain shaper not of correct format in file")
+            }
+            const end_id = this.findClosingBracket(old_json, start_id)
+            const new_json = old_json.substring(0, start_id) + jsonString + old_json.substring(end_id + 1)
+
+            parsed_old.noise.terrain_shaper = json
+            if (JSON.stringify(JSON.parse(new_json)) !== JSON.stringify(parsed_old)){
+                throw new Error("inserting terrain shaper failed")
+            }
+            return new_json
+        }
+    }
+
+
+    private findClosingBracket(s: string, start_id: number): number{
+        const opening = ['{', '[']
+        const closing = ['}', ']']
+        const open_brackets = []
+        var i = start_id
+        while (true){
+            if (i >= s.length){
+                throw new Error("Unclosed Brackets")
+            }
+            const char = s[i]
+            const open_bracket_id = opening.indexOf(char)
+            if (open_bracket_id >= 0){
+                open_brackets.push(open_bracket_id)
+            } else {
+                const closing_bracket_id = closing.indexOf(char)
+                if (closing_bracket_id >= 0){
+                    if (open_brackets.pop() !== closing_bracket_id){
+                        throw new Error("Mismatched Brackets")
+                    }
+                }
+            }
+            if (open_brackets.length === 0){
+                return i
+            }
+            i++
+        }
+    }    
 }

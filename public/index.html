@@ -41,8 +41,8 @@
             <div class="button" id="saveAsButton" title="Save As"><img alt="Save As" src="images/save-as.svg" /></div>
             <div class="button" id="exportButton"><img alt="Export" src="images/export-file.svg" />
                 <div class="dropdown">
-                    <div class="button" id="exportDimensionButton">Export dimension.json</div>
-                    <div class="button" id="exportSplinesButton">Export Splines</div>
+                    <div class="button" id="exportZipButton">Export as datapack zip</div>
+                    <div class="button" id="exportInsertButton">Insert into datapack folder</div>
                 </div>
             </div>
             <div class="button" id="settingsButton" title="Settings" s><img alt="Settings" title="Settings" src="images/settings-gear.svg" /></div>
@@ -187,7 +187,14 @@
                                 id="dimension_name" /></label></div>
                     <div class="setting"> <label><span class="description">Seed:</span><input type="number" step=1
                                 id="seed" /></label></div>
-                    <!--<div class="setting"> <label><span class="description">Use Legacy Random:</span><input
+                    <div class="setting"> <label><span class="description">Noise Settings Name:</span><input type="text"
+                        id="noise_settings_name" /></label></div>
+                    <div class="setting"> <label><span class="description">Include in Export:</span>
+                        <input type="checkbox" id="export_dimension"/><label for="export_dimension">Biomes (dimension file)</label>
+                        <input type="checkbox" id="export_splines"/><label for="export_splines">Splines (into noise settings)</label>
+                        <input type="checkbox" id="export_noises"/><label for="export_noises">Noises (in noise folder)</label>
+                    </div>
+                            <!--<div class="setting"> <label><span class="description">Use Legacy Random:</span><input
                                 type="checkbox" id="useLegacyRandom" /></label></div>-->
                     <div class="setting">
                         <label id="continentalness_setting"><span class="description">Continentalness:</span>
@@ -203,7 +210,6 @@
                         <label id="shift_setting"><span class="description">Shift:</span>
                         </label><br />
                         <button id="reset_noises">Reset to Vanilla</button>
-                        <button id="copy_noise_settings">Copy Settings to Clipboard</button>
                     </div>
                     <div class="setting">
                         <div class="title">Debug Options</div>

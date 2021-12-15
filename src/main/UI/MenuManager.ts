@@ -11,13 +11,13 @@ export class MenuManager {
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
     private static saveAsButton: HTMLElement
-    private static exportDimensionButton: HTMLElement
-    private static exportSplinesButton: HTMLElement
+    private static exportZipButton: HTMLElement
+    private static exportInsertButton: HTMLElement
     private static settingsButton: HTMLElement
     private static toggleDarkmodeButton: HTMLElement
 
     private static fileHandle: FileSystemFileHandle
-    private static fileName: string = "New Snowcapped File.snowcapped.json"
+    public static fileName: string = "New Snowcapped File.snowcapped.json"
 
     static createClickHandlers() {
         this.loadVanillaButton = document.getElementById('loadVanillaButton')
@@ -25,8 +25,8 @@ export class MenuManager {
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
         this.saveAsButton = document.getElementById('saveAsButton')
-        this.exportDimensionButton = document.getElementById('exportDimensionButton')
-        this.exportSplinesButton = document.getElementById('exportSplinesButton')
+        this.exportZipButton = document.getElementById('exportZipButton')
+        this.exportInsertButton = document.getElementById('exportInsertButton')
         this.settingsButton = document.getElementById('settingsButton')
         this.toggleDarkmodeButton = document.getElementById('toggleDarkmodeButton')
 
@@ -181,33 +181,47 @@ export class MenuManager {
             }
         })
 
-        this.exportDimensionButton.onclick = (evt: Event) => {
+        this.exportZipButton.onclick = async (evt: Event) => {
             const exporter = new Exporter(UI.getInstance().builder)
-            const jsonString = exporter.export()
-            const bb = new Blob([jsonString], {type: 'text/plain'})
-            const a = document.createElement('a')
-            const name = UI.getInstance().builder.dimensionName.split(new RegExp(":|\/")).reverse()[0] + ".json"
-            a.download = name
-            a.href = window.URL.createObjectURL(bb)
-            a.click()
-        }
+            const zip = await exporter.generateZip()
+            const blob = await zip.generateAsync({type: "blob"})
 
-        this.exportSplinesButton.onclick = (evt: Event) => {
-            const json = {
-                offset: UI.getInstance().builder.splines.offset.export(UI.getInstance().builder.fixedNoises),
-                factor: UI.getInstance().builder.splines.factor.export(UI.getInstance().builder.fixedNoises),
-                jaggedness: UI.getInstance().builder.splines.jaggedness.export(UI.getInstance().builder.fixedNoises)
+            if ("showSaveFilePicker" in window){
+                this.fileHandle = await window.showSaveFilePicker(
+                    {types: [
+                        {
+                            description: "Zip Files",
+                            accept: {
+                                "application/zip": [".zip"]
+                            }
+                        }
+                    ], suggestedName: this.fileName.replace(".snowcapped.json", "").replace(".json", "") + ".zip"
+                } )
+                const writable = await this.fileHandle.createWritable()
+                await writable.write(blob)
+                await writable.close()
+            } else {
+                const a = document.createElement('a')
+                a.download = this.fileName.replace(".snowcapped.json", "").replace(".json", "") + ".zip"
+                a.href = window.URL.createObjectURL(blob)
+                a.click()
             }
-            const jsonString = "\"terrain_shaper\": " + JSON.stringify(json)
-
-            const bb = new Blob([jsonString], {type: 'text/plain'})
-            const a = document.createElement('a')
-            const name = UI.getInstance().builder.dimensionName.split(new RegExp(":|\/")).reverse()[0] + "_terrain_shaper.json"
-            a.download = name
-            a.href = window.URL.createObjectURL(bb)
-            a.click()
         }
 
+        this.exportInsertButton.onclick = async (evt: Event) => {
+            if (!("showDirectoryPicker" in window)){
+                alert("Inserting into Datapack is not supported in your browser")
+                return
+            }
+
+            const dirHandle = await window.showDirectoryPicker()
+            const exporter = new Exporter(UI.getInstance().builder)
+            try {
+                await exporter.insertIntoDirectory(dirHandle)
+            } catch (e){
+                alert("Could not insert into datapack: " + e)
+            }
+        }
 
         this.settingsButton.onclick = (evt: Event) => {
             const settingsOpen = !document.getElementById("settings").classList.toggle("hidden")
