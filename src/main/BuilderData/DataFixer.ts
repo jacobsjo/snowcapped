@@ -49,6 +49,14 @@ export class DataFixer {
             json.is_experimental_upgraded = IS_EXPERIMENTAL
         }
 
+        if (json.version === 2){
+            json.exportDimension = true
+            json.exportNoises = true
+            json.exportSplines = true
+            json.noiseSettingsName = "minecraft:overworld"
+            json.version = 3
+        }
+
         return json
     }
 }

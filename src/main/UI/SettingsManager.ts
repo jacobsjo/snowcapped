@@ -41,7 +41,37 @@ export class SettingsManager {
             }
         }        
 
+
+        const noiseSettingsNameInput = document.getElementById("noise_settings_name") as HTMLInputElement
+        noiseSettingsNameInput.value = this.builder.noiseSettingsName
+        noiseSettingsNameInput.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.noiseSettingsName = noiseSettingsNameInput.value
+        } 
+
+        const exportDimensionCheckbox = document.getElementById("export_dimension") as HTMLInputElement
+        exportDimensionCheckbox.checked = this.builder.exportDimension
+        exportDimensionCheckbox.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.exportDimension = exportDimensionCheckbox.checked
+        }        
+
+        const exportSplinesCheckbox = document.getElementById("export_splines") as HTMLInputElement
+        exportSplinesCheckbox.checked = this.builder.exportDimension
+        exportSplinesCheckbox.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.exportDimension = exportSplinesCheckbox.checked
+        }        
+
+        const exportNoisesCheckbox = document.getElementById("export_noises") as HTMLInputElement
+        exportNoisesCheckbox.checked = this.builder.exportDimension
+        exportNoisesCheckbox.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.exportDimension = exportNoisesCheckbox.checked
+        }        
+
         
+
         /* const legacyInput = document.getElementById("useLegacyRandom") as HTMLInputElement;
         legacyInput.checked = this.builder.useLegacyRandom;
         legacyInput.onchange = (evt) => {

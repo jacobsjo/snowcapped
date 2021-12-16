@@ -121,6 +121,11 @@ export class BiomeBuilder {
         this.biomes.length = 0
         this.slices.length = 0
 
+        this.exportDimension = json.exportDimension
+        this.exportNoises = json.exportNoises
+        this.exportSplines = json.exportSplines
+        this.noiseSettingsName = json.noiseSettingsName
+
         this.dimension = Grid.fromJSON(this, json.dimension, new DimensionMultiNoiseIndexesAccessor(this))
         this.modes = json.modes
 
@@ -172,6 +177,11 @@ export class BiomeBuilder {
             layouts: this.layouts,
             slices: this.slices,
             biomes: this.biomes,
+
+            exportDimension: this.exportDimension,
+            exportNoises: this.exportNoises,
+            exportSplines: this.exportSplines,
+            noiseSettingsName: this.noiseSettingsName,
 
             splines: {
                 offset: this.splines.offset.toJSON(),
