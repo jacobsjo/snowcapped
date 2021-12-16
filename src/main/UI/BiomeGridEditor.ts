@@ -7,6 +7,7 @@ import { UI } from "./UI";
 import { BiomeGridRenderer } from "./Renderer/BiomeGridRenderer";
 import { Grid } from "../BuilderData/Grid";
 import { thresholdSturges } from "d3";
+import { max } from "lodash";
 
 function lerp(a: number, b: number, l: number) {
     return ((1 - l) * a + l * b)
@@ -324,13 +325,21 @@ export class BiomeGridEditor {
             UI.getInstance().splineDisplayManager.setPos(undefined)            
 //        }
 
+        const size = this.layout.getSize()
+
+        // Set labels based on grid type
         if (type === "dimension"){
             UI.getInstance().setLabels("Weirdness", "Depth")
+            size[1]++  // extra size for mode selector
         } else if (type === "slice"){
             UI.getInstance().setLabels("Erosion", "Continentalness")
         } else if (type === "layout")
             UI.getInstance().setLabels("Humidity", "Temperature")
 
+        const maxSize = Math.max(size[0], size[1])
+
+        this.canvas.width = 2500 / maxSize * size[0]
+        this.canvas.height = 2500 / maxSize * size[1]
         const ctx = this.canvas.getContext('2d')
         ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
         this.layout.getRenderer().setDirty()
