@@ -1,7 +1,7 @@
 export type { };
 declare const self: ServiceWorkerGlobalScope;
 
-import { SNOWCAPPED_VERSION_ID } from "../SharedConstants"
+import { IS_EXPERIMENTAL, SNOWCAPPED_VERSION_ID } from "../SharedConstants"
 
 // Select files for caching.
 /*
@@ -64,11 +64,13 @@ const PRECACHE_URLS = [
     "/images/sun.svg",
     "/images/trash-bin.svg",
     "/icons/icon.svg",
+    "/icons/icon_128.png",
     "/icons/icon_192.png",
     "/icons/icon_512.png",
     "/icons/icon.png",
     "/minecraft_overworld.snowcapped.json",
-    "/empty.snowcapped.json"
+    "/empty.snowcapped.json",
+    "/noise_setting_preset.json"
 ];
 
 // The install handler takes care of precaching the resources we always need.
@@ -78,6 +80,9 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(PRECACHE).then(cache => {
             var cachePromises = PRECACHE_URLS.map(function (urlToPrefetch) {
+                if (IS_EXPERIMENTAL){
+                    urlToPrefetch = "/experimental" + urlToPrefetch
+                }
                 var url = new URL(urlToPrefetch, location.href);
                 url.search += (url.search ? '&' : '?') + 'cache-bust=' + now;
                 return fetch(url.toString()).then(function (response) {

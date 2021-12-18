@@ -5,6 +5,7 @@ import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
 import { BiomeLayerGL } from './Visualization/BiomeLayerGL';
+import { IS_EXPERIMENTAL } from '../SharedConstants';
 
 const close_elements = document.getElementsByClassName("closable")
 
@@ -12,7 +13,7 @@ const close_elements = document.getElementsByClassName("closable")
 const serviceWorker = navigator.serviceWorker;
 if (serviceWorker) {
     serviceWorker
-        .register("/service-worker.js")
+        .register("service-worker.js")
         .then(() => console.log("ServiceWorker Registered to the Application!"))
         .catch(() => console.log("Failed to Register the ServiceWorker."));
 }
