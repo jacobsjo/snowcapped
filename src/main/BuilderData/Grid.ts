@@ -205,6 +205,8 @@ export class Grid implements GridElement {
         } else {
             this.array.forEach(row => row.splice(id, 1))
         }
+        this.lookup_cache = new Array(this.array.length).fill(0).map(() => new Array(this.array[0].length).fill(undefined))
+
     }
 
     splitParam(param: string, id: number){
@@ -214,6 +216,9 @@ export class Grid implements GridElement {
         } else {
             this.array.forEach(row => row.splice(id, 0, row[id]))
         }
+
+        this.lookup_cache = new Array(this.array.length).fill(0).map(() => new Array(this.array[0].length).fill(undefined))
+
     }
 
     deleteGridElement(key: string){
