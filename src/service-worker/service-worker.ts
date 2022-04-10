@@ -70,7 +70,15 @@ const PRECACHE_URLS = [
     "/icons/icon.png",
     "/minecraft_overworld.snowcapped.json",
     "/empty.snowcapped.json",
-    "/noise_setting_preset.json"
+    "/export_presets/1_18_1/noise_settings.json",
+    "/export_presets/1_18_1/pack.mcmeta",
+    "/export_presets/1_18_2/noise_settings.json",
+    "/export_presets/1_18_2/pack.mcmeta",
+    "/export_presets/1_19/factor.json",
+    "/export_presets/1_19/offset.json",
+    "/export_presets/1_19/jaggedness.json",
+    "/export_presets/1_19/pack.mcmeta",
+    
 ];
 
 // The install handler takes care of precaching the resources we always need.
@@ -81,7 +89,7 @@ self.addEventListener('install', (event) => {
         caches.open(PRECACHE).then(cache => {
             var cachePromises = PRECACHE_URLS.map(function (urlToPrefetch) {
                 if (IS_EXPERIMENTAL){
-                    urlToPrefetch = "/experimental" + urlToPrefetch
+                    //urlToPrefetch = "/experimental" + urlToPrefetch
                 }
                 var url = new URL(urlToPrefetch, location.href);
                 url.search += (url.search ? '&' : '?') + 'cache-bust=' + now;
