@@ -49,6 +49,15 @@ export class SettingsManager {
             this.builder.noiseSettingsName = noiseSettingsNameInput.value
         } 
 
+        const VERSIONS = ['1_18_1', '1_18_2', 'snapshot']
+
+        const exportVersion = document.getElementById("export_version") as HTMLSelectElement
+        exportVersion.selectedIndex = VERSIONS.indexOf(this.builder.exportVersion)
+        exportVersion.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.exportVersion = VERSIONS[exportVersion.selectedIndex]
+        }        
+
         const exportDimensionCheckbox = document.getElementById("export_dimension") as HTMLInputElement
         exportDimensionCheckbox.checked = this.builder.exportDimension
         exportDimensionCheckbox.onchange = (evt) => {

@@ -62,6 +62,7 @@ export class BiomeBuilder {
 
     seed: bigint = BigInt("1")
     dimensionName: string = "minecraft:overworld"
+    exportVersion: string = '1_18_2'
     exportDimension: boolean = true;
     noiseSettingsName: string = "minecraft:overworld"
     exportSplines: boolean = true;
@@ -121,6 +122,7 @@ export class BiomeBuilder {
         this.biomes.length = 0
         this.slices.length = 0
 
+        this.exportVersion = json.exportVersion
         this.exportDimension = json.exportDimension
         this.exportNoises = json.exportNoises
         this.exportSplines = json.exportSplines
@@ -178,6 +180,7 @@ export class BiomeBuilder {
             slices: this.slices,
             biomes: this.biomes,
 
+            exportVersion: this.exportVersion,
             exportDimension: this.exportDimension,
             exportNoises: this.exportNoises,
             exportSplines: this.exportSplines,
