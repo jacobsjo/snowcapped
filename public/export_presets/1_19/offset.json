@@ -1,0 +1,46 @@
+{
+  "argument": {
+    "argument": {
+      "argument1": {
+        "argument1": {
+          "type": "minecraft:blend_offset"
+        },
+        "argument2": {
+          "argument1": 1.0,
+          "argument2": {
+            "argument1": -1.0,
+            "argument2": {
+              "argument": {
+                "type": "minecraft:blend_alpha"
+              },
+              "type": "minecraft:cache_once"
+            },
+            "type": "minecraft:mul"
+          },
+          "type": "minecraft:add"
+        },
+        "type": "minecraft:mul"
+      },
+      "argument2": {
+        "argument1": {
+          "argument1": -0.5037500262260437,
+          "argument2": {
+            "spline": %s,
+            "type": "minecraft:spline"
+          },
+          "type": "minecraft:add"
+        },
+        "argument2": {
+          "argument": {
+            "type": "minecraft:blend_alpha"
+          },
+          "type": "minecraft:cache_once"
+        },
+        "type": "minecraft:mul"
+      },
+      "type": "minecraft:add"
+    },
+    "type": "minecraft:cache_2d"
+  },
+  "type": "minecraft:flat_cache"
+}

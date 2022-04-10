@@ -12,7 +12,7 @@ export class SimpleSpline {
 		this.order()
 	}
 
-	public toJSON(){
+	public toJSON(coordinate: string){
 		const points = []
 
 		for (const point of this.points){
@@ -23,7 +23,7 @@ export class SimpleSpline {
 		}
 
 		return {
-			coordinate: "weirdness",
+			coordinate: coordinate,
 			points: points
 		}
 	}

@@ -58,7 +58,7 @@ export class DataFixer {
         }
 
         if (json.version === 3){
-            json.exportVersion = "1_18_1",
+            json.targetVersion = "1_18_1",
             json.version = 4
         }
 

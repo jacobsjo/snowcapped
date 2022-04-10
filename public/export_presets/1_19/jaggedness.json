@@ -1,0 +1,24 @@
+{
+  "argument": {
+    "argument": {
+      "argument1": 0.0,
+      "argument2": {
+        "argument1": {
+          "type": "minecraft:blend_alpha"
+        },
+        "argument2": {
+          "argument1": -0.0,
+          "argument2": {
+            "spline": %s,
+            "type": "minecraft:spline"
+          },
+          "type": "minecraft:add"
+        },
+        "type": "minecraft:mul"
+      },
+      "type": "minecraft:add"
+    },
+    "type": "minecraft:cache_2d"
+  },
+  "type": "minecraft:flat_cache"
+}

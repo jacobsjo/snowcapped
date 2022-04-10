@@ -73,7 +73,7 @@ export class GridSpline {
     addUndoStep(){
         this.undoSteps.push(JSON.stringify(this.splines.map(row => row.map(spline => {
             if (spline) {
-                return spline.toJSON()
+                return spline.toJSON("weirdness")
             } else {
                 return undefined
             }
@@ -118,7 +118,7 @@ export class GridSpline {
             erosions: this.erosions,
             splines: this.splines.map(row => row.map(spline => {
                 if (spline) {
-                    return spline.toJSON()
+                    return spline.toJSON("weirdness")
                 } else {
                     return undefined
                 }
@@ -137,7 +137,7 @@ export class GridSpline {
         )))
     }
 
-    public export(fixedNoises: {[key: string] : number}) {
+    public exportLegacy(fixedNoises: {[key: string] : number}) {
 
         if (fixedNoises["continentalness"] !== undefined){
             const c_id = binarySearch(0, this.continentalnesses.length, n => fixedNoises["continentalness"] < this.continentalnesses[n]) - 1
@@ -148,7 +148,7 @@ export class GridSpline {
                 const spline1 = this.interpolateSplinesZeroGrad(alpha_e, this.getErosionInterpolatedSpline(c_id,e_id), this.getErosionInterpolatedSpline(c_id,e_id+1))
                 const spline2 = this.interpolateSplinesZeroGrad(alpha_e, this.getErosionInterpolatedSpline(c_id+1,e_id), this.getErosionInterpolatedSpline(c_id+1,e_id+1))
                 const spline = this.interpolateSplinesZeroGrad(alpha_c, spline1, spline2)
-                return fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON()
+                return fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON("weirdness")
             } else {
                 const erosion_points = []
                 for (let e_id = 0 ; e_id < this.erosions.length ; e_id ++){
@@ -157,7 +157,7 @@ export class GridSpline {
                         erosion_points.push({
                             location: this.erosions[e_id],
                             derivative: 0,
-                            value: fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON()
+                            value: fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON("weirdness")
                         })
                     }
                 }
@@ -179,7 +179,7 @@ export class GridSpline {
                 contitent_points.push({
                     location: this.continentalnesses[c_id],
                     derivative: 0,
-                    value: fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON()
+                    value: fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON("weirdness")
                 })
             } else {
                 const erosion_points = []
@@ -188,7 +188,7 @@ export class GridSpline {
                         erosion_points.push({
                             location: this.erosions[e_id],
                             derivative: 0,
-                            value: fixedNoises["weirdness"] !== undefined ? this.splines[c_id][e_id].apply(fixedNoises["weirdness"]) : this.splines[c_id][e_id].toJSON()
+                            value: fixedNoises["weirdness"] !== undefined ? this.splines[c_id][e_id].apply(fixedNoises["weirdness"]) : this.splines[c_id][e_id].toJSON("weirdness")
                         })
                     }
                 }
@@ -208,6 +208,38 @@ export class GridSpline {
             coordinate: "continents",
             points: contitent_points
         }
+    }
+
+    public export(){
+        const contitent_points = []
+        for (let c_id = 0 ; c_id < this.continentalnesses.length ; c_id ++){
+
+            const erosion_points = []
+            for (let e_id = 0 ; e_id < this.erosions.length ; e_id ++){
+                if (this.splines[c_id][e_id]){
+                    erosion_points.push({
+                        location: this.erosions[e_id],
+                        derivative: 0,
+                        value: this.splines[c_id][e_id].toJSON("minecraft:overworld/ridges")
+                    })
+                }
+            }
+
+            contitent_points.push({
+                location: this.continentalnesses[c_id],
+                derivative: 0,
+                value: {
+                    coordinate: "minecraft:overworld/erosion",
+                    points: erosion_points
+                }
+            })
+        }
+
+        return {
+            coordinate: "minecraft:overworld/continents",
+            points: contitent_points
+        }
+
     }
 
     public static fromMinecraftJSON(json: any): GridSpline {

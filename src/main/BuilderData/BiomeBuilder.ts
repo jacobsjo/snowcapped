@@ -12,6 +12,7 @@ import { DataFixer } from "./DataFixer"
 import { DATA_VERSION } from "../../SharedConstants"
 import { version } from "leaflet"
 import { sortedIndexBy, takeWhile } from "lodash"
+import { VERSION_INFO } from "../Vanilla/VersionInfo"
 
 export type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
 export type MultiNoiseIndexes = { d: number, w: number, c: number, e: number, h: number, t: number }
@@ -62,7 +63,7 @@ export class BiomeBuilder {
 
     seed: bigint = BigInt("1")
     dimensionName: string = "minecraft:overworld"
-    exportVersion: string = '1_18_2'
+    targetVersion: string = '1_18_2'
     exportDimension: boolean = true;
     noiseSettingsName: string = "minecraft:overworld"
     exportSplines: boolean = true;
@@ -122,7 +123,7 @@ export class BiomeBuilder {
         this.biomes.length = 0
         this.slices.length = 0
 
-        this.exportVersion = json.exportVersion
+        this.targetVersion = json.targetVersion
         this.exportDimension = json.exportDimension
         this.exportNoises = json.exportNoises
         this.exportSplines = json.exportSplines
@@ -180,7 +181,7 @@ export class BiomeBuilder {
             slices: this.slices,
             biomes: this.biomes,
 
-            exportVersion: this.exportVersion,
+            targetVersion: this.targetVersion,
             exportDimension: this.exportDimension,
             exportNoises: this.exportNoises,
             exportSplines: this.exportSplines,
@@ -418,6 +419,10 @@ export class BiomeBuilder {
 
     getNumDepths() {
         return this.depths.length
+    }
+
+    getVersionInfo() {
+        return VERSION_INFO[this.targetVersion]
     }
 
 }

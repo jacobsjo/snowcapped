@@ -23,16 +23,12 @@ export class Exporter {
     }
 
     public async generateZip(){
+        const versionInfo = this.builder.getVersionInfo()
+
         const zip = new JSZip()
         const dataFolder = zip.folder("data")
 
-        zip.file("pack.mcmeta", `
-{
-    "pack": {
-        "pack_format": 8,
-        "description": "Snowcapped exported Datapack"
-    }
-}`)
+        zip.file("pack.mcmeta", (await (await fetch(`export_presets/${this.builder.targetVersion}/pack.mcmeta`)).text()))
 
         zip.file("pack.png", (await fetch("icons/icon_128.png")).blob() )
 
@@ -50,16 +46,25 @@ export class Exporter {
         }
 
         if (this.builder.exportSplines){
-            const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
-            var folder = dataFolder.folder(namespace).folder("worldgen").folder("noise_settings")
-            
-            const folders = path.split("/")
-            const filename = folders[folders.length - 1]
+            if (versionInfo.hasTerrainShaper){
+                const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
+                var folder = dataFolder.folder(namespace).folder("worldgen").folder("noise_settings")
+                
+                const folders = path.split("/")
+                const filename = folders[folders.length - 1]
 
-            for (var i = 0 ; i < folders.length - 1 ; i++){
-                folder = folder.folder(folders[i])
+                for (var i = 0 ; i < folders.length - 1 ; i++){
+                    folder = folder.folder(folders[i])
+                }
+                folder.file(filename + ".json", await this.getNoiseSettingJSON())
+            } else if (versionInfo.hasDensityFunctions){
+                const densityFunctionFolder = dataFolder.folder("minecraft").folder("worldgen").folder("density_function").folder("overworld")
+                densityFunctionFolder.file("offset.json", fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
+                densityFunctionFolder.file("factor.json", fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
+                densityFunctionFolder.file("jaggedness.json", fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
+            } else {
+                console.warn("Target version does not support spline export")
             }
-            folder.file(filename + ".json", await this.getNoiseSettingJSON())
         }
 
         if (this.builder.exportNoises){
@@ -76,6 +81,13 @@ export class Exporter {
     }
 
     async insertIntoDirectory(dirHandle: FileSystemDirectoryHandle){
+        const versionInfo = this.builder.getVersionInfo()
+
+        const writeToFileHandle = async (fileHandle: FileSystemFileHandle, text: string) => {
+            const writable = await fileHandle.createWritable()
+            writable.write(text)
+            writables.push(writable)
+        }        
 
         const writables: FileSystemWritableFileStream[] = []
         try{
@@ -98,32 +110,36 @@ export class Exporter {
             }
 
             if (this.builder.exportSplines){
-                const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
-                var folder = await ( await ( await dataFolder.getDirectoryHandle(namespace, {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("noise_settings", {create: true})
-                
-                const folders = path.split("/")
-                const filename = folders[folders.length - 1]
+                if (versionInfo.hasTerrainShaper){
+                    const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
+                    var folder = await ( await ( await dataFolder.getDirectoryHandle(namespace, {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("noise_settings", {create: true})
+                    
+                    const folders = path.split("/")
+                    const filename = folders[folders.length - 1]
 
-                for (var i = 0 ; i < folders.length - 1 ; i++){
-                    folder = await folder.getDirectoryHandle(folders[i], {create: true})
+                    for (var i = 0 ; i < folders.length - 1 ; i++){
+                        folder = await folder.getDirectoryHandle(folders[i], {create: true})
+                    }
+
+                    const fileHandle = await folder.getFileHandle(filename + ".json", {create: true})
+                    const file = await fileHandle.getFile()
+
+                    const text = await file.text()
+                    const writable = await fileHandle.createWritable()
+                    await writable.write(await this.getNoiseSettingJSON(text))
+                    writables.push(writable)
+                } else if (versionInfo.hasDensityFunctions){
+                    const densityFunctionFolder = ( await ( await ( await dataFolder.getDirectoryHandle("minecraft", {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("density_function", {create: true})).getDirectoryHandle("overworld", {create: true})
+                    await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("offset.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
+                    await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("factor.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
+                    await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("jaggedness.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
+                } else {
+                    console.warn("Target version does not support spline export")
                 }
-
-                const fileHandle = await folder.getFileHandle(filename + ".json", {create: true})
-                const file = await fileHandle.getFile()
-
-                const text = await file.text()
-                const writable = await fileHandle.createWritable()
-                await writable.write(await this.getNoiseSettingJSON(text))
-                writables.push(writable)
-        }
+            }
 
             if (this.builder.exportNoises){
 
-                const writeToFileHandle = async (fileHandle: FileSystemFileHandle, text: string) => {
-                    const writable = await fileHandle.createWritable()
-                    writable.write(text)
-                    writables.push(writable)
-                }
 
                 const noiseFolder = await ( await ( await dataFolder.getDirectoryHandle("minecraft", {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("noise", {create: true})
                 await writeToFileHandle(await noiseFolder.getFileHandle("continentalness.json", {create: true}) , JSON.stringify(this.builder.noiseSettings.continentalness))
@@ -290,7 +306,7 @@ export class Exporter {
                     biomes: biomes,
                     type: "minecraft:multi_noise"
                 },
-                seed: Number(this.builder.seed),
+                seed: this.builder.getVersionInfo().fixedSeed ? Number(this.builder.seed) : undefined,
                 settings: this.builder.noiseSettingsName,
                 type: "minecraft:noise"
             }
@@ -342,15 +358,19 @@ export class Exporter {
     }
 
     public async getNoiseSettingJSON(old_json?: string){
+        if (!this.builder.getVersionInfo().hasTerrainShaper){
+            throw new Error("trying to export noise settings in unsupporeted version")
+        }
+
         const json = {
-            offset: UI.getInstance().builder.splines.offset.export(UI.getInstance().builder.fixedNoises),
-            factor: UI.getInstance().builder.splines.factor.export(UI.getInstance().builder.fixedNoises),
-            jaggedness: UI.getInstance().builder.splines.jaggedness.export(UI.getInstance().builder.fixedNoises)
+            offset: UI.getInstance().builder.splines.offset.exportLegacy(UI.getInstance().builder.fixedNoises),
+            factor: UI.getInstance().builder.splines.factor.exportLegacy(UI.getInstance().builder.fixedNoises),
+            jaggedness: UI.getInstance().builder.splines.jaggedness.exportLegacy(UI.getInstance().builder.fixedNoises)
         }
         const jsonString = JSON.stringify(json)
 
         if (old_json === undefined || old_json === ""){
-            return fetch("noise_setting_preset.json").then(s => s.text()).then(s => s.replace("%s", jsonString))
+            return fetch(`export_presets/${this.builder.targetVersion}/noise_settings.json`).then(s => s.text()).then(s => s.replace("%s", jsonString))
         } else {
             const parsed_old = JSON.parse(old_json)
             const terrain_shaper_id = old_json.indexOf(`"terrain_shaper":`)
