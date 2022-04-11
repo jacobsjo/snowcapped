@@ -214,6 +214,7 @@ body:not(.light) #menu .button img{
     flex-grow: 1;
     background-color: var(--primary-bg-color);
     width: 700pt;
+    overflow: scroll;
 }
 
 #editor {
