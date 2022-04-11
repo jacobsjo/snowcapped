@@ -89,7 +89,7 @@ self.addEventListener('install', (event) => {
         caches.open(PRECACHE).then(cache => {
             var cachePromises = PRECACHE_URLS.map(function (urlToPrefetch) {
                 if (IS_EXPERIMENTAL){
-                    //urlToPrefetch = "/experimental" + urlToPrefetch
+                    urlToPrefetch = "/experimental" + urlToPrefetch
                 }
                 var url = new URL(urlToPrefetch, location.href);
                 url.search += (url.search ? '&' : '?') + 'cache-bust=' + now;
