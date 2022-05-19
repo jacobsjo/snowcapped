@@ -342,7 +342,7 @@ export class BiomeBuilder {
         }
     }
 
-    splitParam(param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth", id: number) {
+    splitParam(param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth", id: number, position: "mid" | "start" | "end" = "mid") {
         if (param === "humidity" || param === "temperature") {
             this.layouts.forEach(layout => layout.splitParam(param, id))
             if (param === "humidity") {
@@ -387,7 +387,7 @@ export class BiomeBuilder {
 
                 this.weirdnesses.splice(id, 1, newCont1, newCont2)
             } else {
-                const midPoint = (this.depths[id].min + this.depths[id].max) / 2
+                const midPoint = position === "mid" ? (this.depths[id].min + this.depths[id].max) / 2 : (position === "start" ? this.depths[id].min : this.depths[id].max)
 
                 const newEro1 = new Climate.Param(this.depths[id].min, midPoint)
                 const newEro2 = new Climate.Param(midPoint, this.depths[id].max)

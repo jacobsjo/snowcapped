@@ -6,7 +6,8 @@ import { UI } from "./UI"
 
 
 export class MenuManager {
-    private static loadVanillaButton: HTMLElement
+    private static loadVanilla118Button: HTMLElement
+    private static loadVanilla119Button: HTMLElement
     private static loadEmptyButton: HTMLElement
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
@@ -19,8 +20,24 @@ export class MenuManager {
     private static fileHandle: FileSystemFileHandle
     public static fileName: string = "New Snowcapped File.snowcapped.json"
 
+    static loadVanilla(filename: string){
+        if (!this.confirmUnsavedChanges())
+        return
+
+        UI.getInstance().builder.hasChanges = false
+
+        fetch(filename).then( r => r.text()).then(jsonString => {
+            this.fileHandle = undefined
+            this.fileName = "New Snowcapped File.snowcapped.json"
+            UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
+            UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
+            UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
+        })
+    }
+
     static createClickHandlers() {
-        this.loadVanillaButton = document.getElementById('loadVanillaButton')
+        this.loadVanilla118Button = document.getElementById('loadVanilla118Button')
+        this.loadVanilla119Button = document.getElementById('loadVanilla119Button')
         this.loadEmptyButton = document.getElementById('loadEmptyButton')
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
@@ -30,19 +47,12 @@ export class MenuManager {
         this.settingsButton = document.getElementById('settingsButton')
         this.toggleDarkmodeButton = document.getElementById('toggleDarkmodeButton')
 
-        this.loadVanillaButton.onclick = (evt: Event) => {
-            if (!this.confirmUnsavedChanges())
-                return
+        this.loadVanilla118Button.onclick = (evt: Event) => {
+            this.loadVanilla('minecraft_overworld_1_18.snowcapped.json')
+        }
 
-            UI.getInstance().builder.hasChanges = false
-
-            fetch('minecraft_overworld.snowcapped.json').then( r => r.text()).then(jsonString => {
-                this.fileHandle = undefined
-                this.fileName = "New Snowcapped File.snowcapped.json"
-                UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
-                UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
-            })
+        this.loadVanilla119Button.onclick = (evt: Event) => {
+            this.loadVanilla('minecraft_overworld_1_19.snowcapped.json')
         }
 
         this.loadEmptyButton.onclick = (evt: Event) => {

@@ -245,6 +245,17 @@ export class VanillaBiomes{
             name: "minecraft:bamboo_jungle",
             color: "#00ff57"
         },
+        {
+            key: "minecraft:mangrove_swamp",
+            name: "minecraft:mangrove_swamp",
+            color: "#275442"
+        },
+        {
+            key: "minecraft:deep_dark",
+            name: "minecraft:deep_dark",
+            color: "#08271f"
+        },
+
 
         {key: "minecraft:soul_sand_valley", name: "minecraft:soul_sand_valley", r: 140, g: 132, b: 108},
         {key: "minecraft:nether_wastes", name: "minecraft:nether_wastes", r: 163, g: 62, b: 62},
