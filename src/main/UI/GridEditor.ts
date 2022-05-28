@@ -541,6 +541,8 @@ export class GridEditor {
 
             this.xs = this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].erosions
             this.ys = this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].continentalnesses
+            this.double_ys = this.ys.map(() => false)
+
 
             this.x_array = undefined
             this.y_array = undefined
