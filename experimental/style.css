@@ -891,6 +891,10 @@ body:not(.light) #menu .button img{
     height: calc(100% - 20pt);
 }
 
+#layoutEditor #splineEditorDiv .row{
+    white-space: nowrap;
+}
+
 #layoutEditor #splineEditorDiv svg{
     margin: 3pt;
     background-color: var(--secondary-bg-color);
