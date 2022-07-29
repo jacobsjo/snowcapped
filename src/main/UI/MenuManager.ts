@@ -3,6 +3,8 @@ import { IS_EXPERIMENTAL } from "../../SharedConstants"
 import { Exporter } from "../BuilderData/Exporter"
 import { UI } from "./UI"
 
+import Swal from 'sweetalert2'
+import { DataFixer } from "../BuilderData/DataFixer"
 
 
 export class MenuManager {
@@ -20,9 +22,9 @@ export class MenuManager {
     private static fileHandle: FileSystemFileHandle
     public static fileName: string = "New Snowcapped File.snowcapped.json"
 
-    static loadVanilla(filename: string){
-        if (!this.confirmUnsavedChanges())
-        return
+    static async loadVanilla(filename: string){
+        if (! await this.confirmUnsavedChanges())
+            return
 
         UI.getInstance().builder.hasChanges = false
 
@@ -33,6 +35,33 @@ export class MenuManager {
             UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
             UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
         })
+    }
+
+    static maybeLoadJson(json: any){
+        json = DataFixer.fixJSON(json)
+
+        console.log(json)
+        if (json.warn_upgrade){
+            Swal.fire({
+                title: 'Upgrading Data',
+                text: "You are loading data from an old version of Snowcapped. Upgraded data can not be downgraded again. Please make a backup before continuing.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'I made a backup, Continue'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    UI.getInstance().builder.loadJSON(json)
+                    UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
+                    UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
+                }
+            })
+        } else {
+            UI.getInstance().builder.loadJSON(json)
+            UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
+            UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
+        }
     }
 
     static createClickHandlers() {
@@ -55,8 +84,8 @@ export class MenuManager {
             this.loadVanilla('minecraft_overworld_1_19.snowcapped.json')
         }
 
-        this.loadEmptyButton.onclick = (evt: Event) => {
-            if (!this.confirmUnsavedChanges())
+        this.loadEmptyButton.onclick = async (evt: Event) => {
+            if (!await this.confirmUnsavedChanges())
                 return
 
             UI.getInstance().builder.hasChanges = false
@@ -64,15 +93,13 @@ export class MenuManager {
             fetch('empty.snowcapped.json').then( r => r.text()).then(jsonString => {
                 this.fileHandle = undefined
                 this.fileName = "New Snowcapped File.snowcapped.json"
-                UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
-                UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
+                MenuManager.maybeLoadJson(JSON.parse(jsonString))
             })
         }
 
 
         this.openButton.onclick = async (evt: Event) => {
-            if (!this.confirmUnsavedChanges())
+            if (!await this.confirmUnsavedChanges())
                 return
 
             UI.getInstance().builder.hasChanges = false
@@ -96,9 +123,7 @@ export class MenuManager {
 
                 const file = await this.fileHandle.getFile()
                 const jsonString = await file.text()
-                UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
-                UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
+                MenuManager.maybeLoadJson(JSON.parse(jsonString))
             } else {
                 const input = document.createElement('input') as HTMLInputElement
                 input.type = 'file'
@@ -114,9 +139,7 @@ export class MenuManager {
                         this.fileHandle = undefined
                         this.fileName = file.name
                         const jsonString = evt.target.result as string
-                        UI.getInstance().builder.loadJSON(JSON.parse(jsonString))
-                        UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                        UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
+                        MenuManager.maybeLoadJson(JSON.parse(jsonString))
                     }
 
                     console.log(file)
@@ -131,10 +154,6 @@ export class MenuManager {
 
 
         const saveAs = async () => {
-            if (UI.getInstance().builder.is_experimental_upgraded && !confirm("You are currently using an experimental version of Snowcapped. Save files from this version can not be loaded in the stable release. Please don't override your old file!")){
-                return 
-            }
-
             const jsonString = JSON.stringify(UI.getInstance().builder.toJSON())
             if ("showSaveFilePicker" in window){
                 this.fileHandle = await window.showSaveFilePicker(
@@ -157,7 +176,6 @@ export class MenuManager {
                 const writable = await this.fileHandle.createWritable()
                 await writable.write(JSON.stringify(UI.getInstance().builder.toJSON()))
                 await writable.close()
-                UI.getInstance().builder.is_experimental_upgraded = false
             } else {
                 const bb = new Blob([jsonString], {type: 'text/plain'})
                 const a = document.createElement('a')
@@ -170,7 +188,7 @@ export class MenuManager {
         }
 
         const save = async (evt: Event) => {
-            if (this.fileHandle && !UI.getInstance().builder.is_experimental_upgraded){
+            if (this.fileHandle){
                 const writable = await this.fileHandle.createWritable()
                 await writable.write(JSON.stringify(UI.getInstance().builder.toJSON()))
                 await writable.close()
@@ -220,7 +238,12 @@ export class MenuManager {
 
         this.exportInsertButton.onclick = async (evt: Event) => {
             if (!("showDirectoryPicker" in window)){
-                alert("Inserting into Datapack is not supported in your browser")
+                Swal.fire({
+                    text: "Inserting into Datapack is not supported in your browser",
+                    icon: 'error',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Ok'
+                })
                 return
             }
 
@@ -229,7 +252,12 @@ export class MenuManager {
             try {
                 await exporter.insertIntoDirectory(dirHandle)
             } catch (e){
-                alert("Could not insert into datapack: " + e)
+                Swal.fire({
+                    text: "Could not insert into datapack: " + e,
+                    icon: 'error',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Ok'
+                })
             }
         }
 
@@ -253,8 +281,20 @@ export class MenuManager {
         }
     }
 
-    private static confirmUnsavedChanges(): boolean{
-        return UI.getInstance().builder.hasChanges ? confirm("You have unsaved changes. Continue?") : true
+    private static async confirmUnsavedChanges(): Promise<boolean>{
+        if (UI.getInstance().builder.hasChanges){
+            const result = await Swal.fire({
+                text: "You have unsaved changes that will be lost.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continue'
+            })
+            return result.isConfirmed
+        } else {
+            return true
+        }
     }
 
     public static updateTitle(){

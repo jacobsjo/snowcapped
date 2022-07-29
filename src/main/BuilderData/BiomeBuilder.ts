@@ -23,7 +23,6 @@ export type NoiseType = "continentalness" | "weirdness" | "erosion" | "temperatu
 
 export class BiomeBuilder {
     hasChanges: boolean
-    is_experimental_upgraded: boolean
 
     continentalnesses: Climate.Param[]
     erosions: Climate.Param[]
@@ -99,8 +98,6 @@ export class BiomeBuilder {
     }
 
     loadJSON(json: any) {
-        json = DataFixer.fixJSON(json)
-
         if (json.version !== DATA_VERSION) {
             throw new Error("Datafixer did output json in version " + json.version + ". Newest version is " + DATA_VERSION)
         }
@@ -156,8 +153,6 @@ export class BiomeBuilder {
             this.splines.factor = GridSpline.fromMinecraftJSON(VanillaSpline.factor);
             this.splines.jaggedness = GridSpline.fromMinecraftJSON(VanillaSpline.jaggedness);
         }
-
-        this.is_experimental_upgraded = json.is_experimental_upgraded
     }
 
     toJSON() {
@@ -247,6 +242,7 @@ export class BiomeBuilder {
     public removeGridElement(element: GridElement) {
         this.gridElements.delete(element.getKey())
 
+        this.dimension.deleteGridElement(element.getKey())
         this.slices.forEach(s => s.deleteGridElement(element.getKey()))
         this.layouts.forEach(l => l.deleteGridElement(element.getKey()))
 

@@ -1,6 +1,7 @@
 import { Climate, Spline } from "deepslate"
 import { imageOverlay } from "leaflet"
 import { has, min, size } from "lodash"
+import Swal from "sweetalert2"
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
 import { SimpleSpline } from "../BuilderData/SimpleSpline"
 import { UI } from "./UI"
@@ -173,7 +174,7 @@ export class GridEditor {
             dragStartValue = handle.handle_type === "x" ? this.xs[handle.id] : this.ys[handle.id]
         }
 
-        this.canvas.onmouseup = (evt: MouseEvent) => {
+        this.canvas.onmouseup = async (evt: MouseEvent) => {
             if (draggingHandle && (draggingHandle.handle_type === "x" || draggingHandle.handle_type === "y")) {
                 if (hasMoved){
                     const is_double = (draggingHandle.handle_type === "y" && this.double_ys[draggingHandle.id])
@@ -187,7 +188,15 @@ export class GridEditor {
                         : (draggingHandle.id === values.length - 1) ? undefined : values[draggingHandle.id + 1]
 
                     if (values[draggingHandle.id] === min_value || values[draggingHandle.id] === max_value) {
-                        if (values.length <= 2 || !confirm("Deleting Segment. This will delete this segment from every defined Layout/Slice. Continue?")) {
+                        if (values.length <= 2 || !(await Swal.fire({
+                            title: "Deleting Segment",
+                            text: "This will delete this segment from every defined Layout/Slice.",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#666',
+                            confirmButtonText: 'Delete'
+                        })).isConfirmed) {
                             values[draggingHandle.id] = dragStartValue
                             if (is_double)
                                 values[draggingHandle.id + 1] = dragStartValue

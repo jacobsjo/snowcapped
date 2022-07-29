@@ -99,6 +99,10 @@ body {
     position: absolute;
 }
 
+body.swal2-shown.swal2-height-auto {
+    height: 100% !important;
+}
+
 #main {
     display: flex;
     flex-direction: column;
@@ -889,6 +893,10 @@ body:not(.light) #menu .button img{
 #layoutEditor #splineEditorDiv #splineEditorSvg{
     width: calc(100% - 20pt);
     height: calc(100% - 20pt);
+}
+
+#layoutEditor #splineEditorDiv .row{
+    white-space: nowrap;
 }
 
 #layoutEditor #splineEditorDiv svg{

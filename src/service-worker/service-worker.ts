@@ -27,6 +27,8 @@ const PRECACHE_URLS = [
     "/",
     "/style.css",
     "/bundle.js",
+    "/bundle.js.map",
+    "/bundle.js.LICENSE.txt",
     "/manifest.webmanifest",
     "/index.html",
     "/about.html",

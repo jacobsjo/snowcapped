@@ -231,21 +231,6 @@ export class BiomeLayerGL extends L.GridLayer {
 
 	private loadGLProgram(): void {
 
-		console.log("is compiled")
-		// @event shaderError
-		// Fired when there was an error creating the shaders.
-		/*if (!this.gl.getShaderParameter(vertexShader, this.gl.COMPILE_STATUS)) {
-			this.glError = this.gl.getShaderInfoLog(vertexShader);
-			console.error(this.glError);
-			return null;
-		}
-		if (!this.gl.getShaderParameter(fragmentShader, this.gl.COMPILE_STATUS)) {
-			this.glError = this.gl.getShaderInfoLog(fragmentShader);
-			console.error(this.glError);
-			//console.log((fragmentShaderHeader + multinoiseShader))
-			return null;
-		}*/
-
 		this.gl.useProgram(this.glProgram);
 
 		// aCRSCoords (both geographical and per-tile).
@@ -303,7 +288,6 @@ export class BiomeLayerGL extends L.GridLayer {
 		this.splinesTexture = this.gl.createTexture();
 		this.gl.uniform1i(this.gl.getUniformLocation(this.glProgram, "splineTexture"), 2);
 
-		console.log("is setup")
 		this.isCompiled = true
 		console.timeEnd("Load GL Program")
 
@@ -636,6 +620,7 @@ export class BiomeLayerGL extends L.GridLayer {
 	// Runs the shader (again) on all tiles
 	reRender(change: Change) {
 		console.time("reRender BiomeLayerGL")
+		//console.log(`reRender, isCompiled: ${this.isCompiled}`)
 		if (this.isCompiled) {
 			if (change.noises) {
 				const random = XoroshiroRandom.create(this.builder.seed)
@@ -679,11 +664,11 @@ export class BiomeLayerGL extends L.GridLayer {
 	}
 
 	addRenderingTask(key: string, callback: () => void) {
-		if (this.renderingQueue.findIndex(t => t.key === key) >= 0) {
-			return
+		if (this.renderingQueue.findIndex(t => t.key === key) === -1) {
+			this.renderingQueue.push({ key: key, callback: callback })
 		}
 
-		this.renderingQueue.push({ key: key, callback: callback })
+		//console.log(`adding rendering task, isRendering: ${this.isRendering}, isCompiled: ${this.isCompiled}`)
 		if (!this.isRendering && this.isCompiled) {
 			this.isRendering = true
 			this.doNextRenderingTask()

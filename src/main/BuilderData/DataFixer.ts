@@ -46,7 +46,7 @@ export class DataFixer {
         if (json.version === 1){
             json.dimension.array = json.dimension.array[0].map((_: any, colIndex: any) => json.dimension.array.map((row : any) => row[colIndex]));
             json.version = 2
-            json.is_experimental_upgraded = IS_EXPERIMENTAL
+            json.warn_upgrade = true
         }
 
         if (json.version === 2){

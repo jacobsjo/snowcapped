@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import Swal from "sweetalert2";
 
 import { Biome } from "../BuilderData/Biome"
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
@@ -136,10 +137,22 @@ export class SidebarManager {
             })
 
         sidebar.select("#add_biome_button")
-            .on("click", (evt: Event) => {
-                const biome_name = prompt("Input biome name:", "new:biome")
-                if (biome_name === null)
-                    return
+            .on("click", async (evt: Event) => {
+                const { value: biome_name, isConfirmed: isConfirmed } = await Swal.fire({
+                    title: 'Adding biome',
+                    input: 'text',
+                    inputLabel: 'biome name',
+                    inputValue: "new:biome",
+                    showCancelButton: true,
+                    inputValidator: (value) => {
+                      if (!value) {
+                        return 'You need to enter a name!'
+                      }
+                    }
+                })
+
+                if (!isConfirmed) return
+                    
                 const biome = Biome.create(this.builder, biome_name, "#888888")
                 this.builder.hasChanges = true
                 this.refresh()
@@ -303,9 +316,20 @@ export class SidebarManager {
 
                 if (!fixed) {
                     div.filter(d => d.allowEdit).append("img").classed("button", true).classed("edit", true).attr("src", "images/edit-pen.svg").attr("title", "Rename")
-                        .on("click", (evt, d) => {
-                            const new_name = prompt("Edit name of " + d.constructor.name, d.name)
-                            if (new_name === null) return
+                        .on("click", async (evt, d) => {
+                            const { value: new_name, isConfirmed: isConfirmed } = await Swal.fire({
+                                title: `Renaming ${c}`,
+                                input: 'text',
+                                inputLabel: `${c} name`,
+                                inputValue: d.name,
+                                showCancelButton: true,
+                                inputValidator: (value) => {
+                                  if (!value) {
+                                    return 'You need to enter a name!'
+                                  }
+                                }
+                            })
+                            if (!isConfirmed) return
                             d.name = new_name;
                             this.refresh()
                             evt.stopPropagation()
@@ -313,13 +337,21 @@ export class SidebarManager {
 
                     div.append("img").classed("button", true).classed("delete", true).attr("src", "images/trash-bin.svg").attr("title", "Delete")
                         .on("click", (evt, d) => {
-                            if (!confirm("Deleting " + d.constructor.name + " \"" + d.name + "\""))
-                                return
-
-                            this.builder.hasChanges = true
-                            this.builder.removeGridElement(d)
-                            UI.getInstance().refresh({
-                                biome: {}
+                            Swal.fire({
+                                text: "Delete " + c+ " \"" + d.name + "\"?",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#d33',
+                                cancelButtonColor: '#666',
+                                confirmButtonText: 'Delete'
+                            }).then(result => {
+                                if (result.isConfirmed){
+                                    this.builder.hasChanges = true
+                                    this.builder.removeGridElement(d)
+                                    UI.getInstance().refresh({
+                                        biome: {}
+                                    })
+                                }
                             })
                             evt.stopPropagation()
                         })

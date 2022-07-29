@@ -1,13 +1,7 @@
-import { lerp2, MultiNoise, TerrainShaper } from "deepslate";
 import * as L from "leaflet";
-import { last } from "lodash";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
-import { BiomeLayer } from "../Visualization/BiomeLayer";
 import { BiomeLayerGL } from "../Visualization/BiomeLayerGL";
-import { ContourLayer } from "../Visualization/ContourLayer";
-import { GridMultiNoise } from "../Visualization/GridMultiNoise";
-import { GridMultiNoiseIndicesManager } from "../Visualization/GridMultiNoiseIndicesManager";
 import { MenuManager } from "./MenuManager";
 import { Change, UI } from "./UI";
 
@@ -15,7 +9,6 @@ export class VisualizationManger{
     builder: BiomeBuilder
     private map: L.Map
     private biomeLayer: BiomeLayerGL
-    private contourLayer: ContourLayer
 
     private closeContainer: HTMLElement
 
@@ -41,8 +34,6 @@ export class VisualizationManger{
 
         this.biomeLayer = new BiomeLayerGL(this, {tileSize: 256});
         this.biomeLayer.addTo(this.map);
-
-        this.contourLayer = new ContourLayer(this.builder);
 
         const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
 

@@ -1,6 +1,9 @@
 {
     "extends": "../generic-tsconfig.json",
-    "compilerOptions": {
+    "include": [
+        "../SharedConstants.ts"
+      ],
+      "compilerOptions": {
         "lib": ["dom", "esnext", "webworker"]
       },
   }
