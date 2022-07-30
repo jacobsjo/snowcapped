@@ -42,6 +42,7 @@ export declare class Grid implements GridElement {
     hidden: boolean;
     private accessor;
     private array;
+    private lookup_cache;
     private builder;
     private renderer;
     private key;

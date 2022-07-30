@@ -6,6 +6,7 @@ export declare class GridEditor {
     private splitIcon;
     private xs;
     private ys;
+    private double_ys;
     private x_param;
     private y_param;
     private x_array;

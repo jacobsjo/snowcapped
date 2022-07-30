@@ -11,7 +11,7 @@ export declare class SimpleSpline {
         derivative_left: number;
         derivative_right: number;
     }[]);
-    toJSON(): {
+    toJSON(coordinate: string): {
         coordinate: string;
         points: {
             location: number;

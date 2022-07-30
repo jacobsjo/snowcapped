@@ -32,6 +32,7 @@ export declare type NoiseSetting = {
     firstOctave: number;
     amplitudes: number[];
 };
+export declare type NoiseType = "continentalness" | "weirdness" | "erosion" | "temperature" | "humidity" | "shift";
 export declare class BiomeBuilder {
     hasChanges: boolean;
     continentalnesses: Climate.Param[];
@@ -65,8 +66,13 @@ export declare class BiomeBuilder {
     vis_y_level: number | "surface";
     seed: bigint;
     dimensionName: string;
+    targetVersion: string;
+    exportDimension: boolean;
+    noiseSettingsName: string;
+    exportSplines: boolean;
+    exportNoises: boolean;
     useLegacyRandom: boolean;
-    constructor(json: any);
+    constructor();
     loadJSON(json: any): void;
     toJSON(): {
         dimensionName: string;
@@ -91,6 +97,11 @@ export declare class BiomeBuilder {
         layouts: Grid[];
         slices: Grid[];
         biomes: Biome[];
+        targetVersion: string;
+        exportDimension: boolean;
+        exportNoises: boolean;
+        exportSplines: boolean;
+        noiseSettingsName: string;
         splines: {
             offset: {
                 continentalnesses: number[];
@@ -139,7 +150,7 @@ export declare class BiomeBuilder {
     registerLayout(element: Grid): void;
     registerBiome(element: Biome): void;
     removeGridElement(element: GridElement): void;
-    private findIndex;
+    findIndex(array: Climate.Param[], number: number): number;
     getIndexes(params: MultiNoiseParameters): MultiNoiseIndexes;
     lookupRecursive(indexes: MultiNoiseIndexes): Biome;
     lookupRecursiveWithTracking(indexes: MultiNoiseIndexes): {
@@ -149,12 +160,13 @@ export declare class BiomeBuilder {
         biome?: Biome;
     };
     deleteParam(param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth", id: number): void;
-    splitParam(param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth", id: number): void;
+    splitParam(param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth", id: number, position?: "mid" | "start" | "end"): void;
     getNumTemperatures(): number;
     getNumHumidities(): number;
     getNumContinentalnesses(): number;
     getNumErosions(): number;
     getNumWeirdnesses(): number;
     getNumDepths(): number;
+    getVersionInfo(): import("../Vanilla/VersionInfo").VersionInfo;
 }
 //# sourceMappingURL=BiomeBuilder.d.ts.map

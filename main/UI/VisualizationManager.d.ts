@@ -1,17 +1,14 @@
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
+import { Change } from "./UI";
 export declare class VisualizationManger {
     builder: BiomeBuilder;
     private map;
-    private biomeSource;
     private biomeLayer;
-    private contourLayer;
-    private indicesManger;
     private closeContainer;
+    enable_isolines: boolean;
+    enable_hillshading: boolean;
     constructor(builder: BiomeBuilder);
-    private getPos;
     private getIdxs;
-    updateNoises(): void;
-    invalidateIndices(): void;
-    refresh(): Promise<void>;
+    refresh(change: Change): Promise<void>;
 }
 //# sourceMappingURL=VisualizationManager.d.ts.map

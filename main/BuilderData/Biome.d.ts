@@ -10,9 +10,16 @@ export declare class Biome implements GridElement {
     color: string;
     private renderer;
     private isVanilla;
+    raw_color: {
+        r: number;
+        g: number;
+        b: number;
+    };
     private key;
     private constructor();
     static create(builder: BiomeBuilder, name: string, color: string, key?: string, isVanilla?: boolean): Biome;
+    setColor(color: string): void;
+    private _hexToRgb;
     static fromJSON(builder: BiomeBuilder, json: any): Biome;
     toJSON(): {
         key: string;

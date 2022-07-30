@@ -23,7 +23,7 @@ export declare class GridSpline {
         }[][];
     };
     static fromJSON(json: any): GridSpline;
-    export(fixedNoises: {
+    exportLegacy(fixedNoises: {
         [key: string]: number;
     }): number | {
         coordinate: string;
@@ -57,6 +57,28 @@ export declare class GridSpline {
                 }[];
             };
         })[];
+    };
+    export(): {
+        coordinate: string;
+        points: {
+            location: number;
+            derivative: number;
+            value: {
+                coordinate: string;
+                points: {
+                    location: number;
+                    derivative: number;
+                    value: {
+                        coordinate: string;
+                        points: {
+                            location: number;
+                            value: number;
+                            derivative: number;
+                        }[];
+                    };
+                }[];
+            };
+        }[];
     };
     static fromMinecraftJSON(json: any): GridSpline;
     private interpolateSplinesZeroGrad;
