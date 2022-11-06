@@ -1,14 +1,15 @@
+import { Climate } from "deepslate";
 import * as L from "leaflet";
-import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
+import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
-import { BiomeLayerGL } from "../Visualization/BiomeLayerGL";
+import { BiomeLayer } from "../Visualization/BiomeLayer";
 import { MenuManager } from "./MenuManager";
 import { Change, UI } from "./UI";
 
 export class VisualizationManger{
     builder: BiomeBuilder
     private map: L.Map
-    private biomeLayer: BiomeLayerGL
+    private biomeLayer: BiomeLayer
 
     private closeContainer: HTMLElement
 
@@ -23,16 +24,16 @@ export class VisualizationManger{
 
         this.closeContainer = panel.parentElement.parentElement;
         (this.closeContainer as any).onopenchange = () => {
-          this.biomeLayer.reRender({biome: {}, grids: true, noises: true, spline: true})
+          //this.biomeLayer.reRender({biome: {}, grids: true, noises: true, spline: true})
         }
 
 
         this.map = L.map('visualization_map')
-        this.map.setView([0,0], 15)
+        this.map.setView([0,0], 18)
         this.map.setMaxZoom(18)
         this.map.setMinZoom(11)
 
-        this.biomeLayer = new BiomeLayerGL(this, {tileSize: 256});
+        this.biomeLayer = new BiomeLayer(this, {tileSize: 256});
         this.biomeLayer.addTo(this.map);
 
         const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
@@ -132,7 +133,7 @@ export class VisualizationManger{
           if (lookup) 
             tooltip_mode.src = "images/mode_" + lookup?.mode + ".png"
 
-          const offset = builder.splines.offset.apply(idxs.values.c, idxs.values.e, idxs.values.w)
+/*          const offset = builder.splines.offset.apply(idxs.values.c, idxs.values.e, idxs.values.w)
 
           var y
           var depth: number
@@ -142,11 +143,11 @@ export class VisualizationManger{
           } else {
             y = builder.vis_y_level
             depth = -(builder.vis_y_level - 64) / 128 + offset
-          }
+          }*/
 
-          tooltip_position.innerHTML = "X: " + idxs.position.x.toFixed(0) + (y?(", Y: " + y.toFixed(0)):"") + ", Z: " + idxs.position.z.toFixed(0)
-          tooltip_noise_values.innerHTML = "C: " + idxs.values.c.toFixed(2) + ", E: " + idxs.values.e.toFixed(2) + ", W: " + 
-                    idxs.values.w.toFixed(2) + "<br /> T: " + idxs.values.t.toFixed(2) + ", H: " + idxs.values.h.toFixed(2) + ", D: " + depth.toFixed(2)
+          tooltip_position.innerHTML = `X: ${idxs.position.x.toFixed(0)}, Y: ${idxs.position.y.toFixed(0)}, Z: ${idxs.position.z.toFixed(0)}`
+          tooltip_noise_values.innerHTML = "C: " + idxs.values.continentalness.toFixed(2) + ", E: " + idxs.values.erosion.toFixed(2) + ", W: " + 
+                    idxs.values.weirdness.toFixed(2) + "<br /> T: " + idxs.values.temperature.toFixed(2) + ", H: " + idxs.values.humidity.toFixed(2) + ", D: " + idxs.values.depth.toFixed(2)
           tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
           tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
           tooltip_biome.innerHTML = lookup?.biome?.name
@@ -158,7 +159,7 @@ export class VisualizationManger{
           tooltip_biome.parentElement.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof GridElementUnassigned)
 
           if (idxs){
-            UI.getInstance().splineDisplayManager.setPos({c: idxs.values.c, e: idxs.values.e, w: idxs.values.w})
+            UI.getInstance().splineDisplayManager.setPos({c: idxs.values.continentalness, e: idxs.values.erosion, w: idxs.values.weirdness})
             UI.getInstance().splineDisplayManager.refresh()
           }
 
@@ -167,7 +168,7 @@ export class VisualizationManger{
           MenuManager.toggleAction("copy", true)
 
           lastPos = idxs.position
-          lastY = y
+//          lastY = y
         })
 
         this.map.addEventListener("mouseout", (evt: L.LeafletMouseEvent) => {
@@ -186,14 +187,14 @@ export class VisualizationManger{
         })
     }
 
-    private getIdxs(latlng: L.LatLng){
+    private getIdxs(latlng: L.LatLng): {idx: MultiNoiseIndexes, values: Climate.TargetPoint, position: {x: number, y: number, z: number}}{
       return this.biomeLayer.getIdxs(latlng)
 
     }
 
     async refresh(change: Change){
       if (!this.closeContainer.classList.contains("closed")){
-        this.biomeLayer.reRender(change)
+        this.biomeLayer.refresh(change)
       }
     }
 }

@@ -1,120 +1,90 @@
 declare var self: ServiceWorkerGlobalScope;
 export { };
 
-import { LegacyRandom, NormalNoise, TerrainShaper, XoroshiroRandom } from "deepslate"
-
-export type NoiseSetting = { firstOctave: number, amplitudes: number[] }
-
-type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
+import { Climate, NormalNoise, DensityFunction, WorldgenRegistries, Identifier, Holder, NoiseRouter, NoiseGeneratorSettings, RandomState, NoiseSettings, NoiseParameters } from "deepslate"
 
 class MultiNoiseCalculator {
-
-  private temperature: NormalNoise
-  private humidity: NormalNoise
-  private continentalness: NormalNoise
-  private erosion: NormalNoise
-  private weirdness: NormalNoise
-  private shift: NormalNoise
+  private router: NoiseRouter
+  private sampler: Climate.Sampler
+  private noiseSettings: NoiseSettings
+  private y: number | "surface" = "surface"
 
   constructor(
   ) {
   }
 
-  getMultiNoiseValues(x: number, y: number, z: number): MultiNoiseParameters {
-    if (!this.temperature)
-      return { t: 0, h: 0, c: 0, e: 0, w: 0, d: 0 }
-
-    const xx = x + this.getShift(x, 0, z)
-    const yy = y + this.getShift(y, z, x)
-    const zz = z + this.getShift(z, x, 0)
-    const temperature = this.temperature.sample(xx, yy, zz)
-    const humidity = this.humidity.sample(xx, yy, zz)
-    const continentalness = this.continentalness.sample(xx, 0, zz)
-    const erosion = this.erosion.sample(xx, 0, zz)
-    const weirdness = this.weirdness.sample(xx, 0, zz)
-    //const offset = TerrainShaper.offset(TerrainShaper.point(continentalness, erosion, weirdness))
-    const depth = -0.01;//NoiseSampler.computeDimensionDensity (1, -0.51875, y * 4) + offset
-
-    return { t: temperature, h: humidity, c: continentalness, e: erosion, w: weirdness, d: depth }
-  }
-
-  public getShift(x: number, y: number, z: number) {
-    return this.shift.sample(x, y, z) * 4
-  }
-
-  public setNoises(seed: bigint, params: {
-    "continentalness": NoiseSetting,
-    "erosion": NoiseSetting,
-    "weirdness": NoiseSetting,
-    "humidity": NoiseSetting,
-    "temperature": NoiseSetting,
-    "shift": NoiseSetting
-  }, useLegacyRandom: boolean) {
-    if (!useLegacyRandom) {
-      const random = XoroshiroRandom.create(seed).fork()
-      this.temperature = new NormalNoise(random.forkWithHashOf("minecraft:temperature"), params.temperature)
-      this.humidity = new NormalNoise(random.forkWithHashOf("minecraft:vegetation"), params.humidity)
-      this.continentalness = new NormalNoise(random.forkWithHashOf("minecraft:continentalness"), params.continentalness)
-      this.erosion = new NormalNoise(random.forkWithHashOf("minecraft:erosion"), params.erosion)
-      this.weirdness = new NormalNoise(random.forkWithHashOf("minecraft:ridge"), params.weirdness)
-      this.shift = new NormalNoise(random.forkWithHashOf("minecraft:offset"), params.shift)
-    } else {
-      this.temperature = new NormalNoise(new LegacyRandom(seed), params.temperature)
-      this.humidity = new NormalNoise(new LegacyRandom(seed + BigInt(1)), params.humidity)
-      this.continentalness = new NormalNoise(new LegacyRandom(seed + BigInt(2)), params.continentalness)
-      this.erosion = new NormalNoise(new LegacyRandom(seed + BigInt(3)), params.erosion)
-      this.weirdness = new NormalNoise(new LegacyRandom(seed + BigInt(4)), params.weirdness)
-      this.shift = new NormalNoise(new LegacyRandom(seed + BigInt(5)), params.shift)
+  private getSurface(x: number, z: number): number {
+    function invLerp(a: number, b: number, v: number) {
+      return (v - a) / (b - a)
     }
+
+    const cellHeight = NoiseSettings.cellHeight(this.noiseSettings)
+    var lastDepth = -1
+    for (let y = this.noiseSettings.minY + this.noiseSettings.height; y >= this.noiseSettings.minY; y -= cellHeight) {
+      const depth = this.router.depth.compute(DensityFunction.context(x, y, z))
+      if (depth >= 0) {
+        return y + invLerp(lastDepth, depth, 0) * cellHeight
+      }
+      lastDepth = depth
+    }
+    return Number.MAX_SAFE_INTEGER
+  }
+
+
+  public getMultiNoiseValues(min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): Climate.TargetPoint[][] {
+    const array: Climate.TargetPoint[][] = Array(tileSize + 1)
+    const step = (max_x - min_x) / tileSize
+    for (var ix = 0; ix < tileSize + 1; ix++) {
+      array[ix] = Array(tileSize + 1)
+      for (var iz = 0; iz < tileSize + 1; iz++) {
+        var x = ix * step + min_x
+        var z = iz * step + min_z
+        var y = (this.y === "surface") ? this.getSurface(x, z) : this.y
+        var climate = this.sampler.sample(x, y / 4, z)
+        if (this.y === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
+        array[ix][iz] = climate
+      }
+    }
+    return array
+  }
+
+  public setNoiseGeneratorSettings(json: unknown, seed: bigint) {
+    const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(json)
+    this.noiseSettings = noiseGeneratorSettings.noise
+    const randomState = new RandomState(noiseGeneratorSettings, seed)
+    this.router = randomState.router
+    this.sampler = Climate.Sampler.fromRouter(this.router)
+  }
+
+  public addDensityFunction(id: Identifier, json: unknown) {
+    const df = new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(json))
+    WorldgenRegistries.DENSITY_FUNCTION.register(id, df)
+  }
+
+  public addNoise(id: Identifier, json: unknown) {
+    const noise = NoiseParameters.fromJson(json)
+    WorldgenRegistries.NOISE.register(id, noise)
+  }
+
+
+  public setY(y: number | "surface") {
+    this.y = y
   }
 }
 
 const multiNoiseCalculator = new MultiNoiseCalculator()
 
-const noiseDownsample = 2
-
-function lerp(a: number, b: number, l: number) {
-  return ((1 - l) * a + l * b)
-}
-
-function lerpMultiNoiseValues(a: MultiNoiseParameters, b: MultiNoiseParameters, l: number) {
-  return {
-    w: lerp(a.w, b.w, l),
-    c: lerp(a.c, b.c, l),
-    e: lerp(a.e, b.e, l),
-    h: lerp(a.h, b.h, l),
-    t: lerp(a.t, b.t, l),
-    d: lerp(a.d, b.d, l),
-  }
-}
-
 self.onmessage = (evt: ExtendableMessageEvent) => {
   if (evt.data.task === "calculate") {
-    try {
-      const values = []
-      for (let x = 0; x < evt.data.coords.size / noiseDownsample + 1; x++) {
-        values[x] = []
-        for (let z = 0; z < evt.data.coords.size / noiseDownsample + 1; z++) {
-          values[x][z] = multiNoiseCalculator.getMultiNoiseValues(evt.data.coords.x + x * evt.data.coords.step * noiseDownsample, 0, evt.data.coords.z + z * evt.data.coords.step * noiseDownsample)
-        }
-      }
-
-      const upsampled = []
-      for (let x = 0; x < evt.data.coords.size; x++) {
-        upsampled[x] = []
-        for (let z = 0; z < evt.data.coords.size; z++) {
-          const ds_x = Math.floor(x / noiseDownsample)
-          const ds_z = Math.floor(z / noiseDownsample)
-          const lerp_x = (x % noiseDownsample) / noiseDownsample
-          const lerp_z = (z % noiseDownsample) / noiseDownsample
-          upsampled[x][z] = lerpMultiNoiseValues(lerpMultiNoiseValues(values[ds_x][ds_z], values[ds_x + 1][ds_z], lerp_x), lerpMultiNoiseValues(values[ds_x][ds_z + 1], values[ds_x + 1][ds_z + 1], lerp_x), lerp_z)
-        }
-      }
-      postMessage({ key: evt.data.key, values: upsampled })
-    } catch (e) {
-      console.error(e)
-    }
-  } else if (evt.data.task === "updateNoiseSettings") {
-    multiNoiseCalculator.setNoises(evt.data.seed, evt.data.params, evt.data.useLegacyRandom)
+    const values = multiNoiseCalculator.getMultiNoiseValues(evt.data.min.x, evt.data.min.y, evt.data.max.x, evt.data.max.y, evt.data.tileSize)
+    postMessage({ key: evt.data.key, values: values })
+  } else if (evt.data.task === "setNoiseGeneratorSettings") {
+    multiNoiseCalculator.setNoiseGeneratorSettings(evt.data.json, evt.data.seed)
+  } else if (evt.data.task === "addDensityFunction") {
+    multiNoiseCalculator.addDensityFunction(Identifier.parse(evt.data.id), evt.data.json)
+  } else if (evt.data.task === "addNoise") {
+    multiNoiseCalculator.addNoise(Identifier.parse(evt.data.id), evt.data.json)
+  } else if (evt.data.task === "setY") {
+    multiNoiseCalculator.setY(evt.data.y)
   }
 }

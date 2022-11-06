@@ -4,7 +4,6 @@ import * as _ from 'lodash';
 import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
-import { BiomeLayerGL } from './Visualization/BiomeLayerGL';
 import { IS_EXPERIMENTAL } from '../SharedConstants';
 
 const close_elements = document.getElementsByClassName("closable")
@@ -27,7 +26,7 @@ for (let i = 0; i < close_elements.length; i++) {
     }
 }
 
-BiomeLayerGL.preInitalize(false)  // dont yet compile shaders on firefox (firefox can't do async shader compilation)
+//BiomeLayerGL.preInitalize(false)  // dont yet compile shaders on firefox (firefox can't do async shader compilation)
 
 const builder = new BiomeBuilder()
 UI.create(builder)

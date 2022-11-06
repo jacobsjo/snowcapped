@@ -13,6 +13,7 @@ import { DATA_VERSION } from "../../SharedConstants"
 import { version } from "leaflet"
 import { sortedIndexBy, takeWhile } from "lodash"
 import { VERSION_INFO } from "../Vanilla/VersionInfo"
+import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
 
 export type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
 export type MultiNoiseIndexes = { d: number, w: number, c: number, e: number, h: number, t: number }
@@ -70,6 +71,8 @@ export class BiomeBuilder {
 
     useLegacyRandom: boolean = false;
 
+    datapacks: CompositeDatapack
+
     constructor() {
         this.gridElements = new Map<string, GridElement>();
         this.vanillaBiomes = new Map<string, Biome>();
@@ -90,11 +93,7 @@ export class BiomeBuilder {
             shift: {firstOctave: 0, amplitudes:[1.0]},
         }
 
-
-
-
-
-        //this.loadJSON(json)
+        this.datapacks = new CompositeDatapack([new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`))])
     }
 
     loadJSON(json: any) {
@@ -262,22 +261,17 @@ export class BiomeBuilder {
     }
 
     public findIndex(array: Climate.Param[], number: number): number {
-        return number < array[0].min ? 0 : number > array[array.length - 1].max ? array.length - 1 : array.findIndex(e => e.min <= number && e.max > number)
+        return number <= array[0].min ? 0 : number > array[array.length - 1].max ? array.length - 1 : array.findIndex(e => e.min <= number && e.max > number)
     }
 
-    public getIndexes(params: MultiNoiseParameters): MultiNoiseIndexes {
-        const w_idx = this.findIndex(this.weirdnesses, params.w)
-        const c_idx = this.findIndex(this.continentalnesses, params.c)
-        const e_idx = this.findIndex(this.erosions, params.e)
-        const t_idx = this.findIndex(this.temperatures, params.t)
-        const h_idx = this.findIndex(this.humidities, params.h)
-        var depth
-        if (this.vis_y_level === "surface") {
-            depth = -0.01
-        } else {
-            depth = -(this.vis_y_level - 64) / 128 + this.splines['offset'].apply(params.c, params.e, params.w)
-        }
-        const d_idx = this.findIndex(this.depths, depth)
+
+    public getIndexes(params: Climate.TargetPoint): MultiNoiseIndexes {
+        const w_idx = this.findIndex(this.weirdnesses, params.weirdness)
+        const c_idx = this.findIndex(this.continentalnesses, params.continentalness)
+        const e_idx = this.findIndex(this.erosions, params.erosion)
+        const t_idx = this.findIndex(this.temperatures, params.temperature)
+        const h_idx = this.findIndex(this.humidities, params.humidity)
+        const d_idx = this.findIndex(this.depths, params.depth)
         return { w: w_idx, e: e_idx, c: c_idx, t: t_idx, h: h_idx, d: d_idx }
     }
 

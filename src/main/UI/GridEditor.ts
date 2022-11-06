@@ -1,4 +1,4 @@
-import { Climate, Spline } from "deepslate"
+import { Climate } from "deepslate"
 import { imageOverlay } from "leaflet"
 import { has, min, size } from "lodash"
 import Swal from "sweetalert2"
