@@ -187,7 +187,7 @@ export class BiomeLayer extends L.GridLayer {
 	async refresh(change: Change){
 		if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
 			console.log("canceling")
-			this.workers.forEach(w => w.terminate)
+			this.workers.forEach(w => w.terminate())
 			this.createWorkers()
 
 			this.datapackLoader = this.loadDatapack(this.builder.datapacks)
