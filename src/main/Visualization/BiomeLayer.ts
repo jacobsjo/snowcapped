@@ -17,7 +17,7 @@ const azimuth = 135.0 * Math.PI / 180.0;
 
 type Tile = { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, array?: {climate: Climate.TargetPoint, surface: number}[][], step?: number, isRendering?: boolean } 
 export class BiomeLayer extends L.GridLayer {
-	private next_worker_num = 0
+	private next_worker_id = 0
 
 	private Tiles: { [key: string]: Tile} = {}
 	private tileSize: number
@@ -44,11 +44,19 @@ export class BiomeLayer extends L.GridLayer {
 		this.tileResolution = 1 / 2
 		this.calcResolution = 1 / 4
 
-		this.workers = []
 		this.lastY = this.builder.vis_y_level
 
+		this.createWorkers()
+
+		this.datapackLoader = this.loadDatapack(this.builder.datapacks)
+
+	}
+
+	private createWorkers(){
+		this.workers = []
 		for (var i = 0; i < WORKER_COUNT; i++) {
 			const worker = new Worker("multinoiseworker.js")
+			const worker_id = i
 			worker.onmessage = (ev) => {
 				const tile = this.Tiles[ev.data.key]
 				if (tile === undefined)
@@ -57,6 +65,7 @@ export class BiomeLayer extends L.GridLayer {
 				tile.array = ev.data.array
 				tile.step = ev.data.step
 
+				tile.isRendering = true
 				this.renderTile(tile)
 
 				//				tile.ctx.fillStyle = "green"
@@ -70,10 +79,6 @@ export class BiomeLayer extends L.GridLayer {
 
 			this.workers.push(worker)
 		}
-
-
-		this.datapackLoader = this.loadDatapack(this.builder.datapacks)
-
 	}
 
 	private calculateHillshade(slope_x: number, slope_z: number, scale: number): number {
@@ -180,24 +185,29 @@ export class BiomeLayer extends L.GridLayer {
 	}
 
 	async refresh(change: Change){
-		// reload legacy datapack if legacy noise or spline config changed
-		if (change.noises || change.spline){
+		if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
+			console.log("canceling")
+			this.workers.forEach(w => w.terminate)
+			this.createWorkers()
+
 			this.datapackLoader = this.loadDatapack(this.builder.datapacks)
 			await this.datapackLoader
-		}
 
-		this.workers.forEach(w => w.postMessage({
-			task: "setY",
-			y: this.builder.vis_y_level
-		}))
+			this.workers.forEach(w => w.postMessage({
+				task: "setY",
+				y: this.builder.vis_y_level
+			}))
+
+			this.redraw()
+		}
 
 		for (const key in this.Tiles){
 			if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
 				this.recalculateTile(key, this.Tiles[key].coords)
 			} else if (change.biome || change.grids || change.map_display) {
 				if (!this.Tiles[key].isRendering){
-					setTimeout(() => this.renderTile(this.Tiles[key]), 0)
 					this.Tiles[key].isRendering = true
+					setTimeout(() => this.renderTile(this.Tiles[key]), 0)
 				}
 			}
 		}
@@ -221,15 +231,16 @@ export class BiomeLayer extends L.GridLayer {
 		min.y *= -1
 		max.y *= -1
 
-		this.workers[this.next_worker_num].postMessage({
+		const message = {
 			task: "calculate",
 			key,
 			min,
 			max,
 			tileSize: this.tileSize * this.calcResolution
-		})
+		}
 
-		this.next_worker_num = (this.next_worker_num + 1) % WORKER_COUNT
+		this.workers[this.next_worker_id].postMessage(message)
+		this.next_worker_id = (this.next_worker_id + 1) % WORKER_COUNT
 	}
 
 	createTile(coords: L.Coords, done: L.DoneCallback) {

@@ -34,8 +34,8 @@ class MultiNoiseCalculator {
 
 
 
-  public getMultiNoiseValues(min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): [{climate: Climate.TargetPoint, surface: number}[][], number] {
-    const array: {climate: Climate.TargetPoint, surface: number}[][] = Array(tileSize + 2)
+  public calculateMultiNoiseValues(key: string, min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): void {
+    const array: { climate: Climate.TargetPoint, surface: number }[][] = Array(tileSize + 2)
     const step = (max_x - min_x) / tileSize
     for (var ix = -1; ix < tileSize + 2; ix++) {
       array[ix] = Array(tileSize + 2)
@@ -46,11 +46,14 @@ class MultiNoiseCalculator {
         var y = (this.y === "surface") ? surface : this.y
         var climate = this.sampler.sample(x, y / 4, z)
         if (this.y === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
-        array[ix][iz] = {climate, surface}
+        array[ix][iz] = { climate, surface }
       }
     }
-    return [array, step]
+
+    postMessage({ key, array, step })
+
   }
+
 
   public setNoiseGeneratorSettings(json: unknown, seed: bigint) {
     const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(json)
@@ -80,8 +83,7 @@ const multiNoiseCalculator = new MultiNoiseCalculator()
 
 self.onmessage = (evt: ExtendableMessageEvent) => {
   if (evt.data.task === "calculate") {
-    const [values, step] = multiNoiseCalculator.getMultiNoiseValues(evt.data.min.x, evt.data.min.y, evt.data.max.x, evt.data.max.y, evt.data.tileSize)
-    postMessage({ key: evt.data.key, array: values, step: step })
+    multiNoiseCalculator.calculateMultiNoiseValues(evt.data.key, evt.data.min.x, evt.data.min.y, evt.data.max.x, evt.data.max.y, evt.data.tileSize)
   } else if (evt.data.task === "setNoiseGeneratorSettings") {
     multiNoiseCalculator.setNoiseGeneratorSettings(evt.data.json, evt.data.seed)
   } else if (evt.data.task === "addDensityFunction") {
