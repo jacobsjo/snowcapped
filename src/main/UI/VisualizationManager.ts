@@ -49,7 +49,7 @@ export class VisualizationManger{
         toggleHillshadeButton.onclick = (evt: MouseEvent) => {
           this.enable_hillshading = !this.enable_hillshading
           toggleHillshadeButton.classList.toggle("enabled", this.enable_hillshading)
-          UI.getInstance().refresh({})
+          UI.getInstance().refresh({grids: true})
         }
 
         const heightSelectRange = document.getElementById('mapHeightSelection') as HTMLInputElement
