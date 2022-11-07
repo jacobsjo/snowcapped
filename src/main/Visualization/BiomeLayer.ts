@@ -7,31 +7,21 @@ import { Climate, DensityFunction, Holder, Identifier, lerp, NoiseGeneratorSetti
 import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { Change, UI } from "../UI/UI";
 import { timer } from "d3";
+import { lerp2Climate } from "../util";
 
 const WORKER_COUNT = 4
 
+const zenith = 20.0 * Math.PI / 180.0;
+const azimuth = 135.0 * Math.PI / 180.0;
 
-function lerpClimate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: number) {
-	return new Climate.TargetPoint(
-		lerp(c, a.temperature, b.temperature),
-		lerp(c, a.humidity, b.humidity),
-		lerp(c, a.continentalness, b.continentalness),
-		lerp(c, a.erosion, b.erosion),
-		lerp(c, a.depth, b.depth),
-		lerp(c, a.weirdness, b.weirdness)
-	)
-}
-
-function lerp2Climate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: Climate.TargetPoint, d: Climate.TargetPoint, e: number, f: number) {
-	return lerpClimate(lerpClimate(a, b, e), lerpClimate(c, d, e), f)
-}
-
+type Tile = { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, array?: {climate: Climate.TargetPoint, surface: number}[][], step?: number, isRendering?: boolean } 
 export class BiomeLayer extends L.GridLayer {
 	private next_worker_num = 0
 
-	private Tiles: { [key: string]: { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, values?: Climate.TargetPoint[][] } } = {}
+	private Tiles: { [key: string]: Tile} = {}
 	private tileSize: number
-	private resolution: number
+	private tileResolution: number
+	private calcResolution: number
 
 	private workers: Worker[]
 	private builder: BiomeBuilder
@@ -50,7 +40,8 @@ export class BiomeLayer extends L.GridLayer {
 		this.builder = UI.getInstance().builder
 
 		this.tileSize = options.tileSize
-		this.resolution = 1 / 4
+		this.tileResolution = 1 / 2
+		this.calcResolution = 1 / 4
 
 		this.workers = []
 		this.lastY = this.builder.vis_y_level
@@ -62,7 +53,8 @@ export class BiomeLayer extends L.GridLayer {
 				if (tile === undefined)
 					return
 
-				tile.values = ev.data.values
+				tile.array = ev.data.array
+				tile.step = ev.data.step
 
 				this.renderTile(tile)
 
@@ -83,23 +75,63 @@ export class BiomeLayer extends L.GridLayer {
 
 	}
 
-	renderTile(tile: { canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, values?: Climate.TargetPoint[][] }) {
+	private calculateHillshade(slope_x: number, slope_z: number, scale: number): number {
+		var slope = Math.atan(Math.sqrt(slope_x * slope_x + slope_z * slope_z) / ( 8 * scale));
+		var aspect;
+		if (slope_x == 0.0){
+		  if (slope_z < 0.0){
+			aspect = Math.PI;
+		  } else {
+			aspect = 0.0;
+		  }
+		} else {
+		  aspect = Math.atan2(slope_z, -slope_x);
+		}
+	
+		var hillshade = ((Math.cos(zenith) * Math.cos(slope)) + (Math.sin(zenith) * Math.sin(slope) * Math.cos(azimuth - aspect)));
+		if (hillshade < 0.0)
+		  hillshade = 0.0;
+	
+		hillshade = hillshade * 0.7 + 0.3;
+		return hillshade
+	  }
+	
+
+	renderTile(tile: Tile) {
+		tile.isRendering = false
 		tile.ctx.clearRect(0, 0, this.tileSize, this.tileSize)
 
-		for (var x = 0; x < this.tileSize * this.resolution; x++) {
-			for (var z = 0; z < this.tileSize * this.resolution; z++) {
-				for (var iX = 0; iX < 1; iX += 2 * this.resolution) {
-					for (var iZ = 0; iZ < 1; iZ += 2 * this.resolution) {
+		for (var x = 0; x < this.tileSize * this.calcResolution; x++) {
+			for (var z = 0; z < this.tileSize * this.calcResolution; z++) {
+				
+				var hillshade = 1.0
+				if (this.visualization_manager.enable_hillshading){
+					
+					hillshade = this.calculateHillshade(
+						tile.array[x+2][z+1].surface - tile.array[x][z+1].surface,
+						tile.array[x+1][z+2].surface - tile.array[x+1][z].surface,
+						tile.step
+					)
+				}				
+				
+				for (var iX = 0; iX < 1; iX += this.calcResolution / this.tileResolution) {
+					for (var iZ = 0; iZ < 1; iZ += this.calcResolution / this.tileResolution) {
 						//console.log(iX)
-						const climate = lerp2Climate(tile.values[x][z], tile.values[x + 1][z], tile.values[x][z + 1], tile.values[x + 1][z + 1], iX, iZ)
+						const climate = lerp2Climate(tile.array[x + 1][z + 1].climate, tile.array[x + 2][z + 1].climate, tile.array[x + 1][z + 2].climate, tile.array[x + 2][z + 2].climate, iX, iZ)
 						const idx = this.builder.getIndexes(climate)
 						const biome = this.builder.lookupRecursive(idx)
 						if (biome !== undefined) {
-							tile.ctx.fillStyle = biome.color
-							tile.ctx.fillRect((x + iX) / this.resolution, (z + iZ) / this.resolution, 2, 2)
+							tile.ctx.fillStyle = `rgb(${biome.raw_color.r * hillshade}, ${biome.raw_color.g * hillshade}, ${biome.raw_color.b * hillshade})`
+						} else {
+							tile.ctx.fillStyle = `rgba(0, 0, 0, ${1-hillshade})`
 						}
+						tile.ctx.fillRect((x + iX) / this.calcResolution, (z + iZ) / this.calcResolution, this.tileResolution / this.calcResolution, this.tileResolution / this.calcResolution)
+
 					}
 				}
+
+				
+
 			}
 		}
 	}
@@ -153,8 +185,11 @@ export class BiomeLayer extends L.GridLayer {
 		for (const key in this.Tiles){
 			if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
 				this.recalculateTile(key, this.Tiles[key].coords)
-			} else if (change.biome || change.grids) {
-				setTimeout(() => this.renderTile(this.Tiles[key]), 0)
+			} else if (change.biome || change.grids || change.map_display) {
+				if (!this.Tiles[key].isRendering){
+					setTimeout(() => this.renderTile(this.Tiles[key]), 0)
+					this.Tiles[key].isRendering = true
+				}
 			}
 		}
 		this.lastY = this.builder.vis_y_level
@@ -182,7 +217,7 @@ export class BiomeLayer extends L.GridLayer {
 			key,
 			min,
 			max,
-			tileSize: this.tileSize * this.resolution
+			tileSize: this.tileSize * this.calcResolution
 		})
 
 		this.next_worker_num = (this.next_worker_num + 1) % WORKER_COUNT

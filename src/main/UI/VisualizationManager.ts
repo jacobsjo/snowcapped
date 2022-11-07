@@ -41,7 +41,7 @@ export class VisualizationManger{
         toggleIsolinesButton.onclick = (evt: MouseEvent) => {
           this.enable_isolines = !this.enable_isolines
           toggleIsolinesButton.classList.toggle("enabled", this.enable_isolines)
-          UI.getInstance().refresh({})
+          UI.getInstance().refresh({map_display: true})
         }
 
         const toggleHillshadeButton = document.getElementById('toggleHillshadeButton')
@@ -49,7 +49,7 @@ export class VisualizationManger{
         toggleHillshadeButton.onclick = (evt: MouseEvent) => {
           this.enable_hillshading = !this.enable_hillshading
           toggleHillshadeButton.classList.toggle("enabled", this.enable_hillshading)
-          UI.getInstance().refresh({})
+          UI.getInstance().refresh({map_display: true})
         }
 
         const heightSelectRange = document.getElementById('mapHeightSelection') as HTMLInputElement
@@ -81,7 +81,7 @@ export class VisualizationManger{
           } else {
             this.builder.vis_y_level = val
           }
-          this.refresh({})
+          this.refresh({map_display: true})
         }
 
         const toggleFullscreenButton = document.getElementById('mapFullscreenButton')

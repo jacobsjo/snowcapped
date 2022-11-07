@@ -3,6 +3,8 @@ export { };
 
 import { Climate, NormalNoise, DensityFunction, WorldgenRegistries, Identifier, Holder, NoiseRouter, NoiseGeneratorSettings, RandomState, NoiseSettings, NoiseParameters } from "deepslate"
 
+
+
 class MultiNoiseCalculator {
   private router: NoiseRouter
   private sampler: Climate.Sampler
@@ -23,7 +25,7 @@ class MultiNoiseCalculator {
     for (let y = this.noiseSettings.minY + this.noiseSettings.height; y >= this.noiseSettings.minY; y -= cellHeight) {
       const depth = this.router.depth.compute(DensityFunction.context(x, y, z))
       if (depth >= 0) {
-        return y + invLerp(lastDepth, depth, 0) * cellHeight
+        return y - invLerp(lastDepth, depth, 0) * cellHeight
       }
       lastDepth = depth
     }
@@ -31,21 +33,23 @@ class MultiNoiseCalculator {
   }
 
 
-  public getMultiNoiseValues(min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): Climate.TargetPoint[][] {
-    const array: Climate.TargetPoint[][] = Array(tileSize + 1)
+
+  public getMultiNoiseValues(min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): [{climate: Climate.TargetPoint, surface: number}[][], number] {
+    const array: {climate: Climate.TargetPoint, surface: number}[][] = Array(tileSize + 2)
     const step = (max_x - min_x) / tileSize
-    for (var ix = 0; ix < tileSize + 1; ix++) {
-      array[ix] = Array(tileSize + 1)
-      for (var iz = 0; iz < tileSize + 1; iz++) {
+    for (var ix = -1; ix < tileSize + 2; ix++) {
+      array[ix] = Array(tileSize + 2)
+      for (var iz = -1; iz < tileSize + 2; iz++) {
         var x = ix * step + min_x
         var z = iz * step + min_z
-        var y = (this.y === "surface") ? this.getSurface(x, z) : this.y
+        var surface = this.getSurface(x * 4, z * 4)
+        var y = (this.y === "surface") ? surface : this.y
         var climate = this.sampler.sample(x, y / 4, z)
         if (this.y === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
-        array[ix][iz] = climate
+        array[ix][iz] = {climate, surface}
       }
     }
-    return array
+    return [array, step]
   }
 
   public setNoiseGeneratorSettings(json: unknown, seed: bigint) {
@@ -76,8 +80,8 @@ const multiNoiseCalculator = new MultiNoiseCalculator()
 
 self.onmessage = (evt: ExtendableMessageEvent) => {
   if (evt.data.task === "calculate") {
-    const values = multiNoiseCalculator.getMultiNoiseValues(evt.data.min.x, evt.data.min.y, evt.data.max.x, evt.data.max.y, evt.data.tileSize)
-    postMessage({ key: evt.data.key, values: values })
+    const [values, step] = multiNoiseCalculator.getMultiNoiseValues(evt.data.min.x, evt.data.min.y, evt.data.max.x, evt.data.max.y, evt.data.tileSize)
+    postMessage({ key: evt.data.key, array: values, step: step })
   } else if (evt.data.task === "setNoiseGeneratorSettings") {
     multiNoiseCalculator.setNoiseGeneratorSettings(evt.data.json, evt.data.seed)
   } else if (evt.data.task === "addDensityFunction") {
