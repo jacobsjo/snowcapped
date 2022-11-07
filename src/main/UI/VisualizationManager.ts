@@ -29,20 +29,20 @@ export class VisualizationManger{
 
 
         this.map = L.map('visualization_map')
-        this.map.setView([0,0], 18)
-        this.map.setMaxZoom(18)
+        this.map.setView([0,0], 15)
+        this.map.setMaxZoom(16)
         this.map.setMinZoom(11)
 
         this.biomeLayer = new BiomeLayer(this, {tileSize: 256});
         this.biomeLayer.addTo(this.map);
 
-        const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
+        //const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
 
-        toggleIsolinesButton.onclick = (evt: MouseEvent) => {
-          this.enable_isolines = !this.enable_isolines
-          toggleIsolinesButton.classList.toggle("enabled", this.enable_isolines)
-          UI.getInstance().refresh({map_display: true})
-        }
+        //toggleIsolinesButton.onclick = (evt: MouseEvent) => {
+        //  this.enable_isolines = !this.enable_isolines
+        //  toggleIsolinesButton.classList.toggle("enabled", this.enable_isolines)
+        //  UI.getInstance().refresh({map_display: true})
+        //}
 
         const toggleHillshadeButton = document.getElementById('toggleHillshadeButton')
 

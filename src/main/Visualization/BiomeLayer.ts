@@ -8,6 +8,7 @@ import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { Change, UI } from "../UI/UI";
 import { timer } from "d3";
 import { lerp2Climate } from "../util";
+import { Datapack } from "mc-datapack-loader";
 
 const WORKER_COUNT = 4
 
@@ -71,7 +72,7 @@ export class BiomeLayer extends L.GridLayer {
 		}
 
 
-		this.datapackLoader = this.loadDatapack()
+		this.datapackLoader = this.loadDatapack(this.builder.datapacks)
 
 	}
 
@@ -105,7 +106,7 @@ export class BiomeLayer extends L.GridLayer {
 			for (var z = 0; z < this.tileSize * this.calcResolution; z++) {
 				
 				var hillshade = 1.0
-				if (this.visualization_manager.enable_hillshading){
+				if (this.visualization_manager.enable_hillshading && (this.builder.vis_y_level === "surface" || tile.array[x+1][z+1].surface < this.builder.vis_y_level)){
 					
 					hillshade = this.calculateHillshade(
 						tile.array[x+2][z+1].surface - tile.array[x][z+1].surface,
@@ -136,9 +137,9 @@ export class BiomeLayer extends L.GridLayer {
 		}
 	}
 
-	async loadDatapack() {
-		for (const id of await this.builder.datapacks.getIds("worldgen/density_function")) {
-			const dfJson = await this.builder.datapacks.get("worldgen/density_function", id)
+	async loadDatapack(datapack: Datapack) {
+		for (const id of await datapack.getIds("worldgen/density_function")) {
+			const dfJson = await datapack.get("worldgen/density_function", id)
 			this.workers.forEach(w => w.postMessage({
 				task: "addDensityFunction",
 				json: dfJson,
@@ -149,8 +150,8 @@ export class BiomeLayer extends L.GridLayer {
 			WorldgenRegistries.DENSITY_FUNCTION.register(id, df)
 		}
 
-		for (const id of await this.builder.datapacks.getIds("worldgen/noise")) {
-			const noiseJson = await this.builder.datapacks.get("worldgen/noise", id)
+		for (const id of await datapack.getIds("worldgen/noise")) {
+			const noiseJson = await datapack.get("worldgen/noise", id)
 			this.workers.forEach(w => w.postMessage({
 				task: "addNoise",
 				json: noiseJson,
@@ -162,21 +163,29 @@ export class BiomeLayer extends L.GridLayer {
 		}
 
 
-		const noiseSettingsJson = await this.builder.datapacks.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))
-		this.workers.forEach(w => w.postMessage({
-			task: "setNoiseGeneratorSettings",
-			json: noiseSettingsJson,
-			seed: this.builder.seed
-		}))
+		const noiseSettingsJson = await datapack.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))
+		if (noiseSettingsJson !== undefined){
+			this.workers.forEach(w => w.postMessage({
+				task: "setNoiseGeneratorSettings",
+				json: noiseSettingsJson,
+				seed: this.builder.seed
+			}))
 
-		const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(noiseSettingsJson)
-		this.noiseSettings = noiseGeneratorSettings.noise
-		const randomState = new RandomState(noiseGeneratorSettings, this.builder.seed)
-		this.router = randomState.router
-		this.sampler = Climate.Sampler.fromRouter(this.router)
+			const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(noiseSettingsJson)
+			this.noiseSettings = noiseGeneratorSettings.noise
+			const randomState = new RandomState(noiseGeneratorSettings, this.builder.seed)
+			this.router = randomState.router
+			this.sampler = Climate.Sampler.fromRouter(this.router)
+		}
 	}
 
 	async refresh(change: Change){
+		// reload legacy datapack if legacy noise or spline config changed
+		if (change.noises || change.spline){
+			this.datapackLoader = this.loadDatapack(this.builder.datapacks)
+			await this.datapackLoader
+		}
+
 		this.workers.forEach(w => w.postMessage({
 			task: "setY",
 			y: this.builder.vis_y_level

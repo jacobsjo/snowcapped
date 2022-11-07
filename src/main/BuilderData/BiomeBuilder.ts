@@ -14,6 +14,7 @@ import { version } from "leaflet"
 import { sortedIndexBy, takeWhile } from "lodash"
 import { VERSION_INFO } from "../Vanilla/VersionInfo"
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
+import { LegacyConfigDatapack } from "./LegacyConfigDatapack"
 
 export type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
 export type MultiNoiseIndexes = { d: number, w: number, c: number, e: number, h: number, t: number }
@@ -71,6 +72,7 @@ export class BiomeBuilder {
 
     useLegacyRandom: boolean = false;
 
+    legacyConfigDatapack: LegacyConfigDatapack
     datapacks: CompositeDatapack
 
     constructor() {
@@ -93,7 +95,8 @@ export class BiomeBuilder {
             shift: {firstOctave: 0, amplitudes:[1.0]},
         }
 
-        this.datapacks = new CompositeDatapack([new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`))])
+        this.legacyConfigDatapack = new LegacyConfigDatapack(this)
+        this.datapacks = new CompositeDatapack([new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`)), this.legacyConfigDatapack])
     }
 
     loadJSON(json: any) {
