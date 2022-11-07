@@ -137,58 +137,18 @@ export class GridSpline {
         )))
     }
 
-    public exportLegacy(fixedNoises: {[key: string] : number}) {
-
-        if (fixedNoises["continentalness"] !== undefined){
-            const c_id = binarySearch(0, this.continentalnesses.length, n => fixedNoises["continentalness"] < this.continentalnesses[n]) - 1
-            const alpha_c = c_id < this.continentalnesses.length - 1 && c_id >= 0 ? (fixedNoises["continentalness"] - this.continentalnesses[c_id])/(fixedNoises["continentalness"] - this.continentalnesses[c_id]) : undefined
-            if (fixedNoises["erosion"] !== undefined){
-                const e_id = binarySearch(0, this.erosions.length, n => fixedNoises["erosion"] < this.erosions[n]) - 1
-                const alpha_e = e_id < this.erosions.length - 1 && e_id >= 0 ? (fixedNoises["erosion"] - this.continentalnesses[e_id])/(fixedNoises["erosion"] - this.continentalnesses[e_id]) : undefined
-                const spline1 = this.interpolateSplinesZeroGrad(alpha_e, this.getErosionInterpolatedSpline(c_id,e_id), this.getErosionInterpolatedSpline(c_id,e_id+1))
-                const spline2 = this.interpolateSplinesZeroGrad(alpha_e, this.getErosionInterpolatedSpline(c_id+1,e_id), this.getErosionInterpolatedSpline(c_id+1,e_id+1))
-                const spline = this.interpolateSplinesZeroGrad(alpha_c, spline1, spline2)
-                return fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON("weirdness")
-            } else {
-                const erosion_points = []
-                for (let e_id = 0 ; e_id < this.erosions.length ; e_id ++){
-                    if (this.splines[c_id]?.[e_id] || this.splines[c_id+1]?.[e_id]){
-                        const spline = this.interpolateSplinesZeroGrad(alpha_c, this.getErosionInterpolatedSpline(c_id,e_id), this.getErosionInterpolatedSpline(c_id+1,e_id))
-                        erosion_points.push({
-                            location: this.erosions[e_id],
-                            derivative: 0,
-                            value: fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON("weirdness")
-                        })
-                    }
-                }
-                return {
-                    coordinate: "erosion",
-                    points: erosion_points
-                }
-            }
-        }
+    public exportLegacy() {
 
         const contitent_points = []
         for (let c_id = 0 ; c_id < this.continentalnesses.length ; c_id ++){
 
-            if (fixedNoises["erosion"] !== undefined){
-                const e_id = binarySearch(0, this.erosions.length, n => fixedNoises["erosion"] < this.erosions[n]) - 1
-                const alpha_e = e_id < this.erosions.length - 1 && e_id >= 0 ? (fixedNoises["erosion"] - this.continentalnesses[e_id])/(fixedNoises["erosion"] - this.continentalnesses[e_id]) : undefined
-
-                const spline = this.interpolateSplinesZeroGrad(alpha_e, this.getErosionInterpolatedSpline(c_id,e_id), this.getErosionInterpolatedSpline(c_id,e_id+1))
-                contitent_points.push({
-                    location: this.continentalnesses[c_id],
-                    derivative: 0,
-                    value: fixedNoises["weirdness"] !== undefined ? spline.apply(fixedNoises["weirdness"]) : spline.toJSON("weirdness")
-                })
-            } else {
                 const erosion_points = []
                 for (let e_id = 0 ; e_id < this.erosions.length ; e_id ++){
                     if (this.splines[c_id][e_id]){
                         erosion_points.push({
                             location: this.erosions[e_id],
                             derivative: 0,
-                            value: fixedNoises["weirdness"] !== undefined ? this.splines[c_id][e_id].apply(fixedNoises["weirdness"]) : this.splines[c_id][e_id].toJSON("weirdness")
+                            value: this.splines[c_id][e_id].toJSON("weirdness")
                         })
                     }
                 }
@@ -201,7 +161,6 @@ export class GridSpline {
                         points: erosion_points
                     }
                 })
-            }
         }
 
         return {

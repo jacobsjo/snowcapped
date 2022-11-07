@@ -58,8 +58,6 @@ export class BiomeBuilder {
         "shift": NoiseSetting
     } = VanillaNoiseSettings.default()
 
-    fixedNoises: { [key: string]: number } = {}
-
     vis_y_level: number | "surface" = "surface"
 
     seed: bigint = BigInt("1")

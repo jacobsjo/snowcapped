@@ -110,43 +110,6 @@ export class SettingsManager {
             navigator.clipboard.writeText("\"octaves\": " + JSON.stringify(this.builder.noiseSettings))
         }
         */
-
-        this.handleFixNoiseSetting(document.getElementById("fix_continentalness_setting"), "continentalness")
-        this.handleFixNoiseSetting(document.getElementById("fix_erosion_setting"), "erosion")
-        this.handleFixNoiseSetting(document.getElementById("fix_weirdness_setting"), "weirdness")
-        this.handleFixNoiseSetting(document.getElementById("fix_temperature_setting"), "temperature")
-        this.handleFixNoiseSetting(document.getElementById("fix_humidity_setting"), "humidity")
-    }
-
-    private handleFixNoiseSetting(div: HTMLElement, name: string){
-        const enabledCheckbox = (div.getElementsByClassName("enabled")[0] as HTMLInputElement)
-        const rangeElement = (div.getElementsByClassName("range")[0] as HTMLInputElement)
-        const displayElement = (div.getElementsByClassName("display")[0] as HTMLInputElement)
-
-        enabledCheckbox.checked = this.builder.fixedNoises[name] !== undefined
-        rangeElement.disabled = this.builder.fixedNoises[name] === undefined
-        displayElement.value = this.builder.fixedNoises[name]?.toFixed(2) ?? "0.00"
-        rangeElement.value = this.builder.fixedNoises[name]?.toString() ?? "0"
-        
-        enabledCheckbox.oninput = (evt: Event) => {
-            rangeElement.disabled = !enabledCheckbox.checked
-            if (enabledCheckbox.checked)
-                this.builder.fixedNoises[name] = parseFloat(rangeElement.value)
-            else 
-                this.builder.fixedNoises[name] = undefined
-
-            UI.getInstance().refresh({noises: true, biome: {}, grids: true})
-
-        }
-
-        rangeElement.oninput = (evt:Event) => {
-            this.builder.fixedNoises[name] = parseFloat(rangeElement.value)
-            displayElement.value = this.builder.fixedNoises[name].toFixed(2)
-        }
-
-        rangeElement.onchange = (evt:Event) => {
-            UI.getInstance().refresh({noises: true, biome: {}, grids: true})
-        }
     }
 
     private createNoiseSettingFields(div: HTMLElement, name: string, noiseSettings: NoiseSetting) {

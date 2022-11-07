@@ -165,13 +165,6 @@ export class Exporter {
     public getDimensionJSON(): string {
         const array: { biome: string, done: boolean }[][][][][][] = []
 
-        const fixed_d_idx = this.builder.fixedNoises["depth"] ? this.findIdx(this.builder.fixedNoises["depth"], this.builder.weirdnesses) : undefined
-        const fixed_w_idx = this.builder.fixedNoises["weirdness"] ? this.findIdx(this.builder.fixedNoises["weirdnesses"], this.builder.weirdnesses) : undefined
-        const fixed_c_idx = this.builder.fixedNoises["continentalness"] ? this.findIdx(this.builder.fixedNoises["continentalness"], this.builder.continentalnesses) : undefined
-        const fixed_e_idx = this.builder.fixedNoises["erosion"] ? this.findIdx(this.builder.fixedNoises["erosion"], this.builder.erosions) : undefined
-        const fixed_t_idx = this.builder.fixedNoises["temperature"] ? this.findIdx(this.builder.fixedNoises["temperature"], this.builder.temperatures) : undefined
-        const fixed_h_idx = this.builder.fixedNoises["humidity"] ? this.findIdx(this.builder.fixedNoises["humidity"], this.builder.humidities) : undefined
-
         for (let d_idx = 0; d_idx < this.builder.depths.length; d_idx++) {
             array[d_idx] = []
             for (let w_idx = 0; w_idx < this.builder.weirdnesses.length; w_idx++) {
@@ -185,12 +178,12 @@ export class Exporter {
                             array[d_idx][w_idx][c_idx][e_idx][t_idx] = []
                             for (let h_idx = 0; h_idx < this.builder.humidities.length; h_idx++) {
                                 const biome = this.builder.dimension.lookupRecursive({
-                                    d: fixed_d_idx ?? d_idx,
-                                    w: fixed_w_idx ?? w_idx,
-                                    c: fixed_c_idx ?? c_idx,
-                                    e: fixed_e_idx ?? e_idx,
-                                    h: fixed_h_idx ?? h_idx,
-                                    t: fixed_t_idx ?? t_idx
+                                    d: d_idx,
+                                    w: w_idx,
+                                    c: c_idx,
+                                    e: e_idx,
+                                    h: h_idx,
+                                    t: t_idx
                                 }, "Any")
                                 if (biome === undefined || biome instanceof GridElementUnassigned) {
                                     array[d_idx][w_idx][c_idx][e_idx][t_idx][h_idx] = { biome: "", done: true }
@@ -363,9 +356,9 @@ export class Exporter {
         }
 
         const json = {
-            offset: UI.getInstance().builder.splines.offset.exportLegacy(UI.getInstance().builder.fixedNoises),
-            factor: UI.getInstance().builder.splines.factor.exportLegacy(UI.getInstance().builder.fixedNoises),
-            jaggedness: UI.getInstance().builder.splines.jaggedness.exportLegacy(UI.getInstance().builder.fixedNoises)
+            offset: UI.getInstance().builder.splines.offset.exportLegacy(),
+            factor: UI.getInstance().builder.splines.factor.exportLegacy(),
+            jaggedness: UI.getInstance().builder.splines.jaggedness.exportLegacy()
         }
         const jsonString = JSON.stringify(json)
 
