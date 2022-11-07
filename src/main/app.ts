@@ -38,6 +38,7 @@ fetch('minecraft_overworld_1_19.snowcapped.json').then(r => r.text()).then(jsonS
         biome: {},
         spline: true,
         grids: true,
-        noises: true
+        noises: true,
+        map_display: true
     })
 })

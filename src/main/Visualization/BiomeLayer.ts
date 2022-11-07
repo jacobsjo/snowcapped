@@ -185,7 +185,11 @@ export class BiomeLayer extends L.GridLayer {
 	}
 
 	async refresh(change: Change){
-		if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
+		if (change.noises || change.spline){
+			return
+		}
+		
+		if (change.map_display){
 			console.log("canceling")
 			this.workers.forEach(w => w.terminate())
 			this.createWorkers()
@@ -199,19 +203,20 @@ export class BiomeLayer extends L.GridLayer {
 			}))
 
 			this.redraw()
-		}
 
-		for (const key in this.Tiles){
-			if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
-				this.recalculateTile(key, this.Tiles[key].coords)
-			} else if (change.biome || change.grids || change.map_display) {
-				if (!this.Tiles[key].isRendering){
-					this.Tiles[key].isRendering = true
-					setTimeout(() => this.renderTile(this.Tiles[key]), 0)
+			this.lastY = this.builder.vis_y_level
+		} else {
+			for (const key in this.Tiles){
+				if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
+					this.recalculateTile(key, this.Tiles[key].coords)
+				} else if (change.biome || change.grids || change.map_display) {
+					if (!this.Tiles[key].isRendering){
+						this.Tiles[key].isRendering = true
+						setTimeout(() => this.renderTile(this.Tiles[key]), 0)
+					}
 				}
 			}
 		}
-		this.lastY = this.builder.vis_y_level
 	}
 
 	recalculateTile(key: string, coords: L.Coords){

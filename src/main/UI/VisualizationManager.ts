@@ -16,6 +16,8 @@ export class VisualizationManger{
     public enable_isolines: boolean = false
     public enable_hillshading: boolean = true
 
+    private refreshButton: HTMLElement
+
     constructor(builder: BiomeBuilder){
         this.builder = builder
 
@@ -36,20 +38,18 @@ export class VisualizationManger{
         this.biomeLayer = new BiomeLayer(this, {tileSize: 256});
         this.biomeLayer.addTo(this.map);
 
-        //const toggleIsolinesButton = document.getElementById('toggleIsolinesButton')
+        this.refreshButton = document.getElementById('refreshButton')
 
-        //toggleIsolinesButton.onclick = (evt: MouseEvent) => {
-        //  this.enable_isolines = !this.enable_isolines
-        //  toggleIsolinesButton.classList.toggle("enabled", this.enable_isolines)
-        //  UI.getInstance().refresh({map_display: true})
-        //}
+        this.refreshButton.onclick = (evt: MouseEvent) => {
+          UI.getInstance().refresh({map_display: true})
+        }
 
         const toggleHillshadeButton = document.getElementById('toggleHillshadeButton')
 
         toggleHillshadeButton.onclick = (evt: MouseEvent) => {
           this.enable_hillshading = !this.enable_hillshading
           toggleHillshadeButton.classList.toggle("enabled", this.enable_hillshading)
-          UI.getInstance().refresh({map_display: true})
+          UI.getInstance().refresh({})
         }
 
         const heightSelectRange = document.getElementById('mapHeightSelection') as HTMLInputElement
@@ -193,7 +193,15 @@ export class VisualizationManger{
     }
 
     async refresh(change: Change){
+      if (change.noises || change.spline){
+        this.refreshButton.classList.remove("hidden")
+        console.log("Map update required")
+      }
+
       if (!this.closeContainer.classList.contains("closed")){
+        if (change.map_display){
+          this.refreshButton.classList.add("hidden")
+        }
         this.biomeLayer.refresh(change)
       }
     }
