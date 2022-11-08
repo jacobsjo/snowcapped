@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { Climate, TerrainShaper } from "deepslate";
+import { Climate } from "deepslate";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 
 

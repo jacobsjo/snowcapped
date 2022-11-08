@@ -199,7 +199,6 @@
                     <div class="setting"> <label><span class="description">Noise Settings Name:</span><input type="text"
                         id="noise_settings_name" /></label></div>
 
-
                     <div class="setting"> <label><span class="description">Include in Export:</span>
                         <input type="checkbox" id="export_dimension"/><label for="export_dimension">Biomes (dimension file)</label>
                         <input type="checkbox" id="export_splines"/><label for="export_splines">Splines</label>
@@ -222,14 +221,6 @@
                         </label><br />
                         <button id="reset_noises">Reset to Vanilla</button>
                     </div>
-                    <div class="setting">
-                        <div class="title">Debug Options</div>
-                        <label id="fix_continentalness_setting"><span class="description">Const. Continentalness:</span><input class="enabled" type="checkbox"/><input class="range" type="range" disabled min="-1.2" max="1.2" step="0.01" oninput="this.nextElementSibling.value = this.value"><output class="display">0</output></label><br />                        
-                        <label id="fix_erosion_setting"><span class="description">Constant Erosion:</span><input class="enabled" type="checkbox"/><input class="range" type="range" disabled min="-1.2" max="1.2" step="0.01" oninput="this.nextElementSibling.value = this.value"><output class="display">0</output></label><br />                        
-                        <label id="fix_weirdness_setting"><span class="description">Constant Weirdness:</span><input class="enabled" type="checkbox"/><input class="range" type="range" disabled min="-1.2" max="1.2" step="0.01" oninput="this.nextElementSibling.value = this.value"><output class="display">0</output></label><br />                        
-                        <label id="fix_temperature_setting"><span class="description">Constant Temperature:</span><input class="enabled" type="checkbox"/><input class="range" type="range" disabled min="-1.2" max="1.2" step="0.01" oninput="this.nextElementSibling.value = this.value"><output class="display">0</output></label><br />                        
-                        <label id="fix_humidity_setting"><span class="description">Constant Humidity:</span><input class="enabled" type="checkbox"/><input class="range" type="range" disabled min="-1.2" max="1.2" step="0.01" oninput="this.nextElementSibling.value = this.value"><output class="display">0</output></label><br />                        
-                    </div>
                 </div>
             </div>
 
@@ -239,12 +230,12 @@
                     <div id="visualization">
                         <div id="visualization_map"></div>
                         <div class="visualization_controlls">
-                            <img class="map_button" id="toggleIsolinesButton" src="images/isolines.svg" title="Toggle Isolines" />
                             <img class="map_button enabled" id="toggleHillshadeButton" src="images/mountain.svg" title="Toggle Hillshade" />
                             <div class="height_selection">
                                 <div class="map_label" id="mapHeightLabel">Surface</div>
                                 <input class="map_range" id="mapHeightSelection" type="range" value="200" min="-64" max="200" orient="vertical" aria-label="Height Selection" />
                             </div>
+                            <img class="map_button hidden" id="refreshButton" src="images/refresh.svg" title="Refresh" />
                         </div>
                         <img class="map_button" id="mapFullscreenButton" alt="Fullscreen" title="Fullscreen" src="images/expand-arrows.svg" />
                     </div>

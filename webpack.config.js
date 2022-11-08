@@ -1,6 +1,7 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const LicenseWebpackPlugin = require('license-webpack-plugin').LicenseWebpackPlugin;
+const webpack = require('webpack');
 
 
 module.exports = {
@@ -23,6 +24,9 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
+        fallback: {
+            buffer: require.resolve("buffer/")
+        }
     },
     performance: {
         hints: false,

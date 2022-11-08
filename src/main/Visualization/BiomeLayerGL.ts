@@ -8,6 +8,7 @@
  *
  */
 
+ /*
 import { text, thresholdSturges } from "d3"
 import { NormalNoise, XoroshiroRandom } from "deepslate"
 import * as L from "leaflet"
@@ -625,14 +626,14 @@ export class BiomeLayerGL extends L.GridLayer {
 			if (change.noises) {
 				const random = XoroshiroRandom.create(this.builder.seed)
 				const noiseRandomForked = random.fork()
-				this.normalnoises = {
+/*				this.normalnoises = {
 					temperature: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:temperature"), this.builder.noiseSettings.temperature),
 					humidity: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:vegetation"), this.builder.noiseSettings.humidity),
 					continentalness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:continentalness"), this.builder.noiseSettings.continentalness),
 					erosion: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:erosion"), this.builder.noiseSettings.erosion),
 					weirdness: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:ridge"), this.builder.noiseSettings.weirdness),
 					shift: new NormalNoise(noiseRandomForked.forkWithHashOf("minecraft:offset"), this.builder.noiseSettings.shift)
-				}
+				}* /
 			}
 
 			if (change.noises || change.grids) {
@@ -773,4 +774,4 @@ export class BiomeLayerGL extends L.GridLayer {
 		})
 	}
 
-};
+};*/

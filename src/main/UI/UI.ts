@@ -13,7 +13,9 @@ export type Change = {
     biome?: PartialMultiNoiseIndexes,
     spline?: boolean,
     grids?: boolean,
-    noises?: boolean
+    noises?: boolean,
+    map_display?: boolean
+    map_y_level?: boolean
 }
 export class UI {
     private static instance: UI = undefined
