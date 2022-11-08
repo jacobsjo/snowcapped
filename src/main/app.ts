@@ -4,13 +4,13 @@ import * as _ from 'lodash';
 import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { VanillaBiomes } from './Vanilla/VanillaBiomes';
 import { UI } from './UI/UI';
-import { IS_EXPERIMENTAL } from '../SharedConstants';
+import { IS_DEV, IS_EXPERIMENTAL } from '../SharedConstants';
 
 const close_elements = document.getElementsByClassName("closable")
 
 // Register ServiceWorker script, if serviceWorker is available.
 const serviceWorker = navigator.serviceWorker;
-if (serviceWorker) {
+if (serviceWorker && !IS_DEV) {
     serviceWorker
         .register("service-worker.js")
         .then(() => console.log("ServiceWorker Registered to the Application!"))
