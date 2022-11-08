@@ -81,7 +81,7 @@ export class VisualizationManger{
           } else {
             this.builder.vis_y_level = val
           }
-          this.refresh({map_display: true})
+          this.refresh({map_y_level: true})
         }
 
         const toggleFullscreenButton = document.getElementById('mapFullscreenButton')
@@ -199,7 +199,7 @@ export class VisualizationManger{
       }
 
       if (!this.closeContainer.classList.contains("closed")){
-        if (change.map_display){
+        if (change.map_display || (change.map_y_level && !this.builder.input_is_2d)){
           this.refreshButton.classList.add("hidden")
         }
         this.biomeLayer.refresh(change)

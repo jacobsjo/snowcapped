@@ -73,6 +73,8 @@ export class BiomeBuilder {
     legacyConfigDatapack: LegacyConfigDatapack
     datapacks: CompositeDatapack
 
+    input_is_2d: boolean = true;
+
     constructor() {
         this.gridElements = new Map<string, GridElement>();
         this.vanillaBiomes = new Map<string, Biome>();

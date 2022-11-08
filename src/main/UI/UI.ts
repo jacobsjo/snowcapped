@@ -15,6 +15,7 @@ export type Change = {
     grids?: boolean,
     noises?: boolean,
     map_display?: boolean
+    map_y_level?: boolean
 }
 export class UI {
     private static instance: UI = undefined

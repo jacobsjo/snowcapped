@@ -33,6 +33,8 @@ export class BiomeLayer extends L.GridLayer {
 	sampler: Climate.Sampler;
 	lastY: string | number;
 
+	private depth_scale: number = 0;
+
 	constructor(private visualization_manager: VisualizationManger, options?: L.GridLayerOptions) {
 		super(options)
 	}
@@ -120,10 +122,21 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}				
 				
+				var depth_offset = 0
+				if (this.builder.input_is_2d && this.builder.vis_y_level !== "surface"){
+					depth_offset = (this.builder.vis_y_level - tile.array[x + 1][z + 1].surface) * this.depth_scale
+				}
+
+
 				for (var iX = 0; iX < 1; iX += this.calcResolution / this.tileResolution) {
 					for (var iZ = 0; iZ < 1; iZ += this.calcResolution / this.tileResolution) {
 						//console.log(iX)
-						const climate = lerp2Climate(tile.array[x + 1][z + 1].climate, tile.array[x + 2][z + 1].climate, tile.array[x + 1][z + 2].climate, tile.array[x + 2][z + 2].climate, iX, iZ)
+						var climate = lerp2Climate(tile.array[x + 1][z + 1].climate, tile.array[x + 2][z + 1].climate, tile.array[x + 1][z + 2].climate, tile.array[x + 2][z + 2].climate, iX, iZ)
+
+						climate = new Climate.TargetPoint(climate.temperature, climate.humidity
+							, climate.continentalness, climate.erosion, climate.depth + depth_offset, climate.weirdness)
+	
+
 						const idx = this.builder.getIndexes(climate)
 						const biome = this.builder.lookupRecursive(idx)
 						if (biome !== undefined) {
@@ -181,7 +194,10 @@ export class BiomeLayer extends L.GridLayer {
 			const randomState = new RandomState(noiseGeneratorSettings, this.builder.seed)
 			this.router = randomState.router
 			this.sampler = Climate.Sampler.fromRouter(this.router)
+
+			this.depth_scale = (this.sampler.sample(0, 64, 0).depth - this.sampler.sample(0, 0, 0).depth) / 256  // don't know why 256 and not 64...
 		}
+
 	}
 
 	async refresh(change: Change){
@@ -189,7 +205,7 @@ export class BiomeLayer extends L.GridLayer {
 			return
 		}
 		
-		if (change.map_display){
+		if (change.map_display || (change.map_y_level && !this.builder.input_is_2d)){
 			console.log("canceling")
 			this.workers.forEach(w => w.terminate())
 			this.createWorkers()
@@ -199,7 +215,7 @@ export class BiomeLayer extends L.GridLayer {
 
 			this.workers.forEach(w => w.postMessage({
 				task: "setY",
-				y: this.builder.vis_y_level
+				y: this.builder.input_is_2d ? "surface" : this.builder.vis_y_level
 			}))
 
 			this.redraw()
@@ -207,13 +223,9 @@ export class BiomeLayer extends L.GridLayer {
 			this.lastY = this.builder.vis_y_level
 		} else {
 			for (const key in this.Tiles){
-				if (change.noises || change.spline || this.lastY !== this.builder.vis_y_level){
-					this.recalculateTile(key, this.Tiles[key].coords)
-				} else if (change.biome || change.grids || change.map_display) {
-					if (!this.Tiles[key].isRendering){
-						this.Tiles[key].isRendering = true
-						setTimeout(() => this.renderTile(this.Tiles[key]), 0)
-					}
+				if (!this.Tiles[key].isRendering){
+					this.Tiles[key].isRendering = true
+					setTimeout(() => this.renderTile(this.Tiles[key]), 0)
 				}
 			}
 		}
