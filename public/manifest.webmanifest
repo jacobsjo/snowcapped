@@ -19,10 +19,10 @@
             "purpose": "any maskable"
         }
     ],
-    "start_url": "/experimental/",
+    "start_url": "/",
     "background_color": "#264653",
     "display": "standalone",
-    "scope": "/experimental/",
+    "scope": "/",
     "theme_color": "#264653",
     "description": "A Minecraft: Java Edition 1.18+ dimension editor. Exports a multi-noise dimension file and a spline configuration."
 }

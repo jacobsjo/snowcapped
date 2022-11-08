@@ -16,13 +16,6 @@ Snowcapped also includes a map that lets you imediatly see your changes.
 
 When done, the tool can export the configuration as a multi-noise json file. There is a basic optimizer for that so that adjacent grid cells with the same biome are reduced to a single entry. The resulting json file is thus much smaller than even the vanilla one.
 
-Future plans:
--------------
-- A spline editor - when they (hopefully) become customizable at some point
-- Modifying the grid cell boundary values for slices. This will be implemented together with the spline editor
-- Settings for the seed and noise values for the visualization (uses the vanilla values and seed 1 at the moment)
-- Cave biome configuration 
-
 
 Code instalation
 ----------------
