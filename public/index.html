@@ -184,42 +184,22 @@
                 </div>
 
                 <div class="hidden" id="settings">
+                    <!--
                     <div class="setting"> <label><span class="description">Target Version</span>
                         <select id="target_version">
-                            <option id="1_18_1">1.18.1</option>
-                            <option id="1_18_2">1.18.2</option>
+                            <option id="1_18_1">1.18 (redirects)</option>
                             <option id="1_19">1.19.1</option>
                         </select></label>
-                    </div>
+                    </div>-->
 
                     <div class="setting"> <label><span class="description">Dimension Name:</span><input type="text"
                                 id="dimension_name" /></label></div>
-                    <div class="setting"> <label><span class="description">Seed:</span><input type="number" step=1
-                                id="seed" /></label></div>
+                    
                     <div class="setting"> <label><span class="description">Noise Settings Name:</span><input type="text"
                         id="noise_settings_name" /></label></div>
 
-                    <div class="setting"> <label><span class="description">Include in Export:</span>
-                        <input type="checkbox" id="export_dimension"/><label for="export_dimension">Biomes (dimension file)</label>
-                        <input type="checkbox" id="export_splines"/><label for="export_splines">Splines</label>
-                        <input type="checkbox" id="export_noises"/><label for="export_noises">Noises</label></label>
-                    </div>
-                            <!--<div class="setting"> <label><span class="description">Use Legacy Random:</span><input
-                                type="checkbox" id="useLegacyRandom" /></label></div>-->
-                    <div class="setting">
-                        <label id="continentalness_setting"><span class="description">Continentalness:</span>
-                        </label><br />
-                        <label id="erosion_setting"><span class="description">Erosion:</span>
-                        </label><br />
-                        <label id="weirdness_setting"><span class="description">Weirdness:</span>
-                        </label><br />
-                        <label id="temperature_setting"><span class="description">Temperature:</span>
-                        </label><br />
-                        <label id="humidity_setting"><span class="description">Humidity:</span>
-                        </label><br />
-                        <label id="shift_setting"><span class="description">Shift:</span>
-                        </label><br />
-                        <button id="reset_noises">Reset to Vanilla</button>
+                    <div class="setting"> <label><span class="description">Include Splines in Export:</span>
+                        <input type="checkbox" id="export_splines"/>
                     </div>
                 </div>
             </div>
@@ -229,14 +209,18 @@
                 <div class="content">
                     <div id="visualization">
                         <div id="visualization_map"></div>
-                        <div class="visualization_controlls">
+                        <div class="visualization_controls">
                             <img class="map_button enabled" id="toggleHillshadeButton" src="images/mountain.svg" title="Toggle Hillshade" />
                             <div class="height_selection">
                                 <div class="map_label" id="mapHeightLabel">Surface</div>
                                 <input class="map_range" id="mapHeightSelection" type="range" value="200" min="-64" max="200" orient="vertical" aria-label="Height Selection" />
                             </div>
+                        </div>
+                        <div class="horizontal_visualization_controls">
+                            <div class="map_setting"> <label><span class="description">Seed:</span><input id="mapSeedInput" type="number" step=1/></label></div>
                             <img class="map_button hidden" id="refreshButton" src="images/refresh.svg" title="Refresh" />
                         </div>
+                        
                         <img class="map_button" id="mapFullscreenButton" alt="Fullscreen" title="Fullscreen" src="images/expand-arrows.svg" />
                     </div>
                 </div>

@@ -62,6 +62,22 @@ export class DataFixer {
             json.version = 4
         }
 
+        if (json.version === 4){
+            delete json.seed
+            delete json.noiseSettings // todo: warn about this
+            delete json.useLegacyRandom
+
+            if (json.targetVersion === "1_18_1" || json.targetVersion === "1_18_2"){
+                // todo: warn
+                json.targetVersion === "1_19"
+            }
+
+            delete json.exportDimension
+            delete json.exportNoises
+
+            json.version = 5
+        }
+ 
         return json
     }
 }

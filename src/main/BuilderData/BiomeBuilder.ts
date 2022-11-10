@@ -49,26 +49,10 @@ export class BiomeBuilder {
 
     layoutElementUnassigned: GridElementUnassigned
 
-    noiseSettings: {
-        "continentalness": NoiseSetting,
-        "erosion": NoiseSetting,
-        "weirdness": NoiseSetting,
-        "humidity": NoiseSetting,
-        "temperature": NoiseSetting,
-        "shift": NoiseSetting
-    } = VanillaNoiseSettings.default()
-
-    vis_y_level: number | "surface" = "surface"
-
-    seed: bigint = BigInt("1")
     dimensionName: string = "minecraft:overworld"
-    targetVersion: string = '1_18_2'
-    exportDimension: boolean = true;
+    targetVersion: string = '1_19'
     noiseSettingsName: string = "minecraft:overworld"
     exportSplines: boolean = true;
-    exportNoises: boolean = true;
-
-    useLegacyRandom: boolean = false;
 
     legacyConfigDatapack: LegacyConfigDatapack
     datapacks: CompositeDatapack
@@ -85,15 +69,6 @@ export class BiomeBuilder {
         this.layoutElementUnassigned = GridElementUnassigned.create(this)
 
         this.dimensionName = ""
-        this.seed = BigInt(1)
-        this.noiseSettings = {
-            continentalness: {firstOctave: 0, amplitudes:[1.0]},
-            erosion: {firstOctave: 0, amplitudes:[1.0]},
-            weirdness: {firstOctave: 0, amplitudes:[1.0]},
-            temperature: {firstOctave: 0, amplitudes:[1.0]},
-            humidity: {firstOctave: 0, amplitudes:[1.0]},
-            shift: {firstOctave: 0, amplitudes:[1.0]},
-        }
 
         this.legacyConfigDatapack = new LegacyConfigDatapack(this)
         this.datapacks = new CompositeDatapack([new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`)), this.legacyConfigDatapack])
@@ -105,9 +80,6 @@ export class BiomeBuilder {
         }
 
         this.dimensionName = json.dimensionName ?? "minecraft:overworld"
-        this.seed = BigInt(json.seed ?? "1")
-        this.noiseSettings = json.noiseSettings ?? VanillaNoiseSettings.default()
-        this.useLegacyRandom = json.useLegacyRandom ?? false;
 
         this.continentalnesses = json.continentalnesses
         this.erosions = json.erosions
@@ -123,8 +95,6 @@ export class BiomeBuilder {
         this.slices.length = 0
 
         this.targetVersion = json.targetVersion
-        this.exportDimension = json.exportDimension
-        this.exportNoises = json.exportNoises
         this.exportSplines = json.exportSplines
         this.noiseSettingsName = json.noiseSettingsName
 
@@ -160,9 +130,6 @@ export class BiomeBuilder {
     toJSON() {
         return {
             dimensionName: this.dimensionName,
-            seed: this.seed.toString(),
-            noiseSettings: this.noiseSettings,
-            useLegacyRandom: this.useLegacyRandom,
 
             continentalnesses: this.continentalnesses,
             erosions: this.erosions,
@@ -179,8 +146,6 @@ export class BiomeBuilder {
             biomes: this.biomes,
 
             targetVersion: this.targetVersion,
-            exportDimension: this.exportDimension,
-            exportNoises: this.exportNoises,
             exportSplines: this.exportSplines,
             noiseSettingsName: this.noiseSettingsName,
 
@@ -278,7 +243,7 @@ export class BiomeBuilder {
         return { w: w_idx, e: e_idx, c: c_idx, t: t_idx, h: h_idx, d: d_idx }
     }
 
-    public lookupRecursive(indexes: MultiNoiseIndexes): Biome {
+    public lookupRecursive(indexes: MultiNoiseIndexes, stopAtHidden: boolean = false): Biome {
         if (indexes === undefined)
             return undefined
 
@@ -288,7 +253,7 @@ export class BiomeBuilder {
             return undefined
         }
 
-        const element = this.dimension.lookupRecursive(indexes, "Any", false)
+        const element = this.dimension.lookupRecursive(indexes, "Any", stopAtHidden)
         if (element instanceof Biome)
             return element
         else 

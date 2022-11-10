@@ -18,6 +18,9 @@ export class VisualizationManger{
 
     private refreshButton: HTMLElement
 
+    public vis_y_level: number | "surface" = "surface"
+    public seed: bigint = BigInt(1)
+
     constructor(builder: BiomeBuilder){
         this.builder = builder
 
@@ -77,9 +80,9 @@ export class VisualizationManger{
           const max = Number(heightSelectRange.max)
 
           if (val === max){
-            this.builder.vis_y_level = "surface"
+            this.vis_y_level = "surface"
           } else {
-            this.builder.vis_y_level = val
+            this.vis_y_level = val
           }
           this.refresh({map_y_level: true})
         }
@@ -91,6 +94,26 @@ export class VisualizationManger{
           this.map.invalidateSize()
         }
 
+
+        const seedInput = document.getElementById("mapSeedInput") as HTMLInputElement;
+        seedInput.value = this.seed.toString()
+        seedInput.onkeypress = (evt) => {
+            if (!evt.key.match(/^[0-9|-]+$/)) {
+                evt.preventDefault();
+            }
+        }
+
+        seedInput.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.seed = BigInt(seedInput.value)
+            UI.getInstance().refresh({noises: true})
+        }
+
+        seedInput.onkeyup = (evt:KeyboardEvent) => {
+            if (evt.key === "Enter"){
+                seedInput.blur()
+            }
+        }        
 
         const tooltip = document.getElementById("visualizationTooltip")
         const tooltip_position = tooltip.getElementsByClassName("position")[0] as HTMLElement

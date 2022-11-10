@@ -46,7 +46,7 @@ export class BiomeLayer extends L.GridLayer {
 		this.tileResolution = 1 / 2
 		this.calcResolution = 1 / 4
 
-		this.lastY = this.builder.vis_y_level
+		this.lastY = "surface"// this.visualization_manager.vis_y_level
 
 		this.createWorkers()
 
@@ -113,7 +113,7 @@ export class BiomeLayer extends L.GridLayer {
 			for (var z = 0; z < this.tileSize * this.calcResolution; z++) {
 				
 				var hillshade = 1.0
-				if (this.visualization_manager.enable_hillshading && (this.builder.vis_y_level === "surface" || tile.array[x+1][z+1].surface < this.builder.vis_y_level)){
+				if (this.visualization_manager.enable_hillshading && (this.visualization_manager.vis_y_level === "surface" || tile.array[x+1][z+1].surface < this.visualization_manager.vis_y_level)){
 					
 					hillshade = this.calculateHillshade(
 						tile.array[x+2][z+1].surface - tile.array[x][z+1].surface,
@@ -123,8 +123,8 @@ export class BiomeLayer extends L.GridLayer {
 				}				
 				
 				var depth_offset = 0
-				if (this.builder.input_is_2d && this.builder.vis_y_level !== "surface"){
-					depth_offset = (this.builder.vis_y_level - tile.array[x + 1][z + 1].surface) * this.depth_scale
+				if (this.builder.input_is_2d && this.visualization_manager.vis_y_level !== "surface"){
+					depth_offset = (this.visualization_manager.vis_y_level - tile.array[x + 1][z + 1].surface) * this.depth_scale
 				}
 
 
@@ -138,7 +138,7 @@ export class BiomeLayer extends L.GridLayer {
 	
 
 						const idx = this.builder.getIndexes(climate)
-						const biome = this.builder.lookupRecursive(idx)
+						const biome = this.builder.lookupRecursive(idx, true)
 						if (biome !== undefined) {
 							tile.ctx.fillStyle = `rgb(${biome.raw_color.r * hillshade}, ${biome.raw_color.g * hillshade}, ${biome.raw_color.b * hillshade})`
 						} else {
@@ -186,12 +186,12 @@ export class BiomeLayer extends L.GridLayer {
 			this.workers.forEach(w => w.postMessage({
 				task: "setNoiseGeneratorSettings",
 				json: noiseSettingsJson,
-				seed: this.builder.seed
+				seed: this.visualization_manager.seed
 			}))
 
 			const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(noiseSettingsJson)
 			this.noiseSettings = noiseGeneratorSettings.noise
-			const randomState = new RandomState(noiseGeneratorSettings, this.builder.seed)
+			const randomState = new RandomState(noiseGeneratorSettings, this.visualization_manager.seed)
 			this.router = randomState.router
 			this.sampler = Climate.Sampler.fromRouter(this.router)
 
@@ -215,12 +215,12 @@ export class BiomeLayer extends L.GridLayer {
 
 			this.workers.forEach(w => w.postMessage({
 				task: "setY",
-				y: this.builder.input_is_2d ? "surface" : this.builder.vis_y_level
+				y: this.builder.input_is_2d ? "surface" : this.visualization_manager.vis_y_level
 			}))
 
 			this.redraw()
 
-			this.lastY = this.builder.vis_y_level
+			this.lastY = this.visualization_manager.vis_y_level
 		} else {
 			for (const key in this.Tiles){
 				if (!this.Tiles[key].isRendering){
@@ -313,10 +313,10 @@ export class BiomeLayer extends L.GridLayer {
 		const pos = crs.project(latlng)
 		pos.y *= -1
 
-		const y: number = this.builder.vis_y_level === "surface" ? this.getSurface(pos.x, pos.y) : this.builder.vis_y_level
+		const y: number = this.visualization_manager.vis_y_level === "surface" ? this.getSurface(pos.x, pos.y) : this.visualization_manager.vis_y_level
 
 		var climate = this.sampler.sample(pos.x * 0.25, y * 0.25, pos.y * 0.25)
-		if (this.builder.vis_y_level === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
+		if (this.visualization_manager.vis_y_level === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
 		const idx = this.builder.getIndexes(climate)
 		return { idx: idx, values: climate, position: { x: pos.x, y: y, z: pos.y} }
 

@@ -2,16 +2,6 @@ import { Identifier } from "deepslate";
 import { Datapack, DataType } from "mc-datapack-loader";
 import { BiomeBuilder } from "./BiomeBuilder";
 
-
-const NOISES = [
-    "minecraft:continentalness",
-    "minecraft:erosion",
-    "minecraft:ridge",
-    "minecraft:temperature",
-    "minecraft:vegetation",
-    "minecraft:offset"
-]
-
 const DENSITY_FUNCTIONS = [
     "minecraft:overworld/offset",
     "minecraft:overworld/factor",
@@ -128,9 +118,7 @@ export class LegacyConfigDatapack implements Datapack {
     }
 
     async has(type: DataType, id: Identifier): Promise<boolean> {
-        if (type === "worldgen/noise") {
-            return NOISES.includes(id.toString())
-        } else if (type === "worldgen/density_function") {
+        if (type === "worldgen/density_function") {
             return DENSITY_FUNCTIONS.includes(id.toString())
         } else {
             return false
@@ -138,9 +126,7 @@ export class LegacyConfigDatapack implements Datapack {
     }
 
     async getIds(type: DataType): Promise<Identifier[]> {
-        if (type === "worldgen/noise") {
-            return NOISES.map((str) => Identifier.parse(str))
-        } else if (type === "worldgen/density_function") {
+        if (type === "worldgen/density_function") {
             return DENSITY_FUNCTIONS.map((str) => Identifier.parse(str))
         } else {
             return []
@@ -148,22 +134,7 @@ export class LegacyConfigDatapack implements Datapack {
     }
 
     async get(type: DataType, id: Identifier): Promise<unknown> {
-        if (type === "worldgen/noise" && id.namespace === "minecraft") {
-            if (id.path === "continentalness")
-                return this.builder.noiseSettings.continentalness
-            else if (id.path === "erosion")
-                return this.builder.noiseSettings.erosion
-            else if (id.path === "ridge")
-                return this.builder.noiseSettings.weirdness
-            else if (id.path === "temperature")
-                return this.builder.noiseSettings.temperature
-            else if (id.path === "vegetation")
-                return this.builder.noiseSettings.humidity
-            else if (id.path === "offset")
-                return this.builder.noiseSettings.shift
-            else
-                return undefined
-        } else if (type === "worldgen/density_function" && id.namespace === "minecraft") {
+        if (type === "worldgen/density_function" && id.namespace === "minecraft") {
             if (id.path === "overworld/offset")
                 return OFFSET_DF(this.builder.splines["offset"].export())
             else if (id.path === "overworld/factor")

@@ -32,18 +32,16 @@ export class Exporter {
 
         zip.file("pack.png", (await fetch("icons/icon_128.png")).blob() )
 
-        if (this.builder.exportDimension){
-            const [namespace, path] = this.builder.dimensionName.split(":", 2)
-            var folder = dataFolder.folder(namespace).folder("dimension")
-            
-            const folders = path.split("/")
-            const filename = folders[folders.length - 1]
+        const [namespace, path] = this.builder.dimensionName.split(":", 2)
+        var folder = dataFolder.folder(namespace).folder("dimension")
+        
+        const folders = path.split("/")
+        const filename = folders[folders.length - 1]
 
-            for (var i = 0 ; i < folders.length - 1 ; i++){
-                folder = folder.folder(folders[i])
-            }
-            folder.file(filename + ".json", this.getDimensionJSON())
+        for (var i = 0 ; i < folders.length - 1 ; i++){
+            folder = folder.folder(folders[i])
         }
+        folder.file(filename + ".json", this.getDimensionJSON())
 
         if (this.builder.exportSplines){
             if (versionInfo.hasTerrainShaper){
@@ -67,16 +65,6 @@ export class Exporter {
             }
         }
 
-        if (this.builder.exportNoises){
-            const noiseFolder = dataFolder.folder("minecraft").folder("worldgen").folder("noise")
-            noiseFolder.file("continentalness.json", JSON.stringify(this.builder.noiseSettings.continentalness))
-            noiseFolder.file("erosion.json", JSON.stringify(this.builder.noiseSettings.erosion))
-            noiseFolder.file("ridge.json", JSON.stringify(this.builder.noiseSettings.weirdness))
-            noiseFolder.file("temperature.json", JSON.stringify(this.builder.noiseSettings.temperature))
-            noiseFolder.file("vegetation.json", JSON.stringify(this.builder.noiseSettings.humidity))
-            noiseFolder.file("offset.json", JSON.stringify(this.builder.noiseSettings.shift))
-        }
-
         return zip
     }
 
@@ -93,21 +81,19 @@ export class Exporter {
         try{
             const dataFolder = await dirHandle.getDirectoryHandle("data")
 
-            if (this.builder.exportDimension){
-                const [namespace, path] = this.builder.dimensionName.split(":", 2)
-                var folder = await (await dataFolder.getDirectoryHandle(namespace, {create: true})).getDirectoryHandle("dimension", {create: true})
-                
-                const folders = path.split("/")
-                const filename = folders[folders.length - 1]
+            const [namespace, path] = this.builder.dimensionName.split(":", 2)
+            var folder = await (await dataFolder.getDirectoryHandle(namespace, {create: true})).getDirectoryHandle("dimension", {create: true})
+            
+            const folders = path.split("/")
+            const filename = folders[folders.length - 1]
 
-                for (var i = 0 ; i < folders.length - 1 ; i++){
-                    folder = await folder.getDirectoryHandle(folders[i], {create: true})
-                }
-                const file = await folder.getFileHandle(filename + ".json", {create: true})
-                const writable = await file.createWritable()
-                await writable.write(this.getDimensionJSON())
-                writables.push(writable)
+            for (var i = 0 ; i < folders.length - 1 ; i++){
+                folder = await folder.getDirectoryHandle(folders[i], {create: true})
             }
+            const file = await folder.getFileHandle(filename + ".json", {create: true})
+            const writable = await file.createWritable()
+            await writable.write(this.getDimensionJSON())
+            writables.push(writable)
 
             if (this.builder.exportSplines){
                 if (versionInfo.hasTerrainShaper){
@@ -136,18 +122,6 @@ export class Exporter {
                 } else {
                     console.warn("Target version does not support spline export")
                 }
-            }
-
-            if (this.builder.exportNoises){
-
-
-                const noiseFolder = await ( await ( await dataFolder.getDirectoryHandle("minecraft", {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("noise", {create: true})
-                await writeToFileHandle(await noiseFolder.getFileHandle("continentalness.json", {create: true}) , JSON.stringify(this.builder.noiseSettings.continentalness))
-                await writeToFileHandle(await noiseFolder.getFileHandle("erosion.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.erosion))
-                await writeToFileHandle(await noiseFolder.getFileHandle("ridge.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.weirdness))
-                await writeToFileHandle(await noiseFolder.getFileHandle("temperature.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.temperature))
-                await writeToFileHandle(await noiseFolder.getFileHandle("vegetation.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.humidity))
-                await writeToFileHandle(await noiseFolder.getFileHandle("offset.json", {create: true}),  JSON.stringify(this.builder.noiseSettings.shift))
             }
 
             writables.forEach(writable => {
@@ -299,7 +273,6 @@ export class Exporter {
                     biomes: biomes,
                     type: "minecraft:multi_noise"
                 },
-                seed: this.builder.getVersionInfo().fixedSeed ? Number(this.builder.seed) : undefined,
                 settings: this.builder.noiseSettingsName,
                 type: "minecraft:noise"
             }

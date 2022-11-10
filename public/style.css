@@ -1018,13 +1018,40 @@ body:not(.light) #menu .button img{
     image-rendering: pixelated;
 }
 
-#visualization .visualization_controlls{
+#visualization .visualization_controls{
     position: absolute;
     top: 62pt;
     left: 6pt;
     z-index: 400;
     width: 26pt;
 }
+
+#visualization .horizontal_visualization_controls{
+    position: absolute;
+    top: 9pt;
+    left: 40pt;
+    z-index: 400;
+    height: 25pt;
+    display: flex;
+    align-items: center;
+}
+
+#visualization .horizontal_visualization_controls div{
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5pt;
+    color: white;
+    border-radius: 5pt;
+    display: inline-block;
+    margin-right: 5pt;
+}
+
+#visualization .horizontal_visualization_controls input{
+    margin-left: 5pt;
+    width: 70pt;
+}
+
+#visualization .horizontal_visualization_controls 
+
 
 #visualization #mapFullscreenButton {
     position: absolute;
@@ -1041,7 +1068,6 @@ body:not(.light) #menu .button img{
     width: 20pt;
     height: 20pt;
     padding: 3pt;
-    margin-top: 5pt;
 }
 
 .map_button.enabled{
