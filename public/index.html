@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Snowcapped</title>
 
@@ -16,12 +17,13 @@
     <meta name="theme-color" content="#264653">
     <link rel="icon" href="icons/icon.svg" sizes="any" types="image/svg+xml">
     <link rel="stylesheet" href="style.css">
-    <link rel="preload" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    <link rel="preload" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin="" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"-->
-        
+
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="preload" as="fetch" href="/minecraft_overworld_1_19.snowcapped.json" crossorigin=""/>
+    <link rel="preload" as="fetch" href="/minecraft_overworld_1_19.snowcapped.json" crossorigin="" />
     <link rel="apple-touch-icon" href="/icons/icon_192.png">
     <script defer src="bundle.js"></script>
 </head>
@@ -40,13 +42,8 @@
             <div class="button" id="openButton" title="Open"><img alt="Open" src="images/open-file-folder.svg" /></div>
             <div class="button" id="saveButton" title="Save"><img alt="Save" src="images/save.svg" /></div>
             <div class="button" id="saveAsButton" title="Save As"><img alt="Save As" src="images/save-as.svg" /></div>
-            <div class="button" id="exportButton"><img alt="Export" src="images/export-file.svg" />
-                <div class="dropdown">
-                    <div class="button" id="exportZipButton">Export as datapack zip</div>
-                    <div class="button" id="exportInsertButton">Insert into datapack folder</div>
-                </div>
-            </div>
-            <div class="button" id="settingsButton" title="Settings" s><img alt="Settings" title="Settings" src="images/settings-gear.svg" /></div>
+            <div class="button" id="settingsButton" title="Settings" s><img alt="Settings" title="Settings"
+                    src="images/settings-gear.svg" /></div>
             <div class="help" id="help">
                 <div class="help-entry hidden" id="select"><span class="b">[Left Click]</span> Select</div>
                 <div class="help-entry hidden" id="paint"><span class="b">[Left Click]</span> Paint</div>
@@ -62,7 +59,8 @@
                 <div class="help-entry hidden" id="copy"><span class="b">[Ctrl]+[C]</span> Copy Teleport Command</div>
             </div>
             <div class="link"><a href="about.html" target="_blank">About</a></div>
-            <div class="button" id="toggleDarkmodeButton"><img alt="Toggle Dark Mode" title="Toggle Dark Mode" src="images/moon.svg" /></div>
+            <div class="button" id="toggleDarkmodeButton"><img alt="Toggle Dark Mode" title="Toggle Dark Mode"
+                    src="images/moon.svg" /></div>
         </div>
         <div id="content">
             <div class="main_content">
@@ -72,28 +70,35 @@
                             <div class="sidebar_header">
                                 <div class="name">Dimension:</div>
                                 <img class="button" id="splines_grid_view_button" title="Grid View"
-                                src="images/grid-view.svg">
+                                    src="images/grid-view.svg">
                             </div>
                             <div class="sidebar_entry_list" id="splines">
                                 <div class="sidebar_entry spline" id="offset">
                                     <img class="grid" src="images/offset-icon.svg" alt="">
                                     <span class="name">Offset</span>
-                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
-                                </div><div class="sidebar_entry spline" id="factor">
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg"
+                                        title="Edit Grid" />
+                                </div>
+                                <div class="sidebar_entry spline" id="factor">
                                     <img class="grid" src="images/factor-icon.svg" alt="">
                                     <span class="name">Factor</span>
-                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
-                                </div><div class="sidebar_entry spline" id="jaggedness">
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg"
+                                        title="Edit Grid" />
+                                </div>
+                                <div class="sidebar_entry spline" id="jaggedness">
                                     <img class="grid" src="images/jaggedness-icon.svg" alt="">
                                     <span class="name">Jaggedness</span>
-                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
-                                </div><div class="sidebar_entry spline open" id="dimension">
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg"
+                                        title="Edit Grid" />
+                                </div>
+                                <div class="sidebar_entry spline open" id="dimension">
                                     <img class="grid" src="images/biomes-icon.svg" alt="">
                                     <span class="name">Biomes</span>
-                                    <img class="button edit edit_grid_button important" src="images/grid.svg" title="Edit Grid" />
+                                    <img class="button edit edit_grid_button important" src="images/grid.svg"
+                                        title="Edit Grid" />
                                 </div>
                             </div>
-                        <!--<div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices
+                            <!--<div class="sidebar_entry assign_slices_button open" id="assign_slices_button">Assign Slices
                             </div>-->
                             <div class="sidebar_header">
                                 <div class="name">Slices: </div>
@@ -154,7 +159,9 @@
                         </div>
                         <div class="axis_label" id="horizontal_label">Humidity</div>
                         <div class="label_with_content">
-                            <div class="axis_label"><div id="vertical_label">Temperature</div></div>
+                            <div class="axis_label">
+                                <div id="vertical_label">Temperature</div>
+                            </div>
                             <div class="main_editor_panel">
                                 <div class="main_editor_panel_div" id="layoutEditorDiv">
                                     <div style="display:none;">
@@ -194,12 +201,24 @@
 
                     <div class="setting"> <label><span class="description">Dimension Name:</span><input type="text"
                                 id="dimension_name" /></label></div>
-                    
-                    <div class="setting"> <label><span class="description">Noise Settings Name:</span><input type="text"
-                        id="noise_settings_name" /></label></div>
 
-                    <div class="setting"> <label><span class="description">Include Splines in Export:</span>
-                        <input type="checkbox" id="export_splines"/>
+                    <div class="setting"> <label><span class="description">Noise Settings Name:</span>
+                        <select id="noise_settings_name">
+                        </select>
+                    </label></div>
+
+                    <div class="setting"> <label><span class="description">Enable Splines-Editor:</span>
+                            <input type="checkbox" id="export_splines" />
+                        </label></div>
+                    <div class="setting"><span class="description">Datapacks:</span>
+                        <div id="datapack_list">
+                            <div id="add_datapack">
+                                <div class="button" title="Add Zip Datapack" id="addZipDatapackButton"><img
+                                        src="images/add-zip.svg" /></div>
+                                <div class="button" title="Add Folder Datapack" id="addDirectoryDatapackButton"><img
+                                        src="images/add-folder.svg" /></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -210,18 +229,26 @@
                     <div id="visualization">
                         <div id="visualization_map"></div>
                         <div class="visualization_controls">
-                            <img class="map_button enabled" id="toggleHillshadeButton" src="images/mountain.svg" title="Toggle Hillshade" />
+                            <img class="map_button enabled" id="toggleHillshadeButton" src="images/mountain.svg"
+                                title="Toggle Hillshade" />
                             <div class="height_selection">
                                 <div class="map_label" id="mapHeightLabel">Surface</div>
-                                <input class="map_range" id="mapHeightSelection" type="range" value="200" min="-64" max="200" orient="vertical" aria-label="Height Selection" />
+                                <input class="map_range" id="mapHeightSelection" type="range" value="200" min="-64"
+                                    max="200" orient="vertical" aria-label="Height Selection" />
                             </div>
                         </div>
                         <div class="horizontal_visualization_controls">
-                            <div class="map_setting"> <label><span class="description">Seed:</span><input id="mapSeedInput" type="number" step=1/></label></div>
-                            <img class="map_button hidden" id="refreshButton" src="images/refresh.svg" title="Refresh" />
+                            <div class="map_setting"> <label><span class="description">Seed:</span><input
+                                        id="mapSeedInput" type="number" step=1 /></label></div>
+                            <div class="map_setting"> <label><span class="description"
+                                        title="Input density functions are 2d, depth is linear">2d Input:</span><input
+                                        id="map2dInput" type="checkbox" checked /></label></div>
+                            <img class="map_button hidden" id="refreshButton" src="images/refresh.svg"
+                                title="Refresh" />
                         </div>
-                        
-                        <img class="map_button" id="mapFullscreenButton" alt="Fullscreen" title="Fullscreen" src="images/expand-arrows.svg" />
+
+                        <img class="map_button" id="mapFullscreenButton" alt="Fullscreen" title="Fullscreen"
+                            src="images/expand-arrows.svg" />
                     </div>
                 </div>
                 <div class="tooltip hidden" id="visualizationTooltip">
@@ -246,4 +273,5 @@
         </div>
     </div>
 </body>
+
 </html>

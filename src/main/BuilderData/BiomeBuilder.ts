@@ -16,12 +16,13 @@ import { VERSION_INFO } from "../Vanilla/VersionInfo"
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
 import { LegacyConfigDatapack } from "./LegacyConfigDatapack"
 
-export type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
+//export type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
 export type MultiNoiseIndexes = { d: number, w: number, c: number, e: number, h: number, t: number }
-export type PartialMultiNoiseIndexes = { d?: number, w?: number, c?: number, e?: number, h?: number, t?: number }
+export type PartialMultiNoiseIndexes = Partial<MultiNoiseIndexes>
 
 export type NoiseSetting = { firstOctave: number, amplitudes: number[] }
 export type NoiseType = "continentalness" | "weirdness" | "erosion" | "temperature" | "humidity" | "shift"
+
 
 export class BiomeBuilder {
     hasChanges: boolean
@@ -55,9 +56,8 @@ export class BiomeBuilder {
     exportSplines: boolean = true;
 
     legacyConfigDatapack: LegacyConfigDatapack
+    vanillaDatapack: Datapack
     datapacks: CompositeDatapack
-
-    input_is_2d: boolean = true;
 
     constructor() {
         this.gridElements = new Map<string, GridElement>();
@@ -71,7 +71,8 @@ export class BiomeBuilder {
         this.dimensionName = ""
 
         this.legacyConfigDatapack = new LegacyConfigDatapack(this)
-        this.datapacks = new CompositeDatapack([new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`)), this.legacyConfigDatapack])
+        this.vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`, `Default`))
+        this.datapacks = new CompositeDatapack([this.vanillaDatapack, this.legacyConfigDatapack])
     }
 
     loadJSON(json: any) {
@@ -241,6 +242,17 @@ export class BiomeBuilder {
         const h_idx = this.findIndex(this.humidities, params.humidity)
         const d_idx = this.findIndex(this.depths, params.depth)
         return { w: w_idx, e: e_idx, c: c_idx, t: t_idx, h: h_idx, d: d_idx }
+    }
+
+
+    public lookupClosest(params: Climate.TargetPoint){
+        const ids = this.getIndexes(params)
+        var biome = this.lookupRecursive(ids)
+
+        if (biome)
+            return biome
+
+
     }
 
     public lookupRecursive(indexes: MultiNoiseIndexes, stopAtHidden: boolean = false): Biome {

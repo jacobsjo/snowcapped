@@ -1,6 +1,7 @@
-import { Climate } from "deepslate";
+import { Climate, Identifier } from "deepslate";
 import * as JSZip from "jszip";
 import { create } from "lodash";
+import { Datapack } from "mc-datapack-loader";
 import { MenuManager } from "../UI/MenuManager";
 import { UI } from "../UI/UI";
 import { Biome } from "./Biome";
@@ -44,31 +45,28 @@ export class Exporter {
         folder.file(filename + ".json", this.getDimensionJSON())
 
         if (this.builder.exportSplines){
-            if (versionInfo.hasTerrainShaper){
-                const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
-                var folder = dataFolder.folder(namespace).folder("worldgen").folder("noise_settings")
-                
-                const folders = path.split("/")
-                const filename = folders[folders.length - 1]
-
-                for (var i = 0 ; i < folders.length - 1 ; i++){
-                    folder = folder.folder(folders[i])
-                }
-                folder.file(filename + ".json", await this.getNoiseSettingJSON())
-            } else if (versionInfo.hasDensityFunctions){
-                const densityFunctionFolder = dataFolder.folder("minecraft").folder("worldgen").folder("density_function").folder("overworld")
-                densityFunctionFolder.file("offset.json", fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
-                densityFunctionFolder.file("factor.json", fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
-                densityFunctionFolder.file("jaggedness.json", fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
-            } else {
-                console.warn("Target version does not support spline export")
-            }
+            const densityFunctionFolder = dataFolder.folder("minecraft").folder("worldgen").folder("density_function").folder("overworld")
+            densityFunctionFolder.file("offset.json", fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
+            densityFunctionFolder.file("factor.json", fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
+            densityFunctionFolder.file("jaggedness.json", fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
         }
 
         return zip
     }
 
-    async insertIntoDirectory(dirHandle: FileSystemDirectoryHandle){
+    async insertIntoDatapack(datapack: Datapack){
+        if (datapack.save === undefined)
+            throw new Error("Datapack does not support saving")
+
+        datapack.save("dimension", Identifier.parse(this.builder.dimensionName), this.getDimensionJSON())
+        if (this.builder.exportSplines){
+            datapack.save("worldgen/density_function", new Identifier("minecraft", "offset"), await fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
+            datapack.save("worldgen/density_function", new Identifier("minecraft", "factor"), await fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
+            datapack.save("worldgen/density_function", new Identifier("minecraft", "jaggedness"), await fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
+        }
+    }
+
+/*    async insertIntoDirectory(dirHandle: FileSystemDirectoryHandle){
         const versionInfo = this.builder.getVersionInfo()
 
         const writeToFileHandle = async (fileHandle: FileSystemFileHandle, text: string) => {
@@ -96,32 +94,10 @@ export class Exporter {
             writables.push(writable)
 
             if (this.builder.exportSplines){
-                if (versionInfo.hasTerrainShaper){
-                    const [namespace, path] = this.builder.noiseSettingsName.split(":", 2)
-                    var folder = await ( await ( await dataFolder.getDirectoryHandle(namespace, {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("noise_settings", {create: true})
-                    
-                    const folders = path.split("/")
-                    const filename = folders[folders.length - 1]
-
-                    for (var i = 0 ; i < folders.length - 1 ; i++){
-                        folder = await folder.getDirectoryHandle(folders[i], {create: true})
-                    }
-
-                    const fileHandle = await folder.getFileHandle(filename + ".json", {create: true})
-                    const file = await fileHandle.getFile()
-
-                    const text = await file.text()
-                    const writable = await fileHandle.createWritable()
-                    await writable.write(await this.getNoiseSettingJSON(text))
-                    writables.push(writable)
-                } else if (versionInfo.hasDensityFunctions){
-                    const densityFunctionFolder = ( await ( await ( await dataFolder.getDirectoryHandle("minecraft", {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("density_function", {create: true})).getDirectoryHandle("overworld", {create: true})
-                    await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("offset.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
-                    await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("factor.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
-                    await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("jaggedness.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
-                } else {
-                    console.warn("Target version does not support spline export")
-                }
+                const densityFunctionFolder = ( await ( await ( await dataFolder.getDirectoryHandle("minecraft", {create: true})).getDirectoryHandle("worldgen", {create: true})).getDirectoryHandle("density_function", {create: true})).getDirectoryHandle("overworld", {create: true})
+                await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("offset.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
+                await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("factor.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
+                await writeToFileHandle(await (await densityFunctionFolder).getFileHandle("jaggedness.json", {create: true}), await fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
             }
 
             writables.forEach(writable => {
@@ -133,7 +109,7 @@ export class Exporter {
             });
             throw e
         }
-    }
+    }*/
 
 
     public getDimensionJSON(): string {
@@ -184,21 +160,21 @@ export class Exporter {
                                 if (array[d_idx][w_idx][c_idx][e_idx][t_idx][h_idx].done)
                                     continue
 
-                                let max_e_idx
+                                let max_e_idx: number
                                 for (max_e_idx = e_idx; max_e_idx < this.builder.erosions.length; max_e_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, w_idx, d_idx, c_idx, max_e_idx, t_idx, h_idx))
                                         break
                                 }
                                 max_e_idx--
 
-                                let max_w_idx
+                                let max_w_idx: number
                                 for (max_w_idx = w_idx; max_w_idx < this.builder.weirdnesses.length; max_w_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, d_idx, c_idx, max_e_idx, t_idx, h_idx))
                                         break
                                 }
                                 max_w_idx--
 
-                                let max_d_idx
+                                let max_d_idx: number
                                 for (max_d_idx = d_idx; max_d_idx < this.builder.depths.length; max_d_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, c_idx, max_e_idx, t_idx, h_idx))
                                         break
@@ -206,21 +182,21 @@ export class Exporter {
                                 max_d_idx--
 
 
-                                let max_c_idx
+                                let max_c_idx: number
                                 for (max_c_idx = c_idx; max_c_idx < this.builder.continentalnesses.length; max_c_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, max_c_idx, max_e_idx, t_idx, h_idx))
                                         break
                                 }
                                 max_c_idx--
 
-                                let max_h_idx
+                                let max_h_idx: number
                                 for (max_h_idx = h_idx; max_h_idx < this.builder.humidities.length; max_h_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, max_c_idx, max_e_idx, t_idx, max_h_idx))
                                         break
                                 }
                                 max_h_idx--
 
-                                let max_t_idx
+                                let max_t_idx: number
                                 for (max_t_idx = t_idx; max_t_idx < this.builder.temperatures.length; max_t_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, max_c_idx, max_e_idx, max_t_idx, max_h_idx))
                                         break

@@ -9,7 +9,7 @@ class MultiNoiseCalculator {
   private router: NoiseRouter
   private sampler: Climate.Sampler
   private noiseSettings: NoiseSettings
-  private y: number | "surface" = "surface"
+  private y: number | "surface" = 0
 
   constructor(
   ) {
@@ -23,7 +23,7 @@ class MultiNoiseCalculator {
     const cellHeight = NoiseSettings.cellHeight(this.noiseSettings)
     var lastDepth = -1
     for (let y = this.noiseSettings.minY + this.noiseSettings.height; y >= this.noiseSettings.minY; y -= cellHeight) {
-      const depth = this.router.depth.compute(DensityFunction.context(x, y, z))
+      const depth = this.router.initialDensityWithoutJaggedness.compute(DensityFunction.context(x, y, z))
       if (depth >= 0) {
         return y - invLerp(lastDepth, depth, 0) * cellHeight
       }

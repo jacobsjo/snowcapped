@@ -1,5 +1,5 @@
 import { Identifier } from "deepslate";
-import { Datapack, DataType } from "mc-datapack-loader";
+import { Datapack, DataType, UNKOWN_PACK } from "mc-datapack-loader";
 import { BiomeBuilder } from "./BiomeBuilder";
 
 const DENSITY_FUNCTIONS = [
@@ -117,8 +117,24 @@ export class LegacyConfigDatapack implements Datapack {
 
     }
 
+    async getImage(): Promise<string> {
+        return "./icons/icon.png"
+    }
+
+    async getName(): Promise<string> {
+        return "Snowcapped Data"
+    }
+
+    async getMcmeta(): Promise<unknown> {
+        return {
+            pack: {
+                description: "The data modified using Snowcapped",
+            }
+        }
+    }
+
     async has(type: DataType, id: Identifier): Promise<boolean> {
-        if (type === "worldgen/density_function") {
+        if (type === "worldgen/density_function" && this.builder.exportSplines) {
             return DENSITY_FUNCTIONS.includes(id.toString())
         } else {
             return false
@@ -126,7 +142,7 @@ export class LegacyConfigDatapack implements Datapack {
     }
 
     async getIds(type: DataType): Promise<Identifier[]> {
-        if (type === "worldgen/density_function") {
+        if (type === "worldgen/density_function" && this.builder.exportSplines) {
             return DENSITY_FUNCTIONS.map((str) => Identifier.parse(str))
         } else {
             return []
@@ -134,7 +150,7 @@ export class LegacyConfigDatapack implements Datapack {
     }
 
     async get(type: DataType, id: Identifier): Promise<unknown> {
-        if (type === "worldgen/density_function" && id.namespace === "minecraft") {
+        if (type === "worldgen/density_function" && id.namespace === "minecraft" && this.builder.exportSplines) {
             if (id.path === "overworld/offset")
                 return OFFSET_DF(this.builder.splines["offset"].export())
             else if (id.path === "overworld/factor")

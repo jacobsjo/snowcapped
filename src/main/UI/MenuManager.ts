@@ -17,7 +17,7 @@ export class MenuManager {
     private static settingsButton: HTMLElement
     private static toggleDarkmodeButton: HTMLElement
 
-    private static fileHandle: FileSystemFileHandle
+    public static fileHandle: FileSystemFileHandle
     public static fileName: string = "New Snowcapped File.snowcapped.json"
 
     static async loadVanilla(filename: string){
@@ -206,58 +206,6 @@ export class MenuManager {
                 save(evt)
             }
         })
-
-        this.exportZipButton.onclick = async (evt: Event) => {
-            const exporter = new Exporter(UI.getInstance().builder)
-            const zip = await exporter.generateZip()
-            const blob = await zip.generateAsync({type: "blob"})
-
-            if ("showSaveFilePicker" in window){
-                this.fileHandle = await window.showSaveFilePicker(
-                    {types: [
-                        {
-                            description: "Zip Files",
-                            accept: {
-                                "application/zip": [".zip"]
-                            }
-                        }
-                    ], suggestedName: this.fileName.replace(".snowcapped.json", "").replace(".json", "") + ".zip"
-                } )
-                const writable = await this.fileHandle.createWritable()
-                await writable.write(blob)
-                await writable.close()
-            } else {
-                const a = document.createElement('a')
-                a.download = this.fileName.replace(".snowcapped.json", "").replace(".json", "") + ".zip"
-                a.href = window.URL.createObjectURL(blob)
-                a.click()
-            }
-        }
-
-        this.exportInsertButton.onclick = async (evt: Event) => {
-            if (!("showDirectoryPicker" in window)){
-                Swal.fire({
-                    text: "Inserting into Datapack is not supported in your browser",
-                    icon: 'error',
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Ok'
-                })
-                return
-            }
-
-            const dirHandle = await window.showDirectoryPicker()
-            const exporter = new Exporter(UI.getInstance().builder)
-            try {
-                await exporter.insertIntoDirectory(dirHandle)
-            } catch (e){
-                Swal.fire({
-                    text: "Could not insert into datapack: " + e,
-                    icon: 'error',
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Ok'
-                })
-            }
-        }
 
         this.settingsButton.onclick = (evt: Event) => {
             const settingsOpen = !document.getElementById("settings").classList.toggle("hidden")

@@ -3,7 +3,7 @@ import { LayerGroup } from "leaflet";
 import * as L from "leaflet"
 import { last, range, takeWhile } from "lodash";
 import { VisualizationManger } from "../UI/VisualizationManager";
-import { Climate, DensityFunction, Holder, Identifier, lerp, NoiseGeneratorSettings, NoiseParameters, NoiseSettings, RandomState, WorldgenRegistries } from "deepslate";
+import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, NoiseSettings, RandomState, WorldgenRegistries } from "deepslate";
 import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { Change, UI } from "../UI/UI";
 import { timer } from "d3";
@@ -122,19 +122,25 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}				
 				
-				var depth_offset = 0
-				if (this.builder.input_is_2d && this.visualization_manager.vis_y_level !== "surface"){
-					depth_offset = (this.visualization_manager.vis_y_level - tile.array[x + 1][z + 1].surface) * this.depth_scale
-				}
-
 
 				for (var iX = 0; iX < 1; iX += this.calcResolution / this.tileResolution) {
 					for (var iZ = 0; iZ < 1; iZ += this.calcResolution / this.tileResolution) {
 						//console.log(iX)
 						var climate = lerp2Climate(tile.array[x + 1][z + 1].climate, tile.array[x + 2][z + 1].climate, tile.array[x + 1][z + 2].climate, tile.array[x + 2][z + 2].climate, iX, iZ)
 
+
+						var depth = climate.depth
+						if (this.visualization_manager.input2d){
+							if (this.visualization_manager.vis_y_level === "surface") {
+								depth = 0
+							} else {
+								depth += this.visualization_manager.vis_y_level * this.depth_scale
+							}
+						}
+		
+
 						climate = new Climate.TargetPoint(climate.temperature, climate.humidity
-							, climate.continentalness, climate.erosion, climate.depth + depth_offset, climate.weirdness)
+							, climate.continentalness, climate.erosion, depth, climate.weirdness)
 	
 
 						const idx = this.builder.getIndexes(climate)
@@ -205,7 +211,7 @@ export class BiomeLayer extends L.GridLayer {
 			return
 		}
 		
-		if (change.map_display || (change.map_y_level && !this.builder.input_is_2d)){
+		if (change.map_display || (change.map_y_level && !this.visualization_manager.input2d)){
 			console.log("canceling")
 			this.workers.forEach(w => w.terminate())
 			this.createWorkers()
@@ -215,7 +221,7 @@ export class BiomeLayer extends L.GridLayer {
 
 			this.workers.forEach(w => w.postMessage({
 				task: "setY",
-				y: this.builder.input_is_2d ? "surface" : this.visualization_manager.vis_y_level
+				y: this.visualization_manager.input2d ? 0 : this.visualization_manager.vis_y_level
 			}))
 
 			this.redraw()
@@ -298,7 +304,7 @@ export class BiomeLayer extends L.GridLayer {
 		const cellHeight = NoiseSettings.cellHeight(this.noiseSettings)    
 		var lastDepth = -1
 		for (let y = this.noiseSettings.minY + this.noiseSettings.height; y >= this.noiseSettings.minY; y -= cellHeight) {
-		  const depth = this.router.depth.compute(DensityFunction.context(x, y, z))
+		  const depth = this.router.initialDensityWithoutJaggedness.compute(DensityFunction.context(x, y, z))
 		  if (depth >= 0) {
 			return y + invLerp(lastDepth, depth, 0) * cellHeight
 		  }

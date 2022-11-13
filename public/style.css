@@ -1011,6 +1011,7 @@ body:not(.light) #menu .button img{
     width: 100%;
     background: var(--map-bg-color) url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" ><rect x="200" width="200" height="200" /><rect y="200" width="200" height="200" /></svg>');
     background-size: 30px 30px;
+    cursor: crosshair;
 }
 
 #visualization_map  canvas.leaflet-tile{
@@ -1047,6 +1048,9 @@ body:not(.light) #menu .button img{
 
 #visualization .horizontal_visualization_controls input{
     margin-left: 5pt;
+}
+
+#visualization .horizontal_visualization_controls input[type=number]{
     width: 70pt;
 }
 
@@ -1133,6 +1137,8 @@ body:not(.light) #menu .button img{
     padding: 5pt;
     background-color: var(--secondary-bg-color);
     border-radius: 5pt;
+    display: flex;
+    align-items: flex-start;
 }
 
 #settings .setting label{
@@ -1141,7 +1147,7 @@ body:not(.light) #menu .button img{
     flex-wrap: wrap;    
 }
 
-#settings .setting label .description{
+#settings .setting .description{
     display: inline-block;
     color: var(--main-text-color);
     white-space: nowrap;
@@ -1149,11 +1155,11 @@ body:not(.light) #menu .button img{
     text-overflow: ellipsis;
 }
 
-#settings .setting label .description:not(.minor){
+#settings .setting .description:not(.minor){
     width: 150pt;
 }
 
-#settings .setting label .description.minor{
+#settings .setting .description.minor{
     margin-left: 10pt;
     margin-right: 5pt;
     white-space: nowrap;
@@ -1244,3 +1250,89 @@ body:not(.light) #menu .button img{
     height: 28pt;
 }
 
+#settings .setting #datapack_list {
+    background-color: var(--tertiary-bg-color);
+    flex-grow: 1;
+    padding: 10pt;
+    border-radius: 5pt;
+    display: flex;
+    flex-direction: column;
+}
+
+#settings .setting #datapack_list .datapack {
+    background-color: var(--primary-button-color);
+    color: var(--main-text-color);
+    display: flex;
+    align-items: center;
+    margin: 10pt;
+    border-radius: 5pt;
+    height: 60pt;
+    order: 1;
+}
+
+#settings .setting #datapack_list .datapack:last-of-type {
+    order: 3
+}
+
+
+#settings .setting #datapack_list .datapack > img{
+    border-radius: 5pt 0pt 0pt 5pt;
+    height: 60pt;
+    margin-right: 10pt;
+}
+
+#settings .setting #datapack_list .datapack .datapack_text {
+    flex-grow: 1;
+}
+
+#settings .setting #datapack_list .datapack .datapack_text .datapack_name{
+    font-weight: bold;
+}
+
+#settings .setting #datapack_list #add_datapack{
+    order: 2;
+    text-align: center;
+}
+
+
+#settings .button {
+    height: auto;
+    background-color: var(--primary-button-color);
+    border-color: var(--primary-button-border-color);
+    border-radius: 3pt;
+    padding: 2pt;
+    width: 25pt;
+    height: 25pt;
+    margin: 3pt;
+    color: var(--emph-text-color);
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    text-align: center;
+}
+
+#settings .button:hover {
+    background-color: var(--primary-button-hover-color)
+}
+
+#settings .button img {
+    margin-top: 4pt;
+    width: 18pt;
+    height: 18pt;
+}
+
+#settings .setting #datapack_list .datapack .button {
+    background-color: var(--small-button-color);
+}
+
+#settings .setting #datapack_list .datapack .button:hover {
+    background-color: var(--small-button-hover-color);
+}
+
+#settings .setting #datapack_list .datapack .button img {
+    filter: invert();
+}
+
+body:not(.light) #settings .button img{
+    filter: invert();
+}
