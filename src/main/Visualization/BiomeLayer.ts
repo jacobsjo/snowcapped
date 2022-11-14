@@ -7,7 +7,7 @@ import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGenerat
 import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { Change, UI } from "../UI/UI";
 import { timer } from "d3";
-import { lerp2Climate } from "../util";
+import { getSurfaceDensityFunction, lerp2Climate } from "../util";
 import { Datapack } from "mc-datapack-loader";
 
 const WORKER_COUNT = 4
@@ -32,6 +32,7 @@ export class BiomeLayer extends L.GridLayer {
 	router: any;
 	sampler: Climate.Sampler;
 	lastY: string | number;
+	surfaceDensityFunction: DensityFunction;
 
 	private depth_scale: number = 0;
 
@@ -132,7 +133,7 @@ export class BiomeLayer extends L.GridLayer {
 						var depth = climate.depth
 						if (this.visualization_manager.input2d){
 							if (this.visualization_manager.vis_y_level === "surface") {
-								depth = 0
+								depth += (lerp2(iX, iZ, tile.array[x + 1][z + 1].surface, tile.array[x + 2][z + 1].surface, tile.array[x + 1][z + 2].surface, tile.array[x + 2][z + 2].surface) + 0) * this.depth_scale
 							} else {
 								depth += this.visualization_manager.vis_y_level * this.depth_scale
 							}
@@ -143,6 +144,7 @@ export class BiomeLayer extends L.GridLayer {
 							, climate.continentalness, climate.erosion, depth, climate.weirdness)
 	
 
+						//const biome = this.builder.lookupClosest(climate)
 						const idx = this.builder.getIndexes(climate)
 						const biome = this.builder.lookupRecursive(idx, true)
 						if (biome !== undefined) {
@@ -192,7 +194,9 @@ export class BiomeLayer extends L.GridLayer {
 			this.workers.forEach(w => w.postMessage({
 				task: "setNoiseGeneratorSettings",
 				json: noiseSettingsJson,
-				seed: this.visualization_manager.seed
+				seed: this.visualization_manager.seed,
+				id: this.builder.noiseSettingsName,
+				dimension_id: this.builder.dimensionName
 			}))
 
 			const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(noiseSettingsJson)
@@ -202,6 +206,8 @@ export class BiomeLayer extends L.GridLayer {
 			this.sampler = Climate.Sampler.fromRouter(this.router)
 
 			this.depth_scale = (this.sampler.sample(0, 64, 0).depth - this.sampler.sample(0, 0, 0).depth) / 256  // don't know why 256 and not 64...
+
+			this.surfaceDensityFunction =  getSurfaceDensityFunction(Identifier.parse(this.builder.noiseSettingsName), Identifier.parse(this.builder.dimensionName)).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
 		}
 
 	}
@@ -212,6 +218,8 @@ export class BiomeLayer extends L.GridLayer {
 		}
 		
 		if (change.map_display || (change.map_y_level && !this.visualization_manager.input2d)){
+//			console.log(this.router.initialDensityWithoutJaggedness)
+
 			console.log("canceling")
 			this.workers.forEach(w => w.terminate())
 			this.createWorkers()
@@ -220,8 +228,8 @@ export class BiomeLayer extends L.GridLayer {
 			await this.datapackLoader
 
 			this.workers.forEach(w => w.postMessage({
-				task: "setY",
-				y: this.visualization_manager.input2d ? 0 : this.visualization_manager.vis_y_level
+				task: "setParams",
+				y: this.visualization_manager.input2d ? 0 : this.visualization_manager.vis_y_level,
 			}))
 
 			this.redraw()
@@ -295,34 +303,16 @@ export class BiomeLayer extends L.GridLayer {
 		L.TileLayer.prototype._removeTile.call(this, key)
 	}
 
-	// [TODO] refactor into util (and use in worker.ts)
-	private getSurface(x: number, z: number): number{
-		function invLerp(a: number, b: number, v: number){
-			return (v-a) / (b-a)
-		}
-
-		const cellHeight = NoiseSettings.cellHeight(this.noiseSettings)    
-		var lastDepth = -1
-		for (let y = this.noiseSettings.minY + this.noiseSettings.height; y >= this.noiseSettings.minY; y -= cellHeight) {
-		  const depth = this.router.initialDensityWithoutJaggedness.compute(DensityFunction.context(x, y, z))
-		  if (depth >= 0) {
-			return y + invLerp(lastDepth, depth, 0) * cellHeight
-		  }
-		  lastDepth = depth
-		}
-		return Number.MAX_SAFE_INTEGER
-	  }	
-
 	getIdxs(latlng: L.LatLng): {idx: MultiNoiseIndexes, values: Climate.TargetPoint, position: {x: number, y: number, z: number}} {
 
 		const crs = this._map.options.crs
 		const pos = crs.project(latlng)
 		pos.y *= -1
 
-		const y: number = this.visualization_manager.vis_y_level === "surface" ? this.getSurface(pos.x, pos.y) : this.visualization_manager.vis_y_level
+		const y: number = this.visualization_manager.vis_y_level === "surface" ? this.surfaceDensityFunction.compute(DensityFunction.context(pos.x, 0, pos.y)) : this.visualization_manager.vis_y_level
 
 		var climate = this.sampler.sample(pos.x * 0.25, y * 0.25, pos.y * 0.25)
-		if (this.visualization_manager.vis_y_level === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
+		//if (this.visualization_manager.vis_y_level === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
 		const idx = this.builder.getIndexes(climate)
 		return { idx: idx, values: climate, position: { x: pos.x, y: y, z: pos.y} }
 

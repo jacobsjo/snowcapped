@@ -44,7 +44,7 @@ export class BiomeGridEditor {
             const renderer = this.layout.getRenderer() as BiomeGridRenderer
             this.mouse_position = this.getMousePosition(evt)
             const ids = renderer.getIdsFromPosition(0, 0, this.canvas.width, this.canvas.height, this.mouse_position.mouse_x, this.mouse_position.mouse_y)
-            if (ids === undefined || ids.indexes.d === -1) {
+            if (ids === undefined || ids.indexes.depth === -1) {
                 tooltip.classList.add("hidden")
                 MenuManager.toggleAction("paint", false)
                 MenuManager.toggleAction("paint-mode", false)
@@ -96,24 +96,24 @@ export class BiomeGridEditor {
             tooltip_noises.classList.remove("hidden")
 
             if (this.layout.getType() === "dimension"){
-                tooltip_noise_x.innerHTML = "Weirdness: [" + this.builder.weirdnesses[ids.indexes.w].toFixed(3) + ", " + this.builder.weirdnesses[ids.indexes.w + 1].toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Depth: [" + this.builder.depths[ids.indexes.d].toFixed(3) + ", " + this.builder.depths[ids.indexes.d + 1].toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Weirdness: [" + this.builder.gridCells.weirdness[ids.indexes.weirdness].toFixed(3) + ", " + this.builder.gridCells.weirdness[ids.indexes.weirdness + 1].toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Depth: [" + this.builder.gridCells.depth[ids.indexes.depth].toFixed(3) + ", " + this.builder.gridCells.depth[ids.indexes.depth + 1].toFixed(3) + "]"
             } else if (this.layout.getType() === "slice"){
-                tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.erosions[ids.indexes.e].toFixed(3) + ", " + this.builder.erosions[ids.indexes.e + 1].toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.continentalnesses[ids.indexes.c].toFixed(3) + ", " + this.builder.continentalnesses[ids.indexes.c + 1].toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.gridCells.erosion[ids.indexes.erosion].toFixed(3) + ", " + this.builder.gridCells.erosion[ids.indexes.erosion + 1].toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.gridCells.continentalness[ids.indexes.continentalness].toFixed(3) + ", " + this.builder.gridCells.continentalness[ids.indexes.continentalness + 1].toFixed(3) + "]"
             } else if (this.layout.getType() === "layout"){
-                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.humidities[ids.indexes.h].toFixed(3) + ", " + this.builder.humidities[ids.indexes.h + 1].toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.temperatures[ids.indexes.t].toFixed(3) + ", " + this.builder.temperatures[ids.indexes.t + 1].toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.gridCells.humidity[ids.indexes.humidity].toFixed(3) + ", " + this.builder.gridCells.humidity[ids.indexes.humidity + 1].toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.gridCells.temperature[ids.indexes.temperature].toFixed(3) + ", " + this.builder.gridCells.temperature[ids.indexes.temperature + 1].toFixed(3) + "]"
             }
 
                 // Update Spline display in slices
             if (this.layout instanceof Grid && this.layout.getType() === "slice"){
-                const c_min = builder.continentalnesses[ids.indexes.c]
-                const c_max = builder.continentalnesses[ids.indexes.c + 1]
+                const c_min = builder.gridCells.continentalness[ids.indexes.continentalness]
+                const c_max = builder.gridCells.continentalness[ids.indexes.continentalness + 1]
                 const c = lerp(c_min, c_max, ids.local_t)
     
-                const e_min = builder.erosions[ids.indexes.e]
-                const e_max = builder.erosions[ids.indexes.e + 1]
+                const e_min = builder.gridCells.erosion[ids.indexes.erosion]
+                const e_max = builder.gridCells.erosion[ids.indexes.erosion + 1]
                 const e = lerp(e_min, e_max, ids.local_h)
 
                 UI.getInstance().splineDisplayManager.setPos({c: c, e: e})
@@ -220,12 +220,12 @@ export class BiomeGridEditor {
 
     handleInteraction(indexes: PartialMultiNoiseIndexes, mode: "A" | "B", action: "add" | "add_alt" | "pick" | "open" | "remove") {
        
-        if (indexes.d === -1){
+        if (indexes.depth === -1){
             if (action === "add" || action === "add_alt"){
-                this.builder.modes[indexes.w] = (this.builder.modes[indexes.w] === "A") ? "B" : "A"
+                this.builder.modes[indexes.weirdness] = (this.builder.modes[indexes.weirdness] === "A") ? "B" : "A"
             }
             
-            UI.getInstance().refresh({biome: {w: indexes.w}})
+            UI.getInstance().refresh({biome: {weirdness: indexes.weirdness}})
             return
         }
 

@@ -145,10 +145,10 @@ export class VisualizationManger {
         return
 
       if (lookup.layout !== undefined && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)) {
-        lookup.layout.getRenderer().setHighlight(idxs.idx.t, idxs.idx.h)
+        lookup.layout.getRenderer().setHighlight(idxs.idx.temperature, idxs.idx.humidity)
         UI.getInstance().sidebarManager.openElement({ type: "layout", key: lookup.layout.getKey() })
       } else {
-        lookup.slice.getRenderer().setHighlight(idxs.idx.c, idxs.idx.e)
+        lookup.slice.getRenderer().setHighlight(idxs.idx.continentalness, idxs.idx.erosion)
         UI.getInstance().sidebarManager.openElement({ type: "slice", key: lookup.slice.getKey() })
       }
     })

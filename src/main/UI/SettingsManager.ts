@@ -24,6 +24,7 @@ export class SettingsManager {
         dimensionNameInput.onchange = (evt) => {
             this.builder.hasChanges = true
             this.builder.dimensionName = dimensionNameInput.value
+            UI.getInstance().refresh({noises: true})
         }
 
 
@@ -42,7 +43,6 @@ export class SettingsManager {
             .on("change", () => {
                 this.builder.hasChanges = true
                 this.builder.noiseSettingsName = noiseSettingsNameSelect.property("value")
-                console.log(this.builder.noiseSettingsName)
                 UI.getInstance().refresh({noises: true})
             })
         

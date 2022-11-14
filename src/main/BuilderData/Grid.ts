@@ -27,13 +27,13 @@ export class DimensionMultiNoiseIndexesAccessor implements MultiNoiseIndexesAcce
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
-        return {d: x, w: y}
+        return {depth: x, weirdness: y}
     }
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
-        if (indexes.w === undefined || indexes.d === undefined)
+        if (indexes.weirdness === undefined || indexes.depth === undefined)
             return "all"
 
-        return [indexes.d, indexes.w]
+        return [indexes.depth, indexes.weirdness]
     }
 
     paramToAxis(param: string): "x" | "y" {
@@ -46,10 +46,10 @@ export class DimensionMultiNoiseIndexesAccessor implements MultiNoiseIndexesAcce
     }
 
     modesetting(indexes: PartialMultiNoiseIndexes): "A" | "B" | "unchanged" {
-        if (indexes.w === undefined){
+        if (indexes.weirdness === undefined){
             return "unchanged"
         } else {
-            return this.builder.modes[indexes.w]
+            return this.builder.modes[indexes.weirdness]
         }
     }
 }
@@ -62,13 +62,13 @@ export class SliceMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccessor
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
-        return {c: x, e: y}
+        return {continentalness: x, erosion: y}
     }
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
-        if (indexes.c === undefined || indexes.e === undefined)
+        if (indexes.continentalness === undefined || indexes.erosion === undefined)
             return "all"
 
-        return [indexes.c, indexes.e]
+        return [indexes.continentalness, indexes.erosion]
     }
 
     paramToAxis(param: string): "x" | "y" {
@@ -92,13 +92,13 @@ export class LayoutMultiNoiseIndexesAccessor implements MultiNoiseIndexesAccesso
     }
 
     cellToIds(x: number, y: number): PartialMultiNoiseIndexes {
-        return {t: x, h: y}
+        return {temperature: x, humidity: y}
     }
     idsToCell(indexes: PartialMultiNoiseIndexes): [number, number] | "all" {
-        if (indexes.t === undefined || indexes.h === undefined)
+        if (indexes.temperature === undefined || indexes.humidity === undefined)
             return "all"
 
-        return [indexes.t, indexes.h]
+        return [indexes.temperature, indexes.humidity]
     }
 
     paramToAxis(param: string): "x" | "y" {

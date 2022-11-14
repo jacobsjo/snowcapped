@@ -115,25 +115,25 @@ export class Exporter {
     public getDimensionJSON(): string {
         const array: { biome: string, done: boolean }[][][][][][] = []
 
-        for (let d_idx = 0; d_idx < this.builder.depths.length; d_idx++) {
+        for (let d_idx = 0; d_idx < this.builder.gridCells.depth.length - 1; d_idx++) {
             array[d_idx] = []
-            for (let w_idx = 0; w_idx < this.builder.weirdnesses.length; w_idx++) {
+            for (let w_idx = 0; w_idx < this.builder.gridCells.weirdness.length - 1; w_idx++) {
                 array[d_idx][w_idx] = []
-                for (let c_idx = 0; c_idx < this.builder.continentalnesses.length; c_idx++) {
+                for (let c_idx = 0; c_idx < this.builder.gridCells.continentalness.length - 1; c_idx++) {
                     array[d_idx][w_idx][c_idx] = []
-                    for (let e_idx = 0; e_idx < this.builder.erosions.length; e_idx++) {
+                    for (let e_idx = 0; e_idx < this.builder.gridCells.erosion.length - 1; e_idx++) {
                         array[d_idx][w_idx][c_idx][e_idx] = []
 
-                        for (let t_idx = 0; t_idx < this.builder.temperatures.length; t_idx++) {
+                        for (let t_idx = 0; t_idx < this.builder.gridCells.temperature.length - 1; t_idx++) {
                             array[d_idx][w_idx][c_idx][e_idx][t_idx] = []
-                            for (let h_idx = 0; h_idx < this.builder.humidities.length; h_idx++) {
+                            for (let h_idx = 0; h_idx < this.builder.gridCells.humidity.length - 1; h_idx++) {
                                 const biome = this.builder.dimension.lookupRecursive({
-                                    d: d_idx,
-                                    w: w_idx,
-                                    c: c_idx,
-                                    e: e_idx,
-                                    h: h_idx,
-                                    t: t_idx
+                                    depth: d_idx,
+                                    weirdness: w_idx,
+                                    continentalness: c_idx,
+                                    erosion: e_idx,
+                                    humidity: h_idx,
+                                    temperature: t_idx
                                 }, "Any")
                                 if (biome === undefined || biome instanceof GridElementUnassigned) {
                                     array[d_idx][w_idx][c_idx][e_idx][t_idx][h_idx] = { biome: "", done: true }
@@ -151,31 +151,31 @@ export class Exporter {
 
         const biomes: { parameters: { weirdness: [number, number], continentalness: [number, number], erosion: [number, number], temperature: [number, number], humidity: [number, number], depth: [number, number], offset: number }, biome: string }[] = []
 
-        for (let d_idx = 0; d_idx < this.builder.depths.length; d_idx++) {
-            for (let w_idx = 0; w_idx < this.builder.weirdnesses.length; w_idx++) {
-                for (let c_idx = 0; c_idx < this.builder.continentalnesses.length; c_idx++) {
-                    for (let e_idx = 0; e_idx < this.builder.erosions.length; e_idx++) {
-                        for (let t_idx = 0; t_idx < this.builder.temperatures.length; t_idx++) {
-                            for (let h_idx = 0; h_idx < this.builder.humidities.length; h_idx++) {
+        for (let d_idx = 0; d_idx < this.builder.gridCells.depth.length - 1; d_idx++) {
+            for (let w_idx = 0; w_idx < this.builder.gridCells.weirdness.length - 1; w_idx++) {
+                for (let c_idx = 0; c_idx < this.builder.gridCells.continentalness.length - 1; c_idx++) {
+                    for (let e_idx = 0; e_idx < this.builder.gridCells.erosion.length - 1; e_idx++) {
+                        for (let t_idx = 0; t_idx < this.builder.gridCells.temperature.length - 1; t_idx++) {
+                            for (let h_idx = 0; h_idx < this.builder.gridCells.humidity.length - 1; h_idx++) {
                                 if (array[d_idx][w_idx][c_idx][e_idx][t_idx][h_idx].done)
                                     continue
 
                                 let max_e_idx: number
-                                for (max_e_idx = e_idx; max_e_idx < this.builder.erosions.length; max_e_idx++) {
+                                for (max_e_idx = e_idx; max_e_idx < this.builder.gridCells.erosion.length - 1; max_e_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, w_idx, d_idx, c_idx, max_e_idx, t_idx, h_idx))
                                         break
                                 }
                                 max_e_idx--
 
                                 let max_w_idx: number
-                                for (max_w_idx = w_idx; max_w_idx < this.builder.weirdnesses.length; max_w_idx++) {
+                                for (max_w_idx = w_idx; max_w_idx < this.builder.gridCells.weirdness.length - 1; max_w_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, d_idx, c_idx, max_e_idx, t_idx, h_idx))
                                         break
                                 }
                                 max_w_idx--
 
                                 let max_d_idx: number
-                                for (max_d_idx = d_idx; max_d_idx < this.builder.depths.length; max_d_idx++) {
+                                for (max_d_idx = d_idx; max_d_idx < this.builder.gridCells.depth.length - 1; max_d_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, c_idx, max_e_idx, t_idx, h_idx))
                                         break
                                 }
@@ -183,21 +183,21 @@ export class Exporter {
 
 
                                 let max_c_idx: number
-                                for (max_c_idx = c_idx; max_c_idx < this.builder.continentalnesses.length; max_c_idx++) {
+                                for (max_c_idx = c_idx; max_c_idx < this.builder.gridCells.continentalness.length - 1; max_c_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, max_c_idx, max_e_idx, t_idx, h_idx))
                                         break
                                 }
                                 max_c_idx--
 
                                 let max_h_idx: number
-                                for (max_h_idx = h_idx; max_h_idx < this.builder.humidities.length; max_h_idx++) {
+                                for (max_h_idx = h_idx; max_h_idx < this.builder.gridCells.humidity.length - 1; max_h_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, max_c_idx, max_e_idx, t_idx, max_h_idx))
                                         break
                                 }
                                 max_h_idx--
 
                                 let max_t_idx: number
-                                for (max_t_idx = t_idx; max_t_idx < this.builder.temperatures.length; max_t_idx++) {
+                                for (max_t_idx = t_idx; max_t_idx < this.builder.gridCells.temperature.length - 1; max_t_idx++) {
                                     if (!this.checkRange(array, w_idx, d_idx, c_idx, e_idx, t_idx, h_idx, max_w_idx, max_d_idx, max_c_idx, max_e_idx, max_t_idx, max_h_idx))
                                         break
                                 }
@@ -207,28 +207,28 @@ export class Exporter {
                                 biomes.push({
                                     parameters: {
                                         weirdness: [
-                                            this.builder.weirdnesses[w_idx],
-                                            this.builder.weirdnesses[max_w_idx + 1]
+                                            this.builder.gridCells.weirdness[w_idx],
+                                            this.builder.gridCells.weirdness[max_w_idx + 1]
                                         ],
                                         continentalness: [
-                                            this.builder.continentalnesses[c_idx],
-                                            this.builder.continentalnesses[max_c_idx + 1]
+                                            this.builder.gridCells.continentalness[c_idx],
+                                            this.builder.gridCells.continentalness[max_c_idx + 1]
                                         ],
                                         erosion: [
-                                            this.builder.erosions[e_idx],
-                                            this.builder.erosions[max_e_idx + 1]
+                                            this.builder.gridCells.erosion[e_idx],
+                                            this.builder.gridCells.erosion[max_e_idx + 1]
                                         ],
                                         temperature: [
-                                            this.builder.temperatures[t_idx],
-                                            this.builder.temperatures[max_t_idx + 1]
+                                            this.builder.gridCells.temperature[t_idx],
+                                            this.builder.gridCells.temperature[max_t_idx + 1]
                                         ],
                                         humidity: [
-                                            this.builder.humidities[h_idx],
-                                            this.builder.humidities[max_h_idx + 1]
+                                            this.builder.gridCells.humidity[h_idx],
+                                            this.builder.gridCells.humidity[max_h_idx + 1]
                                         ],
                                         depth: [
-                                            this.builder.depths[d_idx],
-                                            this.builder.depths[max_d_idx + 1]
+                                            this.builder.gridCells.depth[d_idx],
+                                            this.builder.gridCells.depth[max_d_idx + 1]
                                         ],
                                         offset: 0.0
                                     },

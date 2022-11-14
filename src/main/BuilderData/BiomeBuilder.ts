@@ -16,7 +16,7 @@ import { VERSION_INFO } from "../Vanilla/VersionInfo"
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
 import { LegacyConfigDatapack } from "./LegacyConfigDatapack"
 
-export type MultiNoiseIndexes = { d: number, w: number, c: number, e: number, h: number, t: number }
+export type MultiNoiseIndexes = { depth: number, weirdness: number, continentalness: number, erosion: number, humidity: number, temperature: number }
 export type PartialMultiNoiseIndexes = Partial<MultiNoiseIndexes>
 
 export type NoiseSetting = { firstOctave: number, amplitudes: number[] }
@@ -26,12 +26,14 @@ export type NoiseType = "continentalness" | "weirdness" | "erosion" | "temperatu
 export class BiomeBuilder {
     hasChanges: boolean
 
-    continentalnesses: number[]
-    erosions: number[]
-    weirdnesses: number[]
-    temperatures: number[]
-    humidities: number[]
-    depths: number[]
+    gridCells: {
+        continentalness: number[]
+        erosion: number[]
+        weirdness: number[]
+        temperature: number[]
+        humidity: number[]
+        depth: number[]
+    }
 
     splines: {
         [key: string]: GridSpline,
@@ -81,15 +83,14 @@ export class BiomeBuilder {
 
         this.dimensionName = json.dimensionName ?? "minecraft:overworld"
 
-        this.continentalnesses = json.continentalnesses
-        this.erosions = json.erosions
-        this.weirdnesses = json.weirdnesses
-        this.temperatures = json.temperatures
-        this.humidities = json.humidities
-        this.depths = json.depths
-
-        console.log(json.continentalnesses)
-        console.log(this.continentalnesses)
+        this.gridCells = {
+            continentalness: json.continentalnesses,
+            erosion: json.erosions,
+            weirdness: json.weirdnesses,
+            temperature: json.temperatures,
+            humidity: json.humidities,
+            depth: json.depths
+        }
 
         this.gridElements.clear()
         this.vanillaBiomes.clear()
@@ -134,12 +135,12 @@ export class BiomeBuilder {
         return {
             dimensionName: this.dimensionName,
 
-            continentalnesses: this.continentalnesses,
-            erosions: this.erosions,
-            weirdnesses: this.weirdnesses,
-            temperatures: this.temperatures,
-            humidities: this.humidities,
-            depths: this.depths,
+            continentalnesses: this.gridCells.continentalness,
+            erosions: this.gridCells.erosion,
+            weirdnesses: this.gridCells.weirdness,
+            temperatures: this.gridCells.temperature,
+            humidities: this.gridCells.humidity,
+            depths: this.gridCells.depth,
 
             dimension: this.dimension,
             modes: this.modes,
@@ -238,35 +239,61 @@ export class BiomeBuilder {
 
 
     public getIndexes(params: Climate.TargetPoint): MultiNoiseIndexes {
-        const w_idx = this.findIndex(this.weirdnesses, params.weirdness)
-        const c_idx = this.findIndex(this.continentalnesses, params.continentalness)
-        const e_idx = this.findIndex(this.erosions, params.erosion)
-        const t_idx = this.findIndex(this.temperatures, params.temperature)
-        const h_idx = this.findIndex(this.humidities, params.humidity)
-        const d_idx = this.findIndex(this.depths, params.depth)
-        return { w: w_idx, e: e_idx, c: c_idx, t: t_idx, h: h_idx, d: d_idx }
+        const w_idx = this.findIndex(this.gridCells.weirdness, params.weirdness)
+        const c_idx = this.findIndex(this.gridCells.continentalness, params.continentalness)
+        const e_idx = this.findIndex(this.gridCells.erosion, params.erosion)
+        const t_idx = this.findIndex(this.gridCells.temperature, params.temperature)
+        const h_idx = this.findIndex(this.gridCells.humidity, params.humidity)
+        const d_idx = this.findIndex(this.gridCells.depth, params.depth)
+        return { weirdness: w_idx, erosion: e_idx, continentalness: c_idx, temperature: t_idx, humidity: h_idx, depth: d_idx }
     }
 
+    /*
+    private getDistance(start_params: Climate.TargetPoint, start_ids: MultiNoiseIndexes, end_ids: MultiNoiseIndexes): number{
+        var distance = 0
+        for (const axis of (Object.keys(start_ids) as (keyof MultiNoiseIndexes)[])){
+            if (start_ids[axis] < end_ids[axis]){
+                distance += (this.gridCells[axis][end_ids[axis] + 1] - start_params[axis])**2
+            } else if (start_ids[axis] > end_ids[axis]){
+                distance += (this.gridCells[axis][end_ids[axis]] - start_params[axis])**2
+            }
+        }
+        return distance
+    }
 
     public lookupClosest(params: Climate.TargetPoint){
-        const ids = this.getIndexes(params)
-        var biome = this.lookupRecursive(ids)
+        const start_ids = this.getIndexes(params)
+        const check_list: {distance: number, ids: MultiNoiseIndexes}[] = [{distance: 0, ids: start_ids}]
+        
+        while (check_list.length > 0) {
+            const {ids: ids} = check_list.pop()
+            var biome = this.lookupRecursive(ids)
+            if (biome){
+                return biome
+            }
 
-        if (biome)
-            return biome
+            for (const axis of (Object.keys(ids) as (keyof MultiNoiseIndexes)[])){
+                if (ids[axis] <= start_ids[axis] && ids[axis] > 0){
+                    const new_ids = {...ids, [axis]: ids[axis] - 1}
+                    const new_entry = {ids: new_ids, distance: this.getDistance(params, start_ids, new_ids)}
+                    check_list.splice(sortedIndexBy(check_list, new_entry, "distance"), 0, new_entry)
+                } 
+                
+                if (ids[axis] >= start_ids[axis] && ids[axis] < this.gridCells[axis].length - 1){
+                    const new_ids = {...ids, [axis]: ids[axis] + 1}
+                    const new_entry = {ids: new_ids, distance: this.getDistance(params, start_ids, new_ids)}
+                    check_list.splice(sortedIndexBy(check_list, new_entry, "distance"), 0, new_entry)
+                }
+            }
 
+        }
 
-    }
+        return undefined
+    }*/
 
     public lookupRecursive(indexes: MultiNoiseIndexes, stopAtHidden: boolean = false): Biome {
         if (indexes === undefined)
             return undefined
-
-        const w = this.weirdnesses[indexes.w]
-
-        if (w === undefined) {
-            return undefined
-        }
 
         const element = this.dimension.lookupRecursive(indexes, "Any", stopAtHidden)
         if (element instanceof Biome)
@@ -279,12 +306,6 @@ export class BiomeBuilder {
         if (indexes === undefined)
             return undefined
 
-        const w = this.weirdnesses[indexes.w]
-
-        if (w === undefined) {
-            return {}
-        }
-
         const lookup = this.dimension.lookupRecursiveWithTracking(indexes, "Any", true)
         return { slice: lookup.slice, layout: lookup.layout, biome: lookup.biome, mode: lookup.mode }
 
@@ -294,23 +315,23 @@ export class BiomeBuilder {
         if (param === "humidity" || param === "temperature") {
             this.layouts.forEach(layout => layout.deleteParam(param, id))
             if (param === "humidity") {
-                this.humidities.splice(id, 1)
+                this.gridCells.humidity.splice(id, 1)
             } else {
-                this.temperatures.splice(id, 1)
+                this.gridCells.temperature.splice(id, 1)
             }
         } else if (param === "continentalness" || param === "erosion") {
             this.slices.forEach(slice => slice.deleteParam(param, id))
             if (param === "continentalness") {
-                this.continentalnesses.splice(id, 1)
+                this.gridCells.continentalness.splice(id, 1)
             } else {
-                this.erosions.splice(id, 1)
+                this.gridCells.erosion.splice(id, 1)
             }
         } else if (param === "weirdness" || param === "depth") {
             this.dimension.deleteParam(param, id)
             if (param === "weirdness") {
-                this.weirdnesses.splice(id, 1)
+                this.gridCells.weirdness.splice(id, 1)
             } else {
-                this.depths.splice(id, 1)
+                this.gridCells.depth.splice(id, 1)
             }
         }
     }
@@ -319,55 +340,55 @@ export class BiomeBuilder {
         if (param === "humidity" || param === "temperature") {
             this.layouts.forEach(layout => layout.splitParam(param, id))
             if (param === "humidity") {
-                const midPoint = (this.humidities[id] + this.humidities[id + 1]) / 2
-                this.humidities.splice(id + 1, 0, midPoint)
+                const midPoint = (this.gridCells.humidity[id] + this.gridCells.humidity[id + 1]) / 2
+                this.gridCells.humidity.splice(id + 1, 0, midPoint)
             } else {
-                const midPoint = (this.temperatures[id] + this.temperatures[id + 1]) / 2
-                this.temperatures.splice(id + 1, 0, midPoint)
+                const midPoint = (this.gridCells.temperature[id] + this.gridCells.temperature[id + 1]) / 2
+                this.gridCells.temperature.splice(id + 1, 0, midPoint)
             }
         } else if (param === "continentalness" || param === "erosion") {
             this.slices.forEach(slice => slice.splitParam(param, id))
             if (param === "continentalness") {
-                const midPoint = (this.continentalnesses[id] + this.continentalnesses[id + 1]) / 2
-                this.continentalnesses.splice(id + 1, 0, midPoint)
+                const midPoint = (this.gridCells.continentalness[id] + this.gridCells.continentalness[id + 1]) / 2
+                this.gridCells.continentalness.splice(id + 1, 0, midPoint)
             } else {
-                const midPoint = (this.erosions[id] + this.erosions[id + 1]) / 2
-                this.erosions.splice(id + 1, 0, midPoint)
+                const midPoint = (this.gridCells.erosion[id] + this.gridCells.erosion[id + 1]) / 2
+                this.gridCells.erosion.splice(id + 1, 0, midPoint)
             }
         } else if (param === "weirdness" || param === "depth") {
             this.dimension.splitParam(param, id)
             if (param === "weirdness") {
-                const midPoint = (this.weirdnesses[id] + this.weirdnesses[id + 1]) / 2
-                this.weirdnesses.splice(id + 1, 0, midPoint)
+                const midPoint = (this.gridCells.weirdness[id] + this.gridCells.weirdness[id + 1]) / 2
+                this.gridCells.weirdness.splice(id + 1, 0, midPoint)
             } else {
-                const midPoint = position == "start" ? this.depths[id] : position == "end" ? this.depths[id+1] : (this.depths[id] + this.depths[id + 1]) / 2
-                this.depths.splice(id + 1, 0, midPoint)
+                const midPoint = position == "start" ? this.gridCells.depth[id] : position == "end" ? this.gridCells.depth[id+1] : (this.gridCells.depth[id] + this.gridCells.depth[id + 1]) / 2
+                this.gridCells.depth.splice(id + 1, 0, midPoint)
             }
         }
     }
 
     getNumTemperatures() {
-        return this.temperatures.length - 1
+        return this.gridCells.temperature.length - 1
     }
 
     getNumHumidities() {
-        return this.humidities.length - 1 
+        return this.gridCells.humidity.length - 1 
     }
 
     getNumContinentalnesses() {
-        return this.continentalnesses.length - 1
+        return this.gridCells.continentalness.length - 1
     }
 
     getNumErosions() {
-        return this.erosions.length - 1
+        return this.gridCells.erosion.length - 1
     }
 
     getNumWeirdnesses() {
-        return this.weirdnesses.length - 1
+        return this.gridCells.weirdness.length - 1
     }
 
     getNumDepths() {
-        return this.depths.length - 1
+        return this.gridCells.depth.length - 1
     }
 
     getVersionInfo() {

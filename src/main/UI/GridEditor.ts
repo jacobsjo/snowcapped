@@ -483,8 +483,8 @@ export class GridEditor {
         if (UI.getInstance().sidebarManager.openedElement.key === "slice") {
             this.title.value = "Slice Grid"
 
-            this.xs = this.builder.erosions
-            this.ys = this.builder.continentalnesses
+            this.xs = this.builder.gridCells.erosion
+            this.ys = this.builder.gridCells.continentalness
 
             this.x_param = "erosion"
             this.y_param = "continentalness"
@@ -498,8 +498,8 @@ export class GridEditor {
         } else if (UI.getInstance().sidebarManager.openedElement.key === "layout") {
             this.title.value = "Layout Grid"
 
-            this.xs = this.builder.humidities
-            this.ys = this.builder.temperatures
+            this.xs = this.builder.gridCells.humidity
+            this.ys = this.builder.gridCells.temperature
 
             this.x_param = "humidity"
             this.y_param = "temperature"
@@ -513,8 +513,8 @@ export class GridEditor {
         } else if (UI.getInstance().sidebarManager.openedElement.key === "dimension") {
             this.title.value = "Biome Grid"
 
-            this.xs = this.builder.weirdnesses
-            this.ys = this.builder.depths
+            this.xs = this.builder.gridCells.weirdness
+            this.ys = this.builder.gridCells.depth
 
             this.x_param = "weirdness"
             this.y_param = "depth"

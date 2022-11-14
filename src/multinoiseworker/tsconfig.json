@@ -1,6 +1,10 @@
 {
     "extends": "../generic-tsconfig.json",
+    "include": ["../main/util.ts"],
     "compilerOptions": {
-        "lib": ["esnext", "webworker"]
-      }
-  }
+        "lib": [
+            "esnext",
+            "webworker"
+        ]
+    }
+}
