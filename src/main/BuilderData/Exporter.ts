@@ -207,28 +207,28 @@ export class Exporter {
                                 biomes.push({
                                     parameters: {
                                         weirdness: [
-                                            this.builder.weirdnesses[w_idx].min,
-                                            this.builder.weirdnesses[max_w_idx].max
+                                            this.builder.weirdnesses[w_idx],
+                                            this.builder.weirdnesses[max_w_idx + 1]
                                         ],
                                         continentalness: [
-                                            this.builder.continentalnesses[c_idx].min,
-                                            this.builder.continentalnesses[max_c_idx].max
+                                            this.builder.continentalnesses[c_idx],
+                                            this.builder.continentalnesses[max_c_idx + 1]
                                         ],
                                         erosion: [
-                                            this.builder.erosions[e_idx].min,
-                                            this.builder.erosions[max_e_idx].max
+                                            this.builder.erosions[e_idx],
+                                            this.builder.erosions[max_e_idx + 1]
                                         ],
                                         temperature: [
-                                            this.builder.temperatures[t_idx].min,
-                                            this.builder.temperatures[max_t_idx].max
+                                            this.builder.temperatures[t_idx],
+                                            this.builder.temperatures[max_t_idx + 1]
                                         ],
                                         humidity: [
-                                            this.builder.humidities[h_idx].min,
-                                            this.builder.humidities[max_h_idx].max
+                                            this.builder.humidities[h_idx],
+                                            this.builder.humidities[max_h_idx + 1]
                                         ],
                                         depth: [
-                                            this.builder.depths[d_idx].min,
-                                            this.builder.depths[max_d_idx].max
+                                            this.builder.depths[d_idx],
+                                            this.builder.depths[max_d_idx + 1]
                                         ],
                                         offset: 0.0
                                     },

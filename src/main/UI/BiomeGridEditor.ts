@@ -96,23 +96,25 @@ export class BiomeGridEditor {
             tooltip_noises.classList.remove("hidden")
 
             if (this.layout.getType() === "dimension"){
-                tooltip_noise_x.innerHTML = "Weirdness: [" + this.builder.weirdnesses[ids.indexes.w].min.toFixed(3) + ", " + this.builder.weirdnesses[ids.indexes.w].max.toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Depth: [" + this.builder.depths[ids.indexes.d].min.toFixed(3) + ", " + this.builder.depths[ids.indexes.d].max.toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Weirdness: [" + this.builder.weirdnesses[ids.indexes.w].toFixed(3) + ", " + this.builder.weirdnesses[ids.indexes.w + 1].toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Depth: [" + this.builder.depths[ids.indexes.d].toFixed(3) + ", " + this.builder.depths[ids.indexes.d + 1].toFixed(3) + "]"
             } else if (this.layout.getType() === "slice"){
-                tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.erosions[ids.indexes.e].min.toFixed(3) + ", " + this.builder.erosions[ids.indexes.e].max.toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.continentalnesses[ids.indexes.c].min.toFixed(3) + ", " + this.builder.continentalnesses[ids.indexes.c].max.toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.erosions[ids.indexes.e].toFixed(3) + ", " + this.builder.erosions[ids.indexes.e + 1].toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.continentalnesses[ids.indexes.c].toFixed(3) + ", " + this.builder.continentalnesses[ids.indexes.c + 1].toFixed(3) + "]"
             } else if (this.layout.getType() === "layout"){
-                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.humidities[ids.indexes.h].min.toFixed(3) + ", " + this.builder.humidities[ids.indexes.h].max.toFixed(3) + "]"
-                tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.temperatures[ids.indexes.t].min.toFixed(3) + ", " + this.builder.temperatures[ids.indexes.t].max.toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.humidities[ids.indexes.h].toFixed(3) + ", " + this.builder.humidities[ids.indexes.h + 1].toFixed(3) + "]"
+                tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.temperatures[ids.indexes.t].toFixed(3) + ", " + this.builder.temperatures[ids.indexes.t + 1].toFixed(3) + "]"
             }
 
                 // Update Spline display in slices
             if (this.layout instanceof Grid && this.layout.getType() === "slice"){
-                const cont = builder.continentalnesses[ids.indexes.c]
-                const c = lerp(cont.min, cont.max, ids.local_t)
+                const c_min = builder.continentalnesses[ids.indexes.c]
+                const c_max = builder.continentalnesses[ids.indexes.c + 1]
+                const c = lerp(c_min, c_max, ids.local_t)
     
-                const ero = builder.erosions[ids.indexes.e]
-                const e = lerp(ero.min, ero.max, ids.local_h)
+                const e_min = builder.erosions[ids.indexes.e]
+                const e_max = builder.erosions[ids.indexes.e + 1]
+                const e = lerp(e_min, e_max, ids.local_h)
 
                 UI.getInstance().splineDisplayManager.setPos({c: c, e: e})
                 UI.getInstance().splineDisplayManager.refresh()

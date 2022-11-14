@@ -24,11 +24,9 @@ export class GridEditor {
     private x_param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth";
     private y_param: "humidity" | "temperature" | "continentalness" | "erosion" | "weirdness" | "depth";
 
-    private x_array: Climate.Param[]
-    private y_array: Climate.Param[]
-
     private hoverHandle: Handle = undefined
 
+    private isSpline: boolean = false;
 
     constructor(builder: BiomeBuilder) {
         this.builder = builder
@@ -65,8 +63,8 @@ export class GridEditor {
 
                     const min_value = (draggingHandle.id === 0) ? -1.2 : this.ys[draggingHandle.id - 1]
                     const max_value = this.double_ys[draggingHandle.id] 
-                    ? (draggingHandle.id >= this.ys.length - 2) ? 1.2 : this.ys[draggingHandle.id + 2]
-                    : (draggingHandle.id === this.ys.length - 1) ? 1.2 : this.ys[draggingHandle.id + 1]
+                        ? (draggingHandle.id >= this.ys.length - 2) ? 1.2 : this.ys[draggingHandle.id + 2]
+                        : (draggingHandle.id === this.ys.length - 1) ? 1.2 : this.ys[draggingHandle.id + 1]
 
                     this.ys[draggingHandle.id] = this.snap(dragStartValue + valueDelta, min_value, max_value, 0.005)
                     if (this.double_ys[draggingHandle.id]) this.ys[draggingHandle.id + 1] = this.ys[draggingHandle.id]
@@ -117,14 +115,14 @@ export class GridEditor {
                 return
 
             if (handle.handle_type === "add_x") {
-                if (this.x_array) {
+                if (!this.isSpline) {
                     builder.splitParam(this.x_param, handle.id)
                 } else {
                     this.xs.splice(handle.id + 1, 0, (this.xs[handle.id] + this.xs[handle.id + 1]) / 2)
                     this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.forEach(row=>row.splice(handle.id + 1, 0, undefined))
                 }
             } else if (handle.handle_type === "add_y") {
-                if (this.y_array) {
+                if (!this.isSpline) {
                     builder.splitParam(this.y_param, handle.id)
                 } else {
                     this.ys.splice(handle.id + 1, 0, (this.ys[handle.id] + this.ys[handle.id + 1]) / 2)
@@ -179,7 +177,6 @@ export class GridEditor {
                 if (hasMoved){
                     const is_double = (draggingHandle.handle_type === "y" && this.double_ys[draggingHandle.id])
                     const values = draggingHandle.handle_type === "x" ? this.xs : this.ys
-                    const value_array =  draggingHandle.handle_type === "x" ? this.x_array : this.y_array
                     const param = draggingHandle.handle_type === "x" ? this.x_param : this.y_param
 
                     const min_value = (draggingHandle.id === 0) ? undefined : values[draggingHandle.id - 1]
@@ -188,7 +185,10 @@ export class GridEditor {
                         : (draggingHandle.id === values.length - 1) ? undefined : values[draggingHandle.id + 1]
 
                     if (values[draggingHandle.id] === min_value || values[draggingHandle.id] === max_value) {
-                        if (values.length <= 2 || !(await Swal.fire({
+                        const is_both_double = is_double && (      // don't allow removing space between two 0 width segments
+                            (values[draggingHandle.id] === min_value && this.double_ys[draggingHandle.id - 2])
+                            || (values[draggingHandle.id] === max_value && this.double_ys[draggingHandle.id + 2]))
+                        if (values.length <= 2 || is_both_double || !(await Swal.fire({
                             title: "Deleting Segment",
                             text: "This will delete this segment from every defined Layout/Slice.",
                             icon: 'question',
@@ -214,11 +214,7 @@ export class GridEditor {
                         }
                     }
 
-                    if (value_array) {
-                        for (var i = 0 ; i < value_array.length ; i++){
-                            value_array[i] = new Climate.Param(values[i], values[i+1])
-                        }
-
+                    if (!this.isSpline) {
                         if (values[draggingHandle.id] === min_value) {
                             this.builder.deleteParam(param, draggingHandle.id - 1)
 
@@ -377,9 +373,9 @@ export class GridEditor {
             const x = this.xs[ix]
 
             ctx.strokeStyle = (this.xs[ix - 1] === x) ? "red" : mainColor
-            ctx.lineWidth = this.x_array ? 3 : 2
+            ctx.lineWidth = this.isSpline ? 2 : 3
 
-            ctx.setLineDash(this.x_array ? [1, 0] : [3,3])
+            ctx.setLineDash(this.isSpline ? [3,3] : [1, 0])
             ctx.beginPath()
             ctx.moveTo((x / 2.4 + 0.5) * size_x + cx_min, (y_min / 2.4 + 0.5) * size_y + cy_min)
             ctx.lineTo((x / 2.4 + 0.5) * size_x + cx_min, (y_max / 2.4 + 0.5) * size_y + cy_min)
@@ -425,7 +421,11 @@ export class GridEditor {
 
         for (let iy = 0; iy < this.ys.length; iy++) {
             var y = this.ys[iy]
-            ctx.strokeStyle = this.double_ys[iy] ? "blue" : ((this.ys[iy - 1] === y) ? "red" : mainColor)
+            ctx.strokeStyle = (this.ys[iy - 1] === y) 
+                ? (this.double_ys[iy - 1] &&  this.ys[iy - 2] !== y
+                    ? "blue"
+                    : "red")
+                : mainColor
             ctx.lineWidth = 2
 
             ctx.setLineDash([1, 0])
@@ -483,65 +483,45 @@ export class GridEditor {
         if (UI.getInstance().sidebarManager.openedElement.key === "slice") {
             this.title.value = "Slice Grid"
 
-            this.x_array = this.builder.erosions
-            this.y_array = this.builder.continentalnesses
+            this.xs = this.builder.erosions
+            this.ys = this.builder.continentalnesses
 
             this.x_param = "erosion"
             this.y_param = "continentalness"
 
-            this.xs = this.x_array.map(t => t.max)
-            this.xs.unshift(this.x_array[0].min)
-
-            this.ys = this.y_array.map(t => t.max)
-            this.ys.unshift(this.y_array[0].min)
-
             this.double_ys = this.ys.map(() => false)
+
+            this.isSpline = false
 
             UI.getInstance().setLabels("Erosion", "Continentalness")
     
         } else if (UI.getInstance().sidebarManager.openedElement.key === "layout") {
             this.title.value = "Layout Grid"
 
-            this.x_array = this.builder.humidities
-            this.y_array = this.builder.temperatures
+            this.xs = this.builder.humidities
+            this.ys = this.builder.temperatures
 
             this.x_param = "humidity"
             this.y_param = "temperature"
 
-            this.xs = this.x_array.map(t => t.max)
-            this.xs.unshift(this.x_array[0].min)
-
-            this.ys = this.y_array.map(t => t.max)
-            this.ys.unshift(this.y_array[0].min)
-
             this.double_ys = this.ys.map(() => false)
+
+            this.isSpline = false
 
             UI.getInstance().setLabels("Humidity", "Temperature")
 
         } else if (UI.getInstance().sidebarManager.openedElement.key === "dimension") {
             this.title.value = "Biome Grid"
 
-            this.x_array = this.builder.weirdnesses
-            this.y_array = this.builder.depths
+            this.xs = this.builder.weirdnesses
+            this.ys = this.builder.depths
 
             this.x_param = "weirdness"
             this.y_param = "depth"
 
-            this.xs = this.x_array.map(t => t.max)
-            this.xs.unshift(this.x_array[0].min)
+            this.double_ys = this.ys.map((y, id) => this.ys[id+1] === y) // TODO: set to true if ys double (at both elements?)
 
-            this.ys = [this.y_array[0].min]
-            this.double_ys = [false]
-            this.y_array.forEach(t => {
-                if (t.min === t.max){
-                    this.double_ys[this.double_ys.length-1] = true
-                    this.double_ys.push(true)
-                    this.ys.push(t.max)
-                } else {
-                    this.double_ys.push(false)
-                    this.ys.push(t.max)
-                }
-            });
+            this.isSpline = false
 
             UI.getInstance().setLabels("Weirdness", "Depth")
 
@@ -552,9 +532,7 @@ export class GridEditor {
             this.ys = this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].continentalnesses
             this.double_ys = this.ys.map(() => false)
 
-
-            this.x_array = undefined
-            this.y_array = undefined
+            this.isSpline = true
 
             this.x_param = "erosion"
             this.y_param = "continentalness"

@@ -11,12 +11,11 @@ import { DimensionMultiNoiseIndexesAccessor, Grid, LayoutMultiNoiseIndexesAccess
 import { DataFixer } from "./DataFixer"
 import { DATA_VERSION } from "../../SharedConstants"
 import { version } from "leaflet"
-import { sortedIndexBy, takeWhile } from "lodash"
+import { max, sortedIndex, sortedIndexBy, takeWhile } from "lodash"
 import { VERSION_INFO } from "../Vanilla/VersionInfo"
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
 import { LegacyConfigDatapack } from "./LegacyConfigDatapack"
 
-//export type MultiNoiseParameters = { w: number, c: number, e: number, h: number, t: number, d: number }
 export type MultiNoiseIndexes = { d: number, w: number, c: number, e: number, h: number, t: number }
 export type PartialMultiNoiseIndexes = Partial<MultiNoiseIndexes>
 
@@ -27,12 +26,12 @@ export type NoiseType = "continentalness" | "weirdness" | "erosion" | "temperatu
 export class BiomeBuilder {
     hasChanges: boolean
 
-    continentalnesses: Climate.Param[]
-    erosions: Climate.Param[]
-    weirdnesses: Climate.Param[]
-    temperatures: Climate.Param[]
-    humidities: Climate.Param[]
-    depths: Climate.Param[]
+    continentalnesses: number[]
+    erosions: number[]
+    weirdnesses: number[]
+    temperatures: number[]
+    humidities: number[]
+    depths: number[]
 
     splines: {
         [key: string]: GridSpline,
@@ -88,6 +87,9 @@ export class BiomeBuilder {
         this.temperatures = json.temperatures
         this.humidities = json.humidities
         this.depths = json.depths
+
+        console.log(json.continentalnesses)
+        console.log(this.continentalnesses)
 
         this.gridElements.clear()
         this.vanillaBiomes.clear()
@@ -229,8 +231,9 @@ export class BiomeBuilder {
         }
     }
 
-    public findIndex(array: Climate.Param[], number: number): number {
-        return number <= array[0].min ? 0 : number > array[array.length - 1].max ? array.length - 1 : array.findIndex(e => e.min <= number && e.max > number)
+    public findIndex(array: number[], number: number): number {
+        return Math.min(Math.max(sortedIndex(array, number) - 1, 0), array.length - 2)
+//        return number <= array[0].min ? 0 : number > array[array.length - 1].max ? array.length - 1 : array.findIndex(e => e.min <= number && e.max > number)
     }
 
 
@@ -316,79 +319,55 @@ export class BiomeBuilder {
         if (param === "humidity" || param === "temperature") {
             this.layouts.forEach(layout => layout.splitParam(param, id))
             if (param === "humidity") {
-                const midPoint = (this.humidities[id].min + this.humidities[id].max) / 2
-
-                const newHumid1 = new Climate.Param(this.humidities[id].min, midPoint)
-                const newHumid2 = new Climate.Param(midPoint, this.humidities[id].max)
-
-                this.humidities.splice(id, 1, newHumid1, newHumid2)
+                const midPoint = (this.humidities[id] + this.humidities[id + 1]) / 2
+                this.humidities.splice(id + 1, 0, midPoint)
             } else {
-                const midPoint = (this.temperatures[id].min + this.temperatures[id].max) / 2
-
-                const newTemp1 = new Climate.Param(this.temperatures[id].min, midPoint)
-                const newTemp2 = new Climate.Param(midPoint, this.temperatures[id].max)
-
-                this.temperatures.splice(id, 1, newTemp1, newTemp2)
+                const midPoint = (this.temperatures[id] + this.temperatures[id + 1]) / 2
+                this.temperatures.splice(id + 1, 0, midPoint)
             }
         } else if (param === "continentalness" || param === "erosion") {
             this.slices.forEach(slice => slice.splitParam(param, id))
             if (param === "continentalness") {
-                const midPoint = (this.continentalnesses[id].min + this.continentalnesses[id].max) / 2
-
-                const newCont1 = new Climate.Param(this.continentalnesses[id].min, midPoint)
-                const newCont2 = new Climate.Param(midPoint, this.continentalnesses[id].max)
-
-                this.continentalnesses.splice(id, 1, newCont1, newCont2)
+                const midPoint = (this.continentalnesses[id] + this.continentalnesses[id + 1]) / 2
+                this.continentalnesses.splice(id + 1, 0, midPoint)
             } else {
-                const midPoint = (this.erosions[id].min + this.erosions[id].max) / 2
-
-                const newEro1 = new Climate.Param(this.erosions[id].min, midPoint)
-                const newEro2 = new Climate.Param(midPoint, this.erosions[id].max)
-
-                this.erosions.splice(id, 1, newEro1, newEro2)
+                const midPoint = (this.erosions[id] + this.erosions[id + 1]) / 2
+                this.erosions.splice(id + 1, 0, midPoint)
             }
         } else if (param === "weirdness" || param === "depth") {
             this.dimension.splitParam(param, id)
             if (param === "weirdness") {
-                const midPoint = (this.weirdnesses[id].min + this.weirdnesses[id].max) / 2
-
-                const newCont1 = new Climate.Param(this.weirdnesses[id].min, midPoint)
-                const newCont2 = new Climate.Param(midPoint, this.weirdnesses[id].max)
-
-                this.weirdnesses.splice(id, 1, newCont1, newCont2)
+                const midPoint = (this.weirdnesses[id] + this.weirdnesses[id + 1]) / 2
+                this.weirdnesses.splice(id + 1, 0, midPoint)
             } else {
-                const midPoint = position === "mid" ? (this.depths[id].min + this.depths[id].max) / 2 : (position === "start" ? this.depths[id].min : this.depths[id].max)
-
-                const newEro1 = new Climate.Param(this.depths[id].min, midPoint)
-                const newEro2 = new Climate.Param(midPoint, this.depths[id].max)
-
-                this.depths.splice(id, 1, newEro1, newEro2)
+                const midPoint = position == "start" ? this.depths[id] : position == "end" ? this.depths[id+1] : (this.depths[id] + this.depths[id + 1]) / 2
+                this.depths.splice(id + 1, 0, midPoint)
             }
         }
     }
 
     getNumTemperatures() {
-        return this.temperatures.length
+        return this.temperatures.length - 1
     }
 
     getNumHumidities() {
-        return this.humidities.length
+        return this.humidities.length - 1 
     }
 
     getNumContinentalnesses() {
-        return this.continentalnesses.length
+        return this.continentalnesses.length - 1
     }
 
     getNumErosions() {
-        return this.erosions.length
+        return this.erosions.length - 1
     }
 
     getNumWeirdnesses() {
-        return this.weirdnesses.length
+        return this.weirdnesses.length - 1
     }
 
     getNumDepths() {
-        return this.depths.length
+        return this.depths.length - 1
     }
 
     getVersionInfo() {

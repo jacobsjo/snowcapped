@@ -75,6 +75,13 @@ export class DataFixer {
             delete json.exportDimension
             delete json.exportNoises
 
+            json.continentalnesses = [json.continentalnesses[0].min, ...json.continentalnesses.map((c: any) => c.max)]
+            json.weirdnesses = [json.weirdnesses[0].min, ...json.weirdnesses.map((c: any) => c.max)]
+            json.erosions = [json.erosions[0].min, ...json.erosions.map((c: any) => c.max)]
+            json.temperatures = [json.temperatures[0].min, ...json.temperatures.map((c: any) => c.max)]
+            json.humidities = [json.humidities[0].min, ...json.humidities.map((c: any) => c.max)]
+            json.depths = [json.depths[0].min, ...json.depths.map((c: any) => c.max)]
+
             json.version = 5
         }
  
