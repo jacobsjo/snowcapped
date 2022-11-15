@@ -35,8 +35,7 @@
             <div class="button" id="newButton"><img alt="New" label="New" src="images/blank-file.svg" />
                 <div class="dropdown">
                     <div class="button" id="loadEmptyButton">New: Empty</div>
-                    <div class="button" id="loadVanilla118Button">New: Vanilla Overworld (1.18.2)</div>
-                    <div class="button" id="loadVanilla119Button">New: Vanilla Overworld (1.19.1)</div>
+                    <div class="button" id="loadVanilla119Button">New: Vanilla Overworld (1.19)</div>
                 </div>
             </div>
             <div class="button" id="openButton" title="Open"><img alt="Open" src="images/open-file-folder.svg" /></div>
@@ -73,19 +72,19 @@
                                     src="images/grid-view.svg">
                             </div>
                             <div class="sidebar_entry_list" id="splines">
-                                <div class="sidebar_entry spline" id="offset">
+                                <div class="sidebar_entry spline hidden" id="offset">
                                     <img class="grid" src="images/offset-icon.svg" alt="">
                                     <span class="name">Offset</span>
                                     <img class="button edit edit_grid_button important" src="images/grid.svg"
                                         title="Edit Grid" />
                                 </div>
-                                <div class="sidebar_entry spline" id="factor">
+                                <div class="sidebar_entry spline hidden" id="factor">
                                     <img class="grid" src="images/factor-icon.svg" alt="">
                                     <span class="name">Factor</span>
                                     <img class="button edit edit_grid_button important" src="images/grid.svg"
                                         title="Edit Grid" />
                                 </div>
-                                <div class="sidebar_entry spline" id="jaggedness">
+                                <div class="sidebar_entry spline hidden" id="jaggedness">
                                     <img class="grid" src="images/jaggedness-icon.svg" alt="">
                                     <span class="name">Jaggedness</span>
                                     <img class="button edit edit_grid_button important" src="images/grid.svg"
@@ -205,7 +204,7 @@
                     <div class="setting"> <label><span class="description">Noise Settings Name:</span>
                         <select id="noise_settings_name">
                         </select>
-                    </label></div>
+                    </label><span class="warning" id="missing_noise_setting" title="Select different noise_settings or load datapack containing these noise_settings">missing noise settings</span> </div>
 
                     <div class="setting"> <label><span class="description">Enable Splines-Editor:</span>
                             <input type="checkbox" id="export_splines" />

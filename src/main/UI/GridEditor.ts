@@ -141,10 +141,20 @@ export class GridEditor {
             })
         }
 
-        this.canvas.ondblclick = (evt: MouseEvent) => {
+        this.canvas.ondblclick = async (evt: MouseEvent) => {
             if (this.hoverHandle.handle_type === "y" && this.y_param === "depth"){
                 if (this.double_ys[this.hoverHandle.id]){
-                    builder.deleteParam(this.y_param, this.hoverHandle.id)
+                    if ((await Swal.fire({
+                        title: "Deleting Segment",
+                        text: "This will delete this row from the grid.",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#666',
+                        confirmButtonText: 'Delete'
+                    })).isConfirmed){
+                        builder.deleteParam(this.y_param, this.hoverHandle.id)
+                    }
                 } else {
                     if (this.hoverHandle.id === this.ys.length - 1){
                         builder.splitParam(this.y_param, this.hoverHandle.id - 1, "end")
@@ -190,7 +200,7 @@ export class GridEditor {
                             || (values[draggingHandle.id] === max_value && this.double_ys[draggingHandle.id + 2]))
                         if (values.length <= 2 || is_both_double || !(await Swal.fire({
                             title: "Deleting Segment",
-                            text: "This will delete this segment from every defined Layout/Slice.",
+                            text: "This will delete this segment from every grid.",
                             icon: 'question',
                             showCancelButton: true,
                             confirmButtonColor: '#d33',
@@ -519,7 +529,7 @@ export class GridEditor {
             this.x_param = "weirdness"
             this.y_param = "depth"
 
-            this.double_ys = this.ys.map((y, id) => this.ys[id+1] === y) // TODO: set to true if ys double (at both elements?)
+            this.double_ys = this.ys.map((y, id) => this.ys[id+1] === y)
 
             this.isSpline = false
 

@@ -1,5 +1,6 @@
 import { Climate, Identifier, NoiseSettings } from "deepslate";
 import * as L from "leaflet";
+import { clamp } from "lodash";
 import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
 import { BiomeLayer } from "../Visualization/BiomeLayer";
@@ -235,9 +236,23 @@ export class VisualizationManger {
     if (!this.closeContainer.classList.contains("closed")) {
       if (change.map_display) {
         const noise_settings_json = (await this.builder.datapacks.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))) as any
-        const noise_settings = NoiseSettings.fromJson(noise_settings_json.noise)
+        var noise_settings
+        if (noise_settings_json !== undefined){
+          noise_settings = NoiseSettings.fromJson(noise_settings_json.noise)
+        } else {
+          noise_settings = NoiseSettings.create({})
+        }
+
         this.heightSelectRange.min = noise_settings.minY.toFixed(0)
         this.heightSelectRange.max = (noise_settings.minY + noise_settings.height + 1).toFixed(0)
+
+        if (this.vis_y_level !== "surface"){
+          this.vis_y_level = clamp(this.vis_y_level, noise_settings.minY, noise_settings.minY + noise_settings.height)
+        }
+
+        this.heightSelectRange.value = this.vis_y_level === "surface" ? this.heightSelectRange.max : this.vis_y_level.toFixed(0)
+
+        this.heightSelectRange.oninput(null)
         this.heightSelectRange.onchange(null)
       }
 

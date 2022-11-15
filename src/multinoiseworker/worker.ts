@@ -31,7 +31,6 @@ class MultiNoiseCalculator {
         var surface = this.surfaceDensityFunction.compute(DensityFunction.context(x<<2, 0, z<<2))
         var y = (this.y === "surface") ? surface : this.y
         var climate = this.sampler.sample(x, y / 4, z)
-        if (this.y === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
         array[ix][iz] = { climate, surface }
       }
     }
@@ -42,7 +41,7 @@ class MultiNoiseCalculator {
 
 
   public setNoiseGeneratorSettings(json: unknown, seed: bigint, id: string, dimension_id: string) {
-    const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(json)
+    const noiseGeneratorSettings = json ? NoiseGeneratorSettings.fromJson(json) : NoiseGeneratorSettings.create({})
     const randomState = new RandomState(noiseGeneratorSettings, seed)
     this.router = randomState.router
     this.sampler = Climate.Sampler.fromRouter(this.router)

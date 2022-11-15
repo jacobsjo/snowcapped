@@ -39,6 +39,10 @@ body:not(.light){
     --roughness-color: blue;
     --weirdness-indicator-color: #32524e;;
     --weirdness-indicator-border-color: #4b7e78;
+
+    --warning-background-color: rgb(189, 154, 0);
+    --warning-color: rgb(0, 0, 0);
+
     color-scheme: dark;
 }
 
@@ -80,7 +84,11 @@ body.light{
     --factor-color: red;
     --roughness-color: blue;
     --weirdness-indicator-color: #32524e;;
-    --weirdness-indicator-border-color: #4b7e78;;
+    --weirdness-indicator-border-color: #4b7e78;
+
+    --warning-background-color: rgb(253, 207, 0);
+    --warning-color: rgb(0, 0, 0);
+
     color-scheme: light;
 }
 
@@ -1182,6 +1190,17 @@ body:not(.light) #menu .button img{
 #settings .setting label input[type=number]::-webkit-inner-spin-button,
 #settings .setting label input[type=number]::-webkit-outer-spin-button{
     -webkit-appearance: none;
+}
+
+#settings .setting .warning {
+    background-color: var(--warning-background-color);
+    color: var(--warning-color);
+    padding-left: 2pt;
+    padding-right: 2pt;
+    border-radius: 3pt;
+    margin-left: 8pt;
+    user-select: none;
+    cursor: help;
 }
 
 #settings .setting label output{

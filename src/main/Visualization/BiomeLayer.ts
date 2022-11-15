@@ -190,25 +190,23 @@ export class BiomeLayer extends L.GridLayer {
 
 
 		const noiseSettingsJson = await datapack.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))
-		if (noiseSettingsJson !== undefined){
-			this.workers.forEach(w => w.postMessage({
-				task: "setNoiseGeneratorSettings",
-				json: noiseSettingsJson,
-				seed: this.visualization_manager.seed,
-				id: this.builder.noiseSettingsName,
-				dimension_id: this.builder.dimensionName
-			}))
+		this.workers.forEach(w => w.postMessage({
+			task: "setNoiseGeneratorSettings",
+			json: noiseSettingsJson,
+			seed: this.visualization_manager.seed,
+			id: this.builder.noiseSettingsName,
+			dimension_id: this.builder.dimensionName
+		}))
 
-			const noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(noiseSettingsJson)
-			this.noiseSettings = noiseGeneratorSettings.noise
-			const randomState = new RandomState(noiseGeneratorSettings, this.visualization_manager.seed)
-			this.router = randomState.router
-			this.sampler = Climate.Sampler.fromRouter(this.router)
+		const noiseGeneratorSettings = noiseSettingsJson ? NoiseGeneratorSettings.fromJson(noiseSettingsJson) : NoiseGeneratorSettings.create({})
+		this.noiseSettings = noiseGeneratorSettings.noise
+		const randomState = new RandomState(noiseGeneratorSettings, this.visualization_manager.seed)
+		this.router = randomState.router
+		this.sampler = Climate.Sampler.fromRouter(this.router)
 
-			this.depth_scale = (this.sampler.sample(0, 64, 0).depth - this.sampler.sample(0, 0, 0).depth) / 256  // don't know why 256 and not 64...
+		this.depth_scale = (this.sampler.sample(0, 64, 0).depth - this.sampler.sample(0, 0, 0).depth) / 256  // don't know why 256 and not 64...
 
-			this.surfaceDensityFunction =  getSurfaceDensityFunction(Identifier.parse(this.builder.noiseSettingsName), Identifier.parse(this.builder.dimensionName)).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
-		}
+		this.surfaceDensityFunction =  getSurfaceDensityFunction(Identifier.parse(this.builder.noiseSettingsName), Identifier.parse(this.builder.dimensionName)).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
 
 	}
 
@@ -309,9 +307,9 @@ export class BiomeLayer extends L.GridLayer {
 		const pos = crs.project(latlng)
 		pos.y *= -1
 
-		const y: number = this.visualization_manager.vis_y_level === "surface" ? this.surfaceDensityFunction.compute(DensityFunction.context(pos.x, 0, pos.y)) : this.visualization_manager.vis_y_level
+		const y: number = this.visualization_manager.vis_y_level === "surface" ? this.surfaceDensityFunction.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.visualization_manager.vis_y_level
 
-		var climate = this.sampler.sample(pos.x * 0.25, y * 0.25, pos.y * 0.25)
+		var climate = this.sampler.sample(pos.x >> 2 , y >> 2, pos.y >> 2)
 		//if (this.visualization_manager.vis_y_level === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
 		const idx = this.builder.getIndexes(climate)
 		return { idx: idx, values: climate, position: { x: pos.x, y: y, z: pos.y} }

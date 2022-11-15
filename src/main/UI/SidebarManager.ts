@@ -255,6 +255,9 @@ export class SidebarManager {
                 return (self.openedElement.type === "spline" && this.id === self.openedElement.key) ||
                     (self.openedElement.type === "dimension" && this.id === "dimension")
             })
+            .classed("hidden", function(){
+                return (!self.builder.exportSplines && this.id !== "dimension")
+            })
             .selectAll<HTMLElement, unknown>(".edit_grid_button")
             .classed("open", function(){
                 return self.openedElement.type === "grid" && this.parentElement.id === self.openedElement.key

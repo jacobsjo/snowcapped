@@ -6,7 +6,6 @@ import { DataFixer } from "../BuilderData/DataFixer"
 
 
 export class MenuManager {
-    private static loadVanilla118Button: HTMLElement
     private static loadVanilla119Button: HTMLElement
     private static loadEmptyButton: HTMLElement
     private static openButton: HTMLElement
@@ -63,7 +62,6 @@ export class MenuManager {
     }
 
     static createClickHandlers() {
-        this.loadVanilla118Button = document.getElementById('loadVanilla118Button')
         this.loadVanilla119Button = document.getElementById('loadVanilla119Button')
         this.loadEmptyButton = document.getElementById('loadEmptyButton')
         this.openButton = document.getElementById('openButton')
@@ -73,10 +71,6 @@ export class MenuManager {
         this.exportInsertButton = document.getElementById('exportInsertButton')
         this.settingsButton = document.getElementById('settingsButton')
         this.toggleDarkmodeButton = document.getElementById('toggleDarkmodeButton')
-
-        this.loadVanilla118Button.onclick = (evt: Event) => {
-            this.loadVanilla('minecraft_overworld_1_18.snowcapped.json')
-        }
 
         this.loadVanilla119Button.onclick = (evt: Event) => {
             this.loadVanilla('minecraft_overworld_1_19.snowcapped.json')

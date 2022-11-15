@@ -31,21 +31,39 @@ export class SettingsManager {
 
         const noiseSettingsNameSelect = d3.select("#noise_settings_name")
 
-        noiseSettingsNameSelect
+        const noiseSettings = (await this.builder.datapacks.getIds("worldgen/noise_settings")).map(id => id.toString())
+
+        var missingNoiseSetting = false
+
+        if (!noiseSettings.includes(this.builder.noiseSettingsName) ){
+            noiseSettings.push(this.builder.noiseSettingsName)
+            missingNoiseSetting = true
+        }
+
+        const options = noiseSettingsNameSelect
             .selectAll("option")
-            .data((await this.builder.datapacks.getIds("worldgen/noise_settings")).map(id => id.toString()))
+            .data(noiseSettings)
+
+        options
             .enter()
             .append("option")
             .attr("value", d => d)
             .text(d => d)
 
-        noiseSettingsNameSelect            
+        options
+            .exit()
+            .remove()
+
+
+        noiseSettingsNameSelect  
+            .property("value", this.builder.noiseSettingsName)
             .on("change", () => {
                 this.builder.hasChanges = true
                 this.builder.noiseSettingsName = noiseSettingsNameSelect.property("value")
                 UI.getInstance().refresh({noises: true})
             })
         
+        document.getElementById("missing_noise_setting").classList.toggle("hidden", !missingNoiseSetting)
 
         const exportSplinesCheckbox = document.getElementById("export_splines") as HTMLInputElement
         exportSplinesCheckbox.checked = this.builder.exportSplines
@@ -108,7 +126,7 @@ export class SettingsManager {
             const zip = await exporter.generateZip()
             const blob = await zip.generateAsync({type: "blob"})
 
-            if ("showSaveFilePicker" in window){   // TODO move filename handling somewhere else
+            if ("showSaveFilePicker" in window){   // TODO move filename handling from MenuManger to somewhere else
                 MenuManager.fileHandle = await window.showSaveFilePicker(
                     {types: [
                         {
