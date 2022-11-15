@@ -34,26 +34,23 @@ export class MenuManager {
         })
     }
 
-    static maybeLoadJson(json: any){
+    static async maybeLoadJson(json: any){
         json = DataFixer.fixJSON(json)
 
-        console.log(json)
         if (json.warn_upgrade){
-            Swal.fire({
+            if ((await Swal.fire({
                 title: 'Upgrading Data',
-                text: "You are loading data from an old version of Snowcapped. Upgraded data can not be downgraded again. Please make a backup before continuing.",
+                html: json.warn_message ?? "You are loading data from an old version of Snowcapped. Upgraded data can not be downgraded again. Please make a backup before continuing.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'I made a backup, Continue'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    UI.getInstance().builder.loadJSON(json)
-                    UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
-                    UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
-                }
-            })
+                confirmButtonText: json.warn_ok ?? 'I made a backup, Continue'
+            })).isConfirmed) {
+                UI.getInstance().builder.loadJSON(json)
+                UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})
+                UI.getInstance().refresh({biome: {}, spline: true, grids: true, noises: true })
+            }
         } else {
             UI.getInstance().builder.loadJSON(json)
             UI.getInstance().sidebarManager.openElement({type: "dimension", key: "dimension"})

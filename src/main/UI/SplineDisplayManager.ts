@@ -6,13 +6,11 @@ import { BiomeBuilder } from "../BuilderData/BiomeBuilder";
 
 export class SplineDisplayManager {
     private builder: BiomeBuilder
-    private splineCanvas: HTMLCanvasElement
     private pos?: { c: number, e: number, w?: number }
     private weirdnesses: Climate.Param[]
 
     constructor(builder: BiomeBuilder) {
         this.builder = builder
-        this.splineCanvas = document.getElementById("splineDisplayCanvas") as HTMLCanvasElement
         this.weirdnesses = []
     }
 
@@ -26,6 +24,11 @@ export class SplineDisplayManager {
     }
 
     refresh() {
+        d3.select("#splineDisplay").classed("hidden", !this.builder.exportSplines)
+
+        if (!this.builder.exportSplines)
+            return
+        
         let waterLevel = 0
 
         const svg = d3.select("#splineDisplaySvg")

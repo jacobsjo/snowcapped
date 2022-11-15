@@ -63,12 +63,18 @@ export class DataFixer {
         }
 
         if (json.version === 4){
+            json.warn_upgrade = true
+
             delete json.seed
             delete json.noiseSettings // todo: warn about this
             delete json.useLegacyRandom
 
             if (json.targetVersion === "1_18_1" || json.targetVersion === "1_18_2"){
-                // todo: warn
+                json.warn_message = `
+                The file you are trying to open is currently targeting Minecraft 1.18. This version is no longer supported by Snowcapped.<br /><br />
+                If you wish to continue targeting 1.18 you can go to <a href="https://mc118.snowcapped.jacobsjo.eu">https://mc118.snowcapped.jacobsjo.eu</a>.<br /><br />
+                Otherwise your targeted version will be upgraded to 1.19. Once upgraded, data can not be downgraded again. Please make a backup before continuing.`
+                json.warn_ok = "I made a backup, Upgrade to 1.19"
                 json.targetVersion === "1_19"
             }
 
@@ -83,6 +89,7 @@ export class DataFixer {
             json.depths = [json.depths[0].min, ...json.depths.map((c: any) => c.max)]
 
             json.version = 5
+
         }
  
         return json
