@@ -32,7 +32,7 @@ const builder = new BiomeBuilder()
 UI.create(builder)
 
 
-fetch('minecraft_overworld_1_19.snowcapped.json').then(r => r.text()).then(jsonString => {
+fetch('minecraft_overworld_1_18.snowcapped.json').then(r => r.text()).then(jsonString => {
     builder.loadJSON(JSON.parse(jsonString));
     UI.getInstance().refresh({
         biome: {},

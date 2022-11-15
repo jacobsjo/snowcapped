@@ -296,7 +296,7 @@ export class MenuManager {
     }
 
     public static updateTitle(){
-        document.title = (UI.getInstance().builder.hasChanges ? "*" : "") + this.fileName.replace(".snowcapped.json", "").replace(".json", "") + " - Snowcapped"
+        document.title = (UI.getInstance().builder.hasChanges ? "*" : "") + this.fileName.replace(".snowcapped.json", "").replace(".json", "") + " - Snowcapped (1.18)"
     }
 
     static toggleAction(name: string, force?: boolean){

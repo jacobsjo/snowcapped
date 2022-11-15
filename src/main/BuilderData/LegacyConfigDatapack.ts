@@ -126,6 +126,15 @@ export class LegacyConfigDatapack implements Datapack {
     constructor(private builder: BiomeBuilder) {
 
     }
+    getImage(): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
+    getName(): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
+    getMcmeta(): Promise<unknown> {
+        throw new Error("Method not implemented.");
+    }
 
     async has(type: DataType, id: Identifier): Promise<boolean> {
         if (type === "worldgen/noise") {

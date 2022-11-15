@@ -1,5 +1,5 @@
 {
-    "name": "Snowcapped",
+    "name": "Snowcapped (1.18)",
     "icons": [
         {
             "src": "icons/icon_192.png",
@@ -24,5 +24,5 @@
     "display": "standalone",
     "scope": "/",
     "theme_color": "#264653",
-    "description": "A Minecraft: Java Edition 1.18+ dimension editor. Exports a multi-noise dimension file and a spline configuration."
+    "description": "A Minecraft: Java Edition 1.18 dimension editor. Exports a multi-noise dimension file and a spline configuration."
 }

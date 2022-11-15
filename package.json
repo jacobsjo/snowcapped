@@ -7,8 +7,7 @@
     "build": "webpack --config webpack.prod.js",
     "watch": "webpack watch  --config webpack.prod.js",
     "start": "webpack serve --config webpack.dev.js",
-    "deploy": "gh-pages -d dist",
-    "deploy_experimental": "gh-pages -d dist -e ./experimental/"
+    "deploy": "gh-pages -d dist -r git@github.com:jacobsjo/snowcapped-mc118.git"
   },
   "keywords": [],
   "author": "Jochen Jacobs",
