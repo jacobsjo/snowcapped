@@ -1080,19 +1080,23 @@ body:not(.light) #menu .button img{
     width: 20pt;
     height: 20pt;
     padding: 3pt;
-}
-
-.map_button.enabled{
-    background-color: var(--primary-button-open-color);
+    cursor: pointer;
 }
 
 .map_button:hover{
     background-color: var(--small-button-hover-color);
 }
 
-.map_button.enabled:hover{
+
+.map_button.enabled, .map_button.highlighted{
     background-color: var(--primary-button-open-color);
 }
+
+.map_button.enabled:hover, .map_button.highlighted:hover{
+    background-color: var(--primary-button-open-color);
+}
+
+
 
 .height_selection{
     background-color: rgba(0, 0, 0, 0.5);
@@ -1125,6 +1129,7 @@ body:not(.light) #menu .button img{
     width: 26pt;
     height: 150pt;
     -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
 }
 
 
@@ -1179,6 +1184,7 @@ body:not(.light) #menu .button img{
     background-color: var(--input-color);
     border: 2pt solid var(--input-border-color);
     -moz-appearance: textfield;
+    appearance: textfield;
     flex-grow: 1;
 }
 
@@ -1190,6 +1196,7 @@ body:not(.light) #menu .button img{
 #settings .setting label input[type=number]::-webkit-inner-spin-button,
 #settings .setting label input[type=number]::-webkit-outer-spin-button{
     -webkit-appearance: none;
+    appearance: none;
 }
 
 #settings .setting .warning {

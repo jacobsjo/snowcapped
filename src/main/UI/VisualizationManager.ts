@@ -24,14 +24,15 @@ export class VisualizationManger {
   public input2d: boolean = true
 
   private heightSelectRange: HTMLInputElement
+  private heightSelectLabel: HTMLElement
 
   constructor(builder: BiomeBuilder) {
     this.builder = builder
 
 
-    const panel = document.getElementById('visualization')
+    const panel = document.getElementById('visualization')!
 
-    this.closeContainer = panel.parentElement.parentElement;
+    this.closeContainer = panel.parentElement!.parentElement!;
     (this.closeContainer as any).onopenchange = () => {
       //this.biomeLayer.reRender({biome: {}, grids: true, noises: true, spline: true})
     }
@@ -45,13 +46,13 @@ export class VisualizationManger {
     this.biomeLayer = new BiomeLayer(this, { tileSize: 256 });
     this.biomeLayer.addTo(this.map);
 
-    this.refreshButton = document.getElementById('refreshButton')
+    this.refreshButton = document.getElementById('refreshButton')!
 
     this.refreshButton.onclick = (evt: MouseEvent) => {
       UI.getInstance().refresh({ map_display: true })
     }
 
-    const toggleHillshadeButton = document.getElementById('toggleHillshadeButton')
+    const toggleHillshadeButton = document.getElementById('toggleHillshadeButton')!
 
     toggleHillshadeButton.onclick = (evt: MouseEvent) => {
       this.enable_hillshading = !this.enable_hillshading
@@ -60,39 +61,20 @@ export class VisualizationManger {
     }
 
     this.heightSelectRange = document.getElementById('mapHeightSelection') as HTMLInputElement
-    const heightSelectLabel = document.getElementById('mapHeightLabel')
+    this.heightSelectLabel = document.getElementById('mapHeightLabel')!
 
     this.heightSelectRange.value = this.heightSelectRange.max
 
     this.heightSelectRange.oninput = () => {
-      const val = Number(this.heightSelectRange.value)
-      const min = Number(this.heightSelectRange.min)
-      const max = Number(this.heightSelectRange.max)
-
-      if (val === max) {
-        heightSelectLabel.innerHTML = "Surface"
-      } else {
-        heightSelectLabel.innerHTML = val.toFixed(0)
-      }
-      const pos = (1 - ((val - min) / (max - min))) * 0.94 * parseInt(getComputedStyle(this.heightSelectRange).height)
-      heightSelectLabel.style.top = pos + "px"
+      this.updateHeightLabel()
     }
 
     this.heightSelectRange.onchange = (evt) => {
-      const val = Number(this.heightSelectRange.value)
-      const max = Number(this.heightSelectRange.max)
-
-      if (val === max) {
-        this.vis_y_level = "surface"
-      } else {
-        this.vis_y_level = val
-      }
-      if (evt){
-        this.refresh({ map_y_level: true })
-      }
+      this.updateHeight()
+      this.refresh({ map_y_level: true })
     }
 
-    const toggleFullscreenButton = document.getElementById('mapFullscreenButton')
+    const toggleFullscreenButton = document.getElementById('mapFullscreenButton')!
     toggleFullscreenButton.onclick = (evt: MouseEvent) => {
       const open = panel.classList.toggle("fullscreen")
       toggleFullscreenButton.classList.toggle("enabled", open)
@@ -127,7 +109,7 @@ export class VisualizationManger {
       UI.getInstance().refresh({ map_display: true })
     }
 
-    const tooltip = document.getElementById("visualizationTooltip")
+    const tooltip = document.getElementById("visualizationTooltip")!
     const tooltip_position = tooltip.getElementsByClassName("position")[0] as HTMLElement
     const tooltip_noise_values = tooltip.getElementsByClassName("noise_values")[0] as HTMLElement
     const tooltip_slice = tooltip.getElementsByClassName("slice")[0] as HTMLElement
@@ -185,13 +167,13 @@ export class VisualizationManger {
         idxs.values.weirdness.toFixed(2) + "<br /> T: " + idxs.values.temperature.toFixed(2) + ", H: " + idxs.values.humidity.toFixed(2) + ", D: " + idxs.values.depth.toFixed(2)
       tooltip_slice.innerHTML = "&crarr; " + lookup?.slice?.name + " (Slice)"
       tooltip_layout.innerHTML = "&crarr; " + lookup?.layout?.name + " (Layout)"
-      tooltip_biome.innerHTML = lookup?.biome?.name
+      tooltip_biome.innerHTML = lookup?.biome?.name ?? ""
 
       //tooltip_position.classList.toggle("hidden", idxs === undefined)
       tooltip_mode.classList.toggle("hidden", lookup?.mode === undefined)
-      tooltip_slice.parentElement.classList.toggle("hidden", lookup?.slice === undefined || lookup.slice instanceof GridElementUnassigned)
-      tooltip_layout.parentElement.classList.toggle("hidden", lookup?.layout === undefined || lookup.layout instanceof GridElementUnassigned)
-      tooltip_biome.parentElement.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof GridElementUnassigned)
+      tooltip_slice.parentElement!.classList.toggle("hidden", lookup?.slice === undefined || lookup.slice instanceof GridElementUnassigned)
+      tooltip_layout.parentElement!.classList.toggle("hidden", lookup?.layout === undefined || lookup.layout instanceof GridElementUnassigned)
+      tooltip_biome.parentElement!.classList.toggle("hidden", lookup?.biome === undefined || lookup.biome instanceof GridElementUnassigned)
 
       if (idxs) {
         UI.getInstance().splineDisplayManager.setPos({ c: idxs.values.continentalness, e: idxs.values.erosion, w: idxs.values.weirdness })
@@ -222,6 +204,31 @@ export class VisualizationManger {
     })
   }
 
+  private updateHeightLabel(){
+    const val = Number(this.heightSelectRange.value)
+    const min = Number(this.heightSelectRange.min)
+    const max = Number(this.heightSelectRange.max)
+
+    if (val === max) {
+      this.heightSelectLabel.innerHTML = "Surface"
+    } else {
+      this.heightSelectLabel.innerHTML = val.toFixed(0)
+    }
+    const pos = (1 - ((val - min) / (max - min))) * 0.94 * parseInt(getComputedStyle(this.heightSelectRange).height)
+    this.heightSelectLabel.style.top = pos + "px"
+  }
+
+  private updateHeight(){
+    const val = Number(this.heightSelectRange.value)
+    const max = Number(this.heightSelectRange.max)
+
+    if (val === max) {
+      this.vis_y_level = "surface"
+    } else {
+      this.vis_y_level = val
+    }
+  }
+
   private getIdxs(latlng: L.LatLng): { idx: MultiNoiseIndexes, values: Climate.TargetPoint, position: { x: number, y: number, z: number } } {
     return this.biomeLayer.getIdxs(latlng)
 
@@ -229,7 +236,7 @@ export class VisualizationManger {
 
   async refresh(change: Change) {
     if (change.noises || change.spline) {
-      this.refreshButton.classList.remove("hidden")
+      this.refreshButton.classList.add("highlighted")
       console.log("Map update required")
     }
 
@@ -252,12 +259,12 @@ export class VisualizationManger {
 
         this.heightSelectRange.value = this.vis_y_level === "surface" ? this.heightSelectRange.max : this.vis_y_level.toFixed(0)
 
-        this.heightSelectRange.oninput(null)
-        this.heightSelectRange.onchange(null)
+        this.updateHeightLabel()
+        this.updateHeight()
       }
 
       if (change.map_display || (change.map_y_level && !this.input2d)) {
-        this.refreshButton.classList.add("hidden")
+        this.refreshButton.classList.remove("highlighted")
       }
       this.biomeLayer.refresh(change)
     }

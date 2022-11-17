@@ -42,7 +42,7 @@ export class SettingsManager {
 
         const options = noiseSettingsNameSelect
             .selectAll("option")
-            .data(noiseSettings)
+            .data(noiseSettings, d => d as string)
 
         options
             .enter()
@@ -63,7 +63,7 @@ export class SettingsManager {
                 UI.getInstance().refresh({noises: true})
             })
         
-        document.getElementById("missing_noise_setting").classList.toggle("hidden", !missingNoiseSetting)
+        document.getElementById("missing_noise_setting")!.classList.toggle("hidden", !missingNoiseSetting)
 
         const exportSplinesCheckbox = document.getElementById("export_splines") as HTMLInputElement
         exportSplinesCheckbox.checked = this.builder.exportSplines
@@ -150,7 +150,7 @@ export class SettingsManager {
 
 
 
-        const addZipDatapackButton = document.getElementById("addZipDatapackButton")
+        const addZipDatapackButton = document.getElementById("addZipDatapackButton")!
         addZipDatapackButton.onclick = async () => {
             if ("showOpenFilePicker" in window) {
                 const [fileHandle] = await window.showOpenFilePicker({
@@ -172,7 +172,7 @@ export class SettingsManager {
                 input.accept = '.zip'
 
                 input.onchange = (evt) => {
-                    const file = (evt.target as HTMLInputElement).files[0]
+                    const file = (evt.target as HTMLInputElement).files![0]
                     this.addZipDatapack(file)
                 }
 
@@ -180,7 +180,7 @@ export class SettingsManager {
             }
         }
 
-        const addDirectoryDatapackButton = document.getElementById("addDirectoryDatapackButton")
+        const addDirectoryDatapackButton = document.getElementById("addDirectoryDatapackButton")!
         addDirectoryDatapackButton.onclick = async () => {
             var datapack: Datapack
 
