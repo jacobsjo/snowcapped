@@ -102,7 +102,7 @@ export class BiomeGridEditor {
                 tooltip_noise_x.innerHTML = "Erosion: [" + this.builder.gridCells.erosion[ids.indexes.erosion].toFixed(3) + ", " + this.builder.gridCells.erosion[ids.indexes.erosion + 1].toFixed(3) + "]"
                 tooltip_noise_y.innerHTML = "Continentalness: [" + this.builder.gridCells.continentalness[ids.indexes.continentalness].toFixed(3) + ", " + this.builder.gridCells.continentalness[ids.indexes.continentalness + 1].toFixed(3) + "]"
             } else if (this.layout.getType() === "layout"){
-                tooltip_noise_x.innerHTML = "Humitiy: [" + this.builder.gridCells.humidity[ids.indexes.humidity].toFixed(3) + ", " + this.builder.gridCells.humidity[ids.indexes.humidity + 1].toFixed(3) + "]"
+                tooltip_noise_x.innerHTML = "Humidity: [" + this.builder.gridCells.humidity[ids.indexes.humidity].toFixed(3) + ", " + this.builder.gridCells.humidity[ids.indexes.humidity + 1].toFixed(3) + "]"
                 tooltip_noise_y.innerHTML = "Temperature: [" + this.builder.gridCells.temperature[ids.indexes.temperature].toFixed(3) + ", " + this.builder.gridCells.temperature[ids.indexes.temperature + 1].toFixed(3) + "]"
             }
 
