@@ -117,8 +117,7 @@ export class VisualizationManger {
     const tooltip_layout = tooltip.getElementsByClassName("layout")[0] as HTMLElement
     const tooltip_biome = tooltip.getElementsByClassName("biome")[0] as HTMLElement
 
-    let lastPos: { x: number, z: number };
-    let lastY: number;
+    let lastPos: { x: number, y: number, z: number };
 
     this.map.addEventListener("click", (evt: L.LeafletMouseEvent) => {
       const idxs = this.getIdxs(evt.latlng)
@@ -185,7 +184,6 @@ export class VisualizationManger {
       MenuManager.toggleAction("copy", true)
 
       lastPos = idxs.position
-      //          lastY = y
     })
 
     this.map.addEventListener("mouseout", (evt: L.LeafletMouseEvent) => {
@@ -199,7 +197,7 @@ export class VisualizationManger {
 
     this.map.addEventListener("keydown", (evt: L.LeafletKeyboardEvent) => {
       if (evt.originalEvent.key === "c" && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey)) {
-        navigator.clipboard.writeText("/execute in " + builder.dimensionName + " run tp @s " + lastPos.x.toFixed(0) + " " + (lastY + 10).toFixed(0) + " " + lastPos.z.toFixed(0))
+        navigator.clipboard.writeText("/execute in " + builder.dimensionName + " run tp @s " + lastPos.x.toFixed(0) + " " + (lastPos.y + (this.vis_y_level === "surface" ? 10 : 0)).toFixed(0) + " " + lastPos.z.toFixed(0))
       }
     })
   }
