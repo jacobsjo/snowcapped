@@ -1062,9 +1062,6 @@ body:not(.light) #menu .button img{
     width: 70pt;
 }
 
-#visualization .horizontal_visualization_controls 
-
-
 #visualization #mapFullscreenButton {
     position: absolute;
     top: 9pt;
