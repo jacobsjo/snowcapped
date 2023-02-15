@@ -78,6 +78,7 @@ const PRECACHE_URLS = [
     "/icons/icon_512.png",
     "/icons/icon.png",
     "/minecraft_overworld_1_19.snowcapped.json",
+    "/minecraft_overworld_1_20.snowcapped.json",
     "/empty.snowcapped.json",
     "/export_presets/1_19/factor.json",
     "/export_presets/1_19/offset.json",
