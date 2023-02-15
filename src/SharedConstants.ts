@@ -1,5 +1,5 @@
 
-export const SNOWCAPPED_VERSION_ID = 11
+export const SNOWCAPPED_VERSION_ID = 12
 
 export const DATA_VERSION = 5
 export const IS_EXPERIMENTAL = false
