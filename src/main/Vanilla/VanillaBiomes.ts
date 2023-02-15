@@ -255,6 +255,11 @@ export class VanillaBiomes{
             name: "minecraft:deep_dark",
             color: "#08271f"
         },
+        {
+            key: "minecraft:cherry_grove",
+            name: "minecraft:cherry_grove",
+            color: "#dc8add"
+        },
 
 
         {key: "minecraft:soul_sand_valley", name: "minecraft:soul_sand_valley", r: 140, g: 132, b: 108},
