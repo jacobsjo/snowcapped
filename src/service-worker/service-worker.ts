@@ -76,6 +76,7 @@ const PRECACHE_URLS = [
     "/images/menu.svg",
     "/images/sponsor.svg",
     "/images/issue.svg",
+    "/images/download.svg",
     "/icons/icon.svg",
     "/icons/icon_128.png",
     "/icons/icon_192.png",
@@ -89,7 +90,7 @@ const PRECACHE_URLS = [
     "/export_presets/1_19/jaggedness.json",
     "/export_presets/1_19/pack.mcmeta",
     "/vanilla_datapacks/vanilla_datapack_1_19.zip",
-    "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    "/leaflet.css"
 ];
 
 // The install handler takes care of precaching the resources we always need.
