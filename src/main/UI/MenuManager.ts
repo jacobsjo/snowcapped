@@ -207,6 +207,8 @@ export class MenuManager {
         this.toggleDarkmodeButton.onclick = (evt: Event) => {
             const isLight = document.body.classList.toggle("light")
             ;(this.toggleDarkmodeButton.children[0] as (HTMLImageElement)).src = isLight ? "images/moon.svg" : "images/sun.svg"
+            ;(this.toggleDarkmodeButton.children[1] as (HTMLParagraphElement)).textContent = isLight ? "Dark Mode" : "Light Mode"
+            console.log(this.toggleDarkmodeButton.children)
             UI.getInstance().refresh({})
         }
 

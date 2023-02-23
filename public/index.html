@@ -34,8 +34,8 @@
             <div class="logo"><img alt="Snowcapped" src="images/header.svg" /></div>
             <div class="button" id="newButton"><img alt="New" label="New" src="images/blank-file.svg" />
                 <div class="dropdown">
-                    <div class="button" id="loadEmptyButton">New: Empty</div>
-                    <div class="button" id="loadVanilla119Button">New: Vanilla Overworld (1.19)</div>
+                    <div class="dropdown_entry" id="loadEmptyButton"><img alt="New" src="images/blank-file.svg" /><p>Empty</p></div>
+                    <div class="dropdown_entry" id="loadVanilla119Button"><img alt="New" src="images/blank-file.svg" /><p> Vanilla Overworld (1.19)</p></div>
                 </div>
             </div>
             <div class="button" id="openButton" title="Open"><img alt="Open" src="images/open-file-folder.svg" /></div>
@@ -57,10 +57,19 @@
                 <div class="help-entry hidden" id="remove"><span class="b">[Delete]</span> Remove</div>
                 <div class="help-entry hidden" id="copy"><span class="b">[Ctrl]+[C]</span> Copy Teleport Command</div>
             </div>
-            <div class="link"><a href="about.html" target="_blank">About</a></div>
-            <iframe src="https://github.com/sponsors/jacobsjo/button" title="Sponsor jacobsjo" height="32" width="114" style="border: 0; border-radius: 6px; height: 22pt; margin-top:3pt"></iframe>
-            <div class="button" id="toggleDarkmodeButton"><img alt="Toggle Dark Mode" title="Toggle Dark Mode"
-                    src="images/moon.svg" /></div>
+            <div class="button" id="extraMenu"><img alt="Menu" label="Menu" src="images/menu.svg" />
+                <div class="dropdown right">
+                    <div class="dropdown_entry" id="toggleDarkmodeButton">
+                        <img src="images/moon.svg" />
+                        <p>Dark Mode</p>
+                    </div>
+                    <a href="https://github.com/jacobsjo/snowcapped/issues" target="_blank"><div class="dropdown_entry">
+                        <img src="images/issue.svg" /><p>Report Issue</p>
+                    </div></a>
+                    <a href="https://github.com/sponsors/jacobsjo/" target="_blank"><div class="dropdown_entry"><img src="images/sponsor.svg" />Sponsor</div></a>
+                    <a href="about.html" target="_blank"><div class="dropdown_entry"><img src="images/about.svg" />About</div></a>
+                </div>
+            </div>
         </div>
         <div id="content">
             <div class="main_content">
