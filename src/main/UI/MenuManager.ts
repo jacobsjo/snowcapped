@@ -7,6 +7,7 @@ import { DataFixer } from "../BuilderData/DataFixer"
 
 export class MenuManager {
     private static loadVanilla119Button: HTMLElement
+    private static loadVanilla120Button: HTMLElement
     private static loadEmptyButton: HTMLElement
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
@@ -60,6 +61,7 @@ export class MenuManager {
 
     static createClickHandlers() {
         this.loadVanilla119Button = document.getElementById('loadVanilla119Button')
+        this.loadVanilla120Button = document.getElementById('loadVanilla120Button')
         this.loadEmptyButton = document.getElementById('loadEmptyButton')
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
@@ -73,17 +75,13 @@ export class MenuManager {
             this.loadVanilla('minecraft_overworld_1_19.snowcapped.json')
         }
 
+        this.loadVanilla120Button.onclick = (evt: Event) => {
+            this.loadVanilla('minecraft_overworld_1_20.snowcapped.json')
+        }
+
+
         this.loadEmptyButton.onclick = async (evt: Event) => {
-            if (!await this.confirmUnsavedChanges())
-                return
-
-            UI.getInstance().builder.hasChanges = false
-
-            fetch('empty.snowcapped.json').then( r => r.text()).then(jsonString => {
-                this.fileHandle = undefined
-                this.fileName = "New Snowcapped File.snowcapped.json"
-                MenuManager.maybeLoadJson(JSON.parse(jsonString))
-            })
+            this.loadVanilla('empty.snowcapped.json')
         }
 
 
