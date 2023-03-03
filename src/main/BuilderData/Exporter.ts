@@ -4,6 +4,7 @@ import { create } from "lodash";
 import { Datapack } from "mc-datapack-loader";
 import { MenuManager } from "../UI/MenuManager";
 import { UI } from "../UI/UI";
+import { VanillaBiomes } from "../Vanilla/VanillaBiomes";
 import { Biome } from "./Biome";
 import { BiomeBuilder } from "./BiomeBuilder";
 import { GridElementUnassigned } from "./GridElementUnassigned";
@@ -21,6 +22,17 @@ export class Exporter {
         if (value < params[0].min) return 0
         if (value > params[params.length - 1].max) return params.length - 1
         return params.findIndex(r => r.min < value && value < r.max)
+    }
+
+    private getBiomeColorJson(){
+        const colors_json: {[key: string]: {r: number, g: number, b: number}}  = {}
+        for (const biome of this.builder.biomes){
+            const vanillaColor = VanillaBiomes.biomes.find(b => b.key === biome.getKey())?.color
+            if (vanillaColor === undefined || biome.color !== vanillaColor){
+                colors_json[biome.name] = biome.raw_color
+            }
+        }
+        return colors_json
     }
 
     public async generateZip(){
@@ -51,6 +63,10 @@ export class Exporter {
             densityFunctionFolder.file("jaggedness.json", fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
         }
 
+        if (this.builder.exportBiomeColors){
+            dataFolder.folder(namespace).file("biome_colors.json", JSON.stringify(this.getBiomeColorJson(), null, 2))
+        }  
+
         return zip
     }
 
@@ -58,11 +74,16 @@ export class Exporter {
         if (datapack.save === undefined)
             throw new Error("Datapack does not support saving")
 
-        datapack.save("dimension", Identifier.parse(this.builder.dimensionName), this.getDimensionJSON())
+        const dimensionIdentifier = Identifier.parse(this.builder.dimensionName)
+        datapack.save("dimension", dimensionIdentifier, this.getDimensionJSON())
         if (this.builder.exportSplines){
             datapack.save("worldgen/density_function", new Identifier("minecraft", "offset"), await fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
             datapack.save("worldgen/density_function", new Identifier("minecraft", "factor"), await fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
             datapack.save("worldgen/density_function", new Identifier("minecraft", "jaggedness"), await fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
+        }
+
+        if (this.builder.exportBiomeColors){
+            datapack.save("", new Identifier(dimensionIdentifier.namespace, "biome_colors"), this.getBiomeColorJson())
         }
     }
 

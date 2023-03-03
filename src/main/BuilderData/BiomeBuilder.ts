@@ -55,6 +55,7 @@ export class BiomeBuilder {
     targetVersion: string = '1_19'
     noiseSettingsName: string = "minecraft:overworld"
     exportSplines: boolean = true;
+    exportBiomeColors: boolean = true;
 
     legacyConfigDatapack: LegacyConfigDatapack
     vanillaDatapack: Datapack
@@ -100,6 +101,7 @@ export class BiomeBuilder {
 
         this.targetVersion = json.targetVersion
         this.exportSplines = json.exportSplines
+        this.exportBiomeColors = json.exportBiomeColors ?? false
         this.noiseSettingsName = json.noiseSettingsName
 
         this.dimension = Grid.fromJSON(this, json.dimension, new DimensionMultiNoiseIndexesAccessor(this))
@@ -129,6 +131,7 @@ export class BiomeBuilder {
             this.splines.factor = GridSpline.fromMinecraftJSON(VanillaSpline.factor);
             this.splines.jaggedness = GridSpline.fromMinecraftJSON(VanillaSpline.jaggedness);
         }
+
     }
 
     toJSON() {
@@ -151,6 +154,7 @@ export class BiomeBuilder {
 
             targetVersion: this.targetVersion,
             exportSplines: this.exportSplines,
+            exportBiomeColors: this.exportBiomeColors,
             noiseSettingsName: this.noiseSettingsName,
 
             splines: {

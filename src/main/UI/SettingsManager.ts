@@ -74,6 +74,14 @@ export class SettingsManager {
         }        
 
 
+        const exportBiomeColorsCheckbox = document.getElementById("export_biome_colors") as HTMLInputElement
+        exportBiomeColorsCheckbox.checked = this.builder.exportBiomeColors
+        exportBiomeColorsCheckbox.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.exportBiomeColors = exportBiomeColorsCheckbox.checked
+        }        
+
+
         /*
          const VERSIONS = ['1_19']
 
