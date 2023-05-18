@@ -90,7 +90,8 @@ const PRECACHE_URLS = [
     "/export_presets/1_19/jaggedness.json",
     "/export_presets/1_19/pack.mcmeta",
     "/vanilla_datapacks/vanilla_datapack_1_19.zip",
-    "/leaflet.css"
+    "/leaflet.css",
+    "/OTHER_LICENSES.txt"
 ];
 
 // The install handler takes care of precaching the resources we always need.
