@@ -1,6 +1,6 @@
 {
     "pack": {
-        "pack_format": 10,
-        "description": "The data modified using Snowcapped (1.19)"
+        "pack_format": 15,
+        "description": "The data modified using Snowcapped (1.19 / 1.20)"
     }
 }
