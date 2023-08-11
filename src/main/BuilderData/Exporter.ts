@@ -64,7 +64,7 @@ export class Exporter {
         }
 
         if (this.builder.exportBiomeColors){
-            dataFolder.folder(namespace).file("biome_colors.json", JSON.stringify(this.getBiomeColorJson(), null, 2))
+            dataFolder.folder("c").folder("worldgen").file("biome_colors.json", JSON.stringify(this.getBiomeColorJson(), null, 2))
         }  
 
         return zip
@@ -83,7 +83,7 @@ export class Exporter {
         }
 
         if (this.builder.exportBiomeColors){
-            datapack.save("", new Identifier(dimensionIdentifier.namespace, "biome_colors"), this.getBiomeColorJson())
+            datapack.save("", new Identifier("c", "worldgen/biome_colors"), this.getBiomeColorJson())
         }
     }
 
