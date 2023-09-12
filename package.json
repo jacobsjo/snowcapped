@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "vite build",
+    "createZips": "python scripts/createVanillaZips.py",
     "dev": "vite serve",
     "preview": "vite preview"
   },
