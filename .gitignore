@@ -1,5 +1,6 @@
 dist
 package-lock.json
 node_modules
+public/vanilla_datapacks
 
 public/OTHER_LICENSES.txt

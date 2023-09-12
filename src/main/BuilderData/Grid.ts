@@ -1,9 +1,9 @@
-import * as _ from "lodash";
+import _ from "lodash";
 import { GridElementRenderer } from "../UI/Renderer/ElementRenderer";
 import { Biome } from "./Biome";
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
 import { GridElement, Mode} from "./GridElement";
-import * as uniqid from 'uniqid';
+import uniqid from 'uniqid';
 import { BiomeGridRenderer } from "../UI/Renderer/BiomeGridRenderer";
 import { json, thresholdFreedmanDiaconis } from "d3";
 import { Json } from "deepslate";
