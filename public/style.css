@@ -186,6 +186,7 @@ body.swal2-shown.swal2-height-auto {
     display: flex;
     align-items: center;
     flex-grow: 1;
+    white-space: nowrap;
 }
 
 #menu .button .dropdown .dropdown_entry img{
