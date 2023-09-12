@@ -1,4 +1,4 @@
-import * as uniqid from 'uniqid'
+import uniqid from 'uniqid'
 import { BiomeRenderer } from '../UI/Renderer/BiomeRenderer'
 import { GridElementRenderer } from '../UI/Renderer/ElementRenderer'
 import { VanillaBiomes } from '../Vanilla/VanillaBiomes'

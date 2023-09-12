@@ -9,6 +9,7 @@ import { Change, UI } from "../UI/UI";
 import { timer } from "d3";
 import { getSurfaceDensityFunction, lerp2Climate } from "../util";
 import { Datapack } from "mc-datapack-loader";
+import MultiNoiseWorker from "../../multinoiseworker/worker?worker"
 
 const WORKER_COUNT = 4
 
@@ -58,7 +59,7 @@ export class BiomeLayer extends L.GridLayer {
 	private createWorkers(){
 		this.workers = []
 		for (var i = 0; i < WORKER_COUNT; i++) {
-			const worker = new Worker("multinoiseworker.js")
+			const worker = new MultiNoiseWorker()
 			const worker_id = i
 			worker.onmessage = (ev) => {
 				const tile = this.Tiles[ev.data.key]
