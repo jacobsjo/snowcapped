@@ -253,7 +253,11 @@ export class GridEditor {
                         if (values[draggingHandle.id] === min_value || values[draggingHandle.id] === max_value) {
                             const id: number = draggingHandle.id
                             values.splice(id, 1)
-                            this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.forEach(row=>row.splice(id, 1))
+                            if (param === "erosion"){
+                                this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.forEach(row=>row.splice(id, 1))
+                            } else {
+                                this.builder.splines[UI.getInstance().sidebarManager.openedElement.key].splines.splice(id, 1)
+                            }
                         }
                         UI.getInstance().refresh({
                             spline: true
