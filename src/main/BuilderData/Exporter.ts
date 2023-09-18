@@ -1,15 +1,11 @@
 import { Climate, Identifier } from "deepslate";
-import * as JSZip from "jszip";
-import { create } from "lodash";
+import JSZip from "jszip";
 import { Datapack } from "mc-datapack-loader";
-import { MenuManager } from "../UI/MenuManager";
 import { UI } from "../UI/UI";
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes";
 import { Biome } from "./Biome";
 import { BiomeBuilder } from "./BiomeBuilder";
 import { GridElementUnassigned } from "./GridElementUnassigned";
-
-
 
 export class Exporter {
     private builder: BiomeBuilder

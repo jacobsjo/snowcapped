@@ -1,6 +1,9 @@
 import { BiomeBuilder } from './BuilderData/BiomeBuilder';
 import { UI } from './UI/UI';
 
+import { registerSW } from 'virtual:pwa-register'
+
+registerSW({ immediate: true })
 
 const close_elements = document.getElementsByClassName("closable")
 
