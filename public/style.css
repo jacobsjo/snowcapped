@@ -1218,20 +1218,22 @@ body:not(.light) #menu .button img{
     color: var(--main-text-color);
     background-color: var(--input-color);
     border: 2pt solid var(--input-border-color);
-    -moz-appearance: textfield;
-    appearance: textfield;
     flex-grow: 1;
+    width: 15rem;
+}
+
+#settings .setting label select{
+    color: var(--main-text-color);
+    background-color: var(--input-color);
+    border: 2pt solid var(--input-border-color);
+    flex-grow: 1;
+    width: 15.5rem;
 }
 
 #settings .setting label input[type=checkbox]{
     flex-grow: 0;
     margin-right: 10pt;
-}
-
-#settings .setting label input[type=number]::-webkit-inner-spin-button,
-#settings .setting label input[type=number]::-webkit-outer-spin-button{
-    -webkit-appearance: none;
-    appearance: none;
+    width: 1rem;
 }
 
 #settings .setting .warning {

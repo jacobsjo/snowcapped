@@ -1,14 +1,10 @@
 import * as d3 from "d3";
-import { add } from "lodash";
-import { Datapack, FileListDatapack, FileSystemDirectoryDatapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
-import { NoiseSetting, BiomeBuilder } from "../BuilderData/BiomeBuilder"
+import { Datapack } from "mc-datapack-loader"
+import { MAX_DATAPACK_FORMAT, MIN_DATAPACK_FORMAT } from "../../SharedConstants";
+import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
 import { Exporter } from "../BuilderData/Exporter";
-import { LegacyConfigDatapack } from "../BuilderData/LegacyConfigDatapack";
-import { VanillaNoiseSettings } from "../Vanilla/VanillaNoiseSettings"
 import { MenuManager } from "./MenuManager";
 import { UI } from "./UI"
-
-
 
 export class SettingsManager {
     private builder: BiomeBuilder
@@ -19,6 +15,18 @@ export class SettingsManager {
     }
 
     async refresh() {
+        const datapackVersionInput = document.getElementById("target_datapack_version") as HTMLInputElement;
+        datapackVersionInput.value = this.builder.datapackFormat.toString()
+        datapackVersionInput.min = MIN_DATAPACK_FORMAT.toString()
+        datapackVersionInput.max = MAX_DATAPACK_FORMAT.toString()
+
+        datapackVersionInput.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.setDatapackFormat(parseInt(datapackVersionInput.value))
+            UI.getInstance().refresh({noises: true})
+        }
+
+
         const dimensionNameInput = document.getElementById("dimension_name") as HTMLInputElement;
         dimensionNameInput.value = this.builder.dimensionName
         dimensionNameInput.onchange = (evt) => {
@@ -31,7 +39,7 @@ export class SettingsManager {
 
         const noiseSettingsNameSelect = d3.select("#noise_settings_name")
 
-        const noiseSettings = (await this.builder.datapacks.getIds("worldgen/noise_settings")).map(id => id.toString())
+        const noiseSettings = (await this.builder.compositeDatapack.getIds("worldgen/noise_settings")).map(id => id.toString())
 
         var missingNoiseSetting = false
 
@@ -94,12 +102,18 @@ export class SettingsManager {
         
         const datapackList = d3.select("#datapack_list")
 
-        const datapackInfo = await Promise.all(this.builder.datapacks.readers.map(async (d) => {
+        const datapackInfo = await Promise.all(this.builder.datapacks.map(async (d) => {
+            var description = (await d.getMcmeta())?.pack?.description ?? ""
+            if (typeof description !== "string"){
+                description = JSON.stringify(description)
+            }
+
             return {
                 datapack: d,
-                name: await d.getName(),
-                description: ((await d.getMcmeta()) as any)?.pack?.description as string ?? "",
+                name: await d.getFilename(),
+                description: description as string,
                 image: await d.getImage(),
+                canSave: await d.canSave()
             }
         }));
 
@@ -118,14 +132,14 @@ export class SettingsManager {
         datapack_text.append("div").classed("datapack_description", true).text(d => d.description)
 
 
-        datapack_enter.filter(d=>d.datapack.save !== undefined).append("div").classed("button", true).classed("button", true).on("click", async (evt, d) => {
+        datapack_enter.filter(d=>d.canSave).append("div").classed("button", true).classed("button", true).on("click", async (evt, d) => {
             const exporter = new Exporter(UI.getInstance().builder)
             exporter.insertIntoDatapack(d.datapack)
         }).attr("title", "Insert into this datapack") .append("img").attr("src", "images/insert.svg")
 
         datapack_enter.filter(d=>d.datapack !== this.builder.vanillaDatapack && d.datapack !== this.builder.legacyConfigDatapack).append("div").classed("button", true).on("click", async (evt, d) => {
-            this.builder.datapacks.readers.splice(this.builder.datapacks.readers.indexOf(d.datapack), 1)
-            console.log(this.builder.datapacks.readers)
+            this.builder.datapacks.splice(this.builder.datapacks.indexOf(d.datapack), 1)
+            console.log(this.builder.datapacks)
             UI.getInstance().refresh({noises: true})
         }).attr("title", "Remove datapack") .append("img").attr("src", "images/remove.svg")
 
@@ -193,7 +207,7 @@ export class SettingsManager {
             var datapack: Datapack
 
             if ("showDirectoryPicker" in window) {
-                datapack = new FileSystemDirectoryDatapack(await window.showDirectoryPicker())
+                datapack = Datapack.fromFileSystemDirectoryHandle(await window.showDirectoryPicker(), this.builder.datapackFormat)
             } else {
                 datapack = await new Promise<Datapack>((resolve) => {
                     const input: any = document.createElement('input')
@@ -201,21 +215,21 @@ export class SettingsManager {
                     input.webkitdirectory = true
 
                     input.onchange = async () => {
-                        resolve(new FileListDatapack(Array.from(input.files)))
+                        resolve(Datapack.fromFileList(Array.from(input.files), this.builder.datapackFormat))
                     }
                     input.click()
                 })
             }
 
-            this.builder.datapacks.readers.splice(this.builder.datapacks.readers.length - 1, 0, datapack)
+            this.builder.datapacks.splice(this.builder.datapacks.length - 1, 0, datapack)
             UI.getInstance().refresh({noises: true})
     
         }
     }
 
     private addZipDatapack(file: File){
-        const datapack = new PromiseDatapack(ZipDatapack.fromFile(file))
-        this.builder.datapacks.readers.splice(this.builder.datapacks.readers.length - 1, 0, datapack)
+        const datapack = Datapack.fromZipFile(file, this.builder.datapackFormat)
+        this.builder.datapacks.splice(this.builder.datapacks.length - 1, 0, datapack)
         UI.getInstance().refresh({noises: true})
     }
 

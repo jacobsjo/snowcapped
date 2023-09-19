@@ -1,1 +1,4 @@
-export const DATA_VERSION = 5
+export const DATA_VERSION = 6
+export const DEFAULT_DATAPACK_FORMAT = 15
+export const MIN_DATAPACK_FORMAT = 10
+export const MAX_DATAPACK_FORMAT = 18

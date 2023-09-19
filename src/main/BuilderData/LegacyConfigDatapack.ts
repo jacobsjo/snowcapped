@@ -1,5 +1,6 @@
 import { Identifier } from "deepslate";
-import { Datapack, DataType, UNKOWN_PACK } from "mc-datapack-loader";
+import { Datapack, DataType, PackMcmeta, UNKOWN_PACK } from "mc-datapack-loader";
+import { MenuManager } from "../UI/MenuManager";
 import { BiomeBuilder } from "./BiomeBuilder";
 
 const DENSITY_FUNCTIONS = [
@@ -117,6 +118,26 @@ export class LegacyConfigDatapack implements Datapack {
 
     }
 
+    async getFilename(): Promise<string> {
+        return MenuManager.fileName.replace(".snowcapped.json", "").replace(".json", "") + ".zip"
+    }
+
+    async setPackVersion(_version: number): Promise<void> {
+
+    }
+
+    async canSave(): Promise<boolean> {
+        return false
+    }
+
+    async prepareSave(): Promise<void> {
+
+    }
+
+    async save(_type: DataType.Path, _id: Identifier, _data: unknown | ArrayBuffer): Promise<boolean> {
+        throw new Error("Can't write to readonly Datapack")
+    }
+
     async getImage(): Promise<string> {
         return "./icons/icon.png"
     }
@@ -125,15 +146,16 @@ export class LegacyConfigDatapack implements Datapack {
         return "Snowcapped Data"
     }
 
-    async getMcmeta(): Promise<unknown> {
+    async getMcmeta(): Promise<PackMcmeta> {
         return {
             pack: {
+                pack_format: this.builder.datapackFormat,
                 description: "The data modified using Snowcapped",
             }
         }
     }
 
-    async has(type: DataType, id: Identifier): Promise<boolean> {
+    async has(type: DataType.Path, id: Identifier): Promise<boolean> {
         if (type === "worldgen/density_function" && this.builder.exportSplines) {
             return DENSITY_FUNCTIONS.includes(id.toString())
         } else {
@@ -141,7 +163,7 @@ export class LegacyConfigDatapack implements Datapack {
         }
     }
 
-    async getIds(type: DataType): Promise<Identifier[]> {
+    async getIds(type: DataType.Path): Promise<Identifier[]> {
         if (type === "worldgen/density_function" && this.builder.exportSplines) {
             return DENSITY_FUNCTIONS.map((str) => Identifier.parse(str))
         } else {
@@ -149,7 +171,7 @@ export class LegacyConfigDatapack implements Datapack {
         }
     }
 
-    async get(type: DataType, id: Identifier): Promise<unknown> {
+    async get(type: DataType.Path, id: Identifier): Promise<unknown> {
         if (type === "worldgen/density_function" && id.namespace === "minecraft" && this.builder.exportSplines) {
             if (id.path === "overworld/offset")
                 return OFFSET_DF(this.builder.splines["offset"].export())

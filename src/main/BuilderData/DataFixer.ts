@@ -1,4 +1,4 @@
-import { IS_EXPERIMENTAL } from "../../SharedConstants"
+import { DEFAULT_DATAPACK_FORMAT } from "../../SharedConstants"
 
 export class DataFixer {
     public static fixJSON(json: any): any {
@@ -92,6 +92,11 @@ export class DataFixer {
 
         }
  
+        if (json.version === 5){
+            json.datapackVersion = DEFAULT_DATAPACK_FORMAT
+            json.version = 6
+        }
+
         return json
     }
 }

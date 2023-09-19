@@ -22,7 +22,6 @@
         crossorigin="" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"-->
 
-    <link rel="manifest" href="manifest.webmanifest">
     <link rel="preload" as="fetch" href="/minecraft_overworld_1_20.snowcapped.json" crossorigin="" />
     <link rel="apple-touch-icon" href="/icons/icon_192.png">
     <script type="module" src="src/main/app.ts"></script>
@@ -204,13 +203,10 @@
                 </div>
 
                 <div class="hidden" id="settings">
-                    <!--
-                    <div class="setting"> <label><span class="description">Target Version</span>
-                        <select id="target_version">
-                            <option id="1_18_1">1.18 (redirects)</option>
-                            <option id="1_19">1.19.1</option>
-                        </select></label>
-                    </div>-->
+                    
+                    <div class="setting"> <label><span class="description">Target datapack version</span>
+                        <input type="number" min="10" max="18" id="target_datapack_version">
+                    </label></div>
 
                     <div class="setting"> <label><span class="description">Dimension Name:</span><input type="text"
                                 id="dimension_name" /></label></div>

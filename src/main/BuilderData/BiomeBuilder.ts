@@ -9,11 +9,11 @@ import { GridElement, Mode } from "./GridElement"
 import { GridElementUnassigned } from "./GridElementUnassigned"
 import { DimensionMultiNoiseIndexesAccessor, Grid, LayoutMultiNoiseIndexesAccessor, SliceMultiNoiseIndexesAccessor } from "./Grid"
 import { DataFixer } from "./DataFixer"
-import { DATA_VERSION } from "../../SharedConstants"
+import { DATA_VERSION, DEFAULT_DATAPACK_FORMAT, MAX_DATAPACK_FORMAT, MIN_DATAPACK_FORMAT } from "../../SharedConstants"
 import { version } from "leaflet"
 import { max, sortedIndex, sortedIndexBy, takeWhile } from "lodash"
 import { VERSION_INFO } from "../Vanilla/VersionInfo"
-import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
+import { AnonymousDatapack, Datapack, DatapackList } from "mc-datapack-loader"
 import { LegacyConfigDatapack } from "./LegacyConfigDatapack"
 
 export type MultiNoiseIndexes = { depth: number, weirdness: number, continentalness: number, erosion: number, humidity: number, temperature: number }
@@ -53,13 +53,15 @@ export class BiomeBuilder {
 
     dimensionName: string = "minecraft:overworld"
     targetVersion: string = '1_19'
+    datapackFormat: number = 15
     noiseSettingsName: string = "minecraft:overworld"
     exportSplines: boolean = true;
     exportBiomeColors: boolean = true;
 
     legacyConfigDatapack: LegacyConfigDatapack
     vanillaDatapack: Datapack
-    datapacks: CompositeDatapack
+    datapacks: Datapack[]
+    compositeDatapack: AnonymousDatapack
 
     constructor() {
         this.gridElements = new Map<string, GridElement>();
@@ -73,8 +75,17 @@ export class BiomeBuilder {
         this.dimensionName = ""
 
         this.legacyConfigDatapack = new LegacyConfigDatapack(this)
-        this.vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`, `Default`))
-        this.datapacks = new CompositeDatapack([this.vanillaDatapack, this.legacyConfigDatapack])
+        this.datapackFormat = DEFAULT_DATAPACK_FORMAT
+        this.vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`, DEFAULT_DATAPACK_FORMAT)
+        this.datapacks = [this.vanillaDatapack, this.legacyConfigDatapack]
+
+        const self = this
+        this.compositeDatapack = Datapack.compose(new class implements DatapackList{
+            async getDatapacks(): Promise<AnonymousDatapack[]> {
+                return self.datapacks
+            }
+        })
+
     }
 
     loadJSON(json: any) {
@@ -132,6 +143,7 @@ export class BiomeBuilder {
             this.splines.jaggedness = GridSpline.fromMinecraftJSON(VanillaSpline.jaggedness);
         }
 
+        this.setDatapackFormat(json.datapackVersion)
     }
 
     toJSON() {
@@ -163,8 +175,18 @@ export class BiomeBuilder {
                 jaggedness: this.splines.jaggedness.toJSON()
             },
 
+            datapackVersion: this.datapackFormat,
+
             version: DATA_VERSION
         }
+    }
+
+    public setDatapackFormat(format: number){
+        if (isNaN(format)){
+            return
+        }
+        this.datapackFormat = Math.max(Math.min(format, MAX_DATAPACK_FORMAT), MIN_DATAPACK_FORMAT)
+        this.datapacks.forEach(d => d.setPackVersion(this.datapackFormat))
     }
 
     public getSlice(name: string) {

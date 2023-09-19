@@ -1,6 +1,7 @@
 import { Climate, Identifier } from "deepslate";
 import JSZip from "jszip";
-import { Datapack } from "mc-datapack-loader";
+import { Datapack, PackMcmeta } from "mc-datapack-loader";
+import { MAX_DATAPACK_FORMAT, MIN_DATAPACK_FORMAT } from "../../SharedConstants";
 import { UI } from "../UI/UI";
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes";
 import { Biome } from "./Biome";
@@ -37,7 +38,15 @@ export class Exporter {
         const zip = new JSZip()
         const dataFolder = zip.folder("data")
 
-        zip.file("pack.mcmeta", (await (await fetch(`export_presets/${this.builder.targetVersion}/pack.mcmeta`)).text()))
+        const mcMeta: PackMcmeta = {
+            pack: {
+                description: "The data modified using Snowcapped (1.19 / 1.20)",
+                pack_format: this.builder.datapackFormat,
+                supported_formats: [MIN_DATAPACK_FORMAT, MAX_DATAPACK_FORMAT]
+            }
+        }
+
+        zip.file("pack.mcmeta", JSON.stringify(mcMeta, undefined, 2))
 
         zip.file("pack.png", (await fetch("icons/icon_128.png")).blob() )
 

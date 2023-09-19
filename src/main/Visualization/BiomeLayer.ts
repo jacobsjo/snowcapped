@@ -8,7 +8,7 @@ import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { Change, UI } from "../UI/UI";
 import { timer } from "d3";
 import { getSurfaceDensityFunction, lerp2Climate } from "../util";
-import { Datapack } from "mc-datapack-loader";
+import { AnonymousDatapack, Datapack } from "mc-datapack-loader";
 import MultiNoiseWorker from "../../multinoiseworker/worker?worker"
 
 const WORKER_COUNT = 4
@@ -52,7 +52,7 @@ export class BiomeLayer extends L.GridLayer {
 
 		this.createWorkers()
 
-		this.datapackLoader = this.loadDatapack(this.builder.datapacks)
+		this.datapackLoader = this.loadDatapack( this.builder.compositeDatapack)
 
 	}
 
@@ -164,7 +164,7 @@ export class BiomeLayer extends L.GridLayer {
 		}
 	}
 
-	async loadDatapack(datapack: Datapack) {
+	async loadDatapack(datapack: AnonymousDatapack) {
 		for (const id of await datapack.getIds("worldgen/density_function")) {
 			const dfJson = await datapack.get("worldgen/density_function", id)
 			this.workers.forEach(w => w.postMessage({
@@ -223,7 +223,7 @@ export class BiomeLayer extends L.GridLayer {
 			this.workers.forEach(w => w.terminate())
 			this.createWorkers()
 
-			this.datapackLoader = this.loadDatapack(this.builder.datapacks)
+			this.datapackLoader = this.loadDatapack(this.builder.compositeDatapack)
 			await this.datapackLoader
 
 			this.workers.forEach(w => w.postMessage({

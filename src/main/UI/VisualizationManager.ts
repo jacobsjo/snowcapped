@@ -240,7 +240,7 @@ export class VisualizationManger {
 
     if (!this.closeContainer.classList.contains("closed")) {
       if (change.map_display) {
-        const noise_settings_json = (await this.builder.datapacks.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))) as any
+        const noise_settings_json = (await this.builder.compositeDatapack.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))) as any
         var noise_settings
         if (noise_settings_json !== undefined){
           noise_settings = NoiseSettings.fromJson(noise_settings_json.noise)
