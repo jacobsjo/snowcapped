@@ -1,6 +1,6 @@
 {
   "name": "snowcapped",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "description": "CLI/API for Snowcapped, a multinoise biome editor for Minecraft.",
   "private": false,
   "scripts": {
