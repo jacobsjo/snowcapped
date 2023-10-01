@@ -141,7 +141,7 @@ export class MenuManager {
 
 
         const saveAs = async () => {
-            const jsonString = JSON.stringify(UI.getInstance().builder.toJSON())
+            const jsonString = JSON.stringify(UI.getInstance().builder.toJSON(), undefined, 2)
             if ("showSaveFilePicker" in window){
                 this.fileHandle = await window.showSaveFilePicker(
                     {types: [
@@ -161,7 +161,7 @@ export class MenuManager {
                 } )
                 this.fileName = this.fileHandle.name
                 const writable = await this.fileHandle.createWritable()
-                await writable.write(JSON.stringify(UI.getInstance().builder.toJSON()))
+                await writable.write(jsonString)
                 await writable.close()
             } else {
                 const bb = new Blob([jsonString], {type: 'text/plain'})
@@ -177,7 +177,7 @@ export class MenuManager {
         const save = async (evt: Event) => {
             if (this.fileHandle){
                 const writable = await this.fileHandle.createWritable()
-                await writable.write(JSON.stringify(UI.getInstance().builder.toJSON()))
+                await writable.write(JSON.stringify(UI.getInstance().builder.toJSON(), undefined, 2))
                 await writable.close()
                 UI.getInstance().builder.hasChanges = false
                 this.updateTitle()
