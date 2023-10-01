@@ -1,6 +1,6 @@
 import { Climate, Identifier } from "deepslate";
 import JSZip from "jszip";
-import { Datapack, PackMcmeta } from "mc-datapack-loader";
+import { Datapack, PackMcmeta, ResourceLocation } from "mc-datapack-loader";
 import { MAX_DATAPACK_FORMAT, MIN_DATAPACK_FORMAT } from "../../SharedConstants";
 import { UI } from "../UI/UI";
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes";
@@ -59,7 +59,7 @@ export class Exporter {
         for (var i = 0 ; i < folders.length - 1 ; i++){
             folder = folder.folder(folders[i])
         }
-        folder.file(filename + ".json", this.getDimensionJSON())
+        folder.file(filename + ".json", JSON.stringify(this.getDimensionJSON(), undefined, 2))
 
         if (this.builder.exportSplines){
             const densityFunctionFolder = dataFolder.folder("minecraft").folder("worldgen").folder("density_function").folder("overworld")
@@ -80,15 +80,15 @@ export class Exporter {
             throw new Error("Datapack does not support saving")
 
         const dimensionIdentifier = Identifier.parse(this.builder.dimensionName)
-        datapack.save("dimension", dimensionIdentifier, this.getDimensionJSON())
+        datapack.save(ResourceLocation.DIMENSION, dimensionIdentifier, this.getDimensionJSON())
         if (this.builder.exportSplines){
-            datapack.save("worldgen/density_function", new Identifier("minecraft", "offset"), await fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export()))))
-            datapack.save("worldgen/density_function", new Identifier("minecraft", "factor"), await fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export()))))
-            datapack.save("worldgen/density_function", new Identifier("minecraft", "jaggedness"), await fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export()))))
+            datapack.save(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, new Identifier("minecraft", "offset"), JSON.parse(await fetch(`export_presets/${this.builder.targetVersion}/offset.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.offset.export())))))
+            datapack.save(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, new Identifier("minecraft", "factor"), JSON.parse(await fetch(`export_presets/${this.builder.targetVersion}/factor.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.factor.export())))))
+            datapack.save(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, new Identifier("minecraft", "jaggedness"), JSON.parse(await fetch(`export_presets/${this.builder.targetVersion}/jaggedness.json`).then(s => s.text()).then(s => s.replace("%s", JSON.stringify(this.builder.splines.jaggedness.export())))))
         }
 
         if (this.builder.exportBiomeColors){
-            datapack.save("", new Identifier("c", "worldgen/biome_colors"), this.getBiomeColorJson())
+            datapack.save(ResourceLocation.DATA_FILE, new Identifier("c", "worldgen/biome_colors"), this.getBiomeColorJson())
         }
     }
 
@@ -138,7 +138,7 @@ export class Exporter {
     }*/
 
 
-    public getDimensionJSON(): string {
+    public getDimensionJSON(): unknown {
         const array: { biome: string, done: boolean }[][][][][][] = []
 
         for (let d_idx = 0; d_idx < this.builder.gridCells.depth.length - 1; d_idx++) {
@@ -281,8 +281,9 @@ export class Exporter {
         }
 
         console.log("Emmited " + biomes.length + " Biome settings...")
+        console.log(dimension)
 
-        return (JSON.stringify(dimension))
+        return dimension
     }
 
 

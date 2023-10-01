@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { Datapack } from "mc-datapack-loader"
+import { Datapack, ResourceLocation } from "mc-datapack-loader"
 import { MAX_DATAPACK_FORMAT, MIN_DATAPACK_FORMAT } from "../../SharedConstants";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
 import { Exporter } from "../BuilderData/Exporter";
@@ -39,7 +39,7 @@ export class SettingsManager {
 
         const noiseSettingsNameSelect = d3.select("#noise_settings_name")
 
-        const noiseSettings = (await this.builder.compositeDatapack.getIds("worldgen/noise_settings")).map(id => id.toString())
+        const noiseSettings = (await this.builder.compositeDatapack.getIds(ResourceLocation.WORLDGEN_NOISE_SETTINGS)).map(id => id.toString())
 
         var missingNoiseSetting = false
 

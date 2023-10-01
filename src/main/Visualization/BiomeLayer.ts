@@ -8,7 +8,7 @@ import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { Change, UI } from "../UI/UI";
 import { timer } from "d3";
 import { getSurfaceDensityFunction, lerp2Climate } from "../util";
-import { AnonymousDatapack, Datapack } from "mc-datapack-loader";
+import { AnonymousDatapack, Datapack, ResourceLocation } from "mc-datapack-loader";
 import MultiNoiseWorker from "../../multinoiseworker/worker?worker"
 
 const WORKER_COUNT = 4
@@ -165,8 +165,8 @@ export class BiomeLayer extends L.GridLayer {
 	}
 
 	async loadDatapack(datapack: AnonymousDatapack) {
-		for (const id of await datapack.getIds("worldgen/density_function")) {
-			const dfJson = await datapack.get("worldgen/density_function", id)
+		for (const id of await datapack.getIds(ResourceLocation.WORLDGEN_DENSITY_FUNCTION)) {
+			const dfJson = await datapack.get(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, id)
 			this.workers.forEach(w => w.postMessage({
 				task: "addDensityFunction",
 				json: dfJson,
@@ -177,8 +177,8 @@ export class BiomeLayer extends L.GridLayer {
 			WorldgenRegistries.DENSITY_FUNCTION.register(id, df)
 		}
 
-		for (const id of await datapack.getIds("worldgen/noise")) {
-			const noiseJson = await datapack.get("worldgen/noise", id)
+		for (const id of await datapack.getIds(ResourceLocation.WORLDGEN_NOISE)) {
+			const noiseJson = await datapack.get(ResourceLocation.WORLDGEN_NOISE, id)
 			this.workers.forEach(w => w.postMessage({
 				task: "addNoise",
 				json: noiseJson,
@@ -190,7 +190,7 @@ export class BiomeLayer extends L.GridLayer {
 		}
 
 
-		const noiseSettingsJson = await datapack.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))
+		const noiseSettingsJson = await datapack.get(ResourceLocation.WORLDGEN_NOISE_SETTINGS, Identifier.parse(this.builder.noiseSettingsName))
 		this.workers.forEach(w => w.postMessage({
 			task: "setNoiseGeneratorSettings",
 			json: noiseSettingsJson,

@@ -1,5 +1,5 @@
 import { Identifier } from "deepslate";
-import { Datapack, DataType, PackMcmeta, UNKOWN_PACK } from "mc-datapack-loader";
+import { Datapack, ResourceLocation, PackMcmeta, UNKOWN_PACK } from "mc-datapack-loader";
 import { MenuManager } from "../UI/MenuManager";
 import { BiomeBuilder } from "./BiomeBuilder";
 
@@ -134,7 +134,7 @@ export class LegacyConfigDatapack implements Datapack {
 
     }
 
-    async save(_type: DataType.Path, _id: Identifier, _data: unknown | ArrayBuffer): Promise<boolean> {
+    async save(_type: ResourceLocation, _id: Identifier, _data: unknown | ArrayBuffer): Promise<boolean> {
         throw new Error("Can't write to readonly Datapack")
     }
 
@@ -155,24 +155,24 @@ export class LegacyConfigDatapack implements Datapack {
         }
     }
 
-    async has(type: DataType.Path, id: Identifier): Promise<boolean> {
-        if (type === "worldgen/density_function" && this.builder.exportSplines) {
+    async has(type: ResourceLocation, id: Identifier): Promise<boolean> {
+        if (type.location === "worldgen/density_function" && this.builder.exportSplines) {
             return DENSITY_FUNCTIONS.includes(id.toString())
         } else {
             return false
         }
     }
 
-    async getIds(type: DataType.Path): Promise<Identifier[]> {
-        if (type === "worldgen/density_function" && this.builder.exportSplines) {
+    async getIds(type: ResourceLocation): Promise<Identifier[]> {
+        if (type.location === "worldgen/density_function" && this.builder.exportSplines) {
             return DENSITY_FUNCTIONS.map((str) => Identifier.parse(str))
         } else {
             return []
         }
     }
 
-    async get(type: DataType.Path, id: Identifier): Promise<unknown> {
-        if (type === "worldgen/density_function" && id.namespace === "minecraft" && this.builder.exportSplines) {
+    async get(type: ResourceLocation, id: Identifier): Promise<unknown> {
+        if (type.location === "worldgen/density_function" && id.namespace === "minecraft" && this.builder.exportSplines) {
             if (id.path === "overworld/offset")
                 return OFFSET_DF(this.builder.splines["offset"].export())
             else if (id.path === "overworld/factor")

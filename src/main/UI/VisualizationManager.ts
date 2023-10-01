@@ -1,6 +1,7 @@
 import { Climate, Identifier, NoiseSettings } from "deepslate";
 import * as L from "leaflet";
 import { clamp } from "lodash";
+import { ResourceLocation } from "mc-datapack-loader";
 import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
 import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
 import { BiomeLayer } from "../Visualization/BiomeLayer";
@@ -240,7 +241,7 @@ export class VisualizationManger {
 
     if (!this.closeContainer.classList.contains("closed")) {
       if (change.map_display) {
-        const noise_settings_json = (await this.builder.compositeDatapack.get("worldgen/noise_settings", Identifier.parse(this.builder.noiseSettingsName))) as any
+        const noise_settings_json = (await this.builder.compositeDatapack.get(ResourceLocation.WORLDGEN_NOISE_SETTINGS, Identifier.parse(this.builder.noiseSettingsName))) as any
         var noise_settings
         if (noise_settings_json !== undefined){
           noise_settings = NoiseSettings.fromJson(noise_settings_json.noise)
