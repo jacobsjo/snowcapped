@@ -7,6 +7,7 @@ import { SidebarManager } from "./SidebarManager";
 import { SplineDisplayManager } from "./SplineDisplayManager";
 import { SplineEditor } from "./SplineEditor";
 import { VisualizationManger } from "./VisualizationManager";
+import { Datapacks } from "../BuilderData/Datapacks";
 
 
 export type Change = {
@@ -37,6 +38,7 @@ export class UI {
     readonly gridEditor: GridEditor
     readonly splineEditor: SplineEditor
     readonly settingsManager: SettingsManager
+    readonly datapacks: Datapacks
 
     readonly builder: BiomeBuilder
 
@@ -51,10 +53,11 @@ export class UI {
         this.layoutEditor = new BiomeGridEditor(builder)
         this.sidebarManager = new SidebarManager(builder)
         this.splineDisplayManager = new SplineDisplayManager(builder)
-        this.visualizationManager = new VisualizationManger(builder)
+        this.datapacks = new Datapacks(builder)
+        this.visualizationManager = new VisualizationManger(builder, this.datapacks)
         this.gridEditor = new GridEditor(builder)
         this.splineEditor = new SplineEditor(builder)
-        this.settingsManager = new SettingsManager(builder)
+        this.settingsManager = new SettingsManager(builder, this.datapacks)
 
         this.horizonalLabel = document.getElementById("horizontal_label") as HTMLDivElement
         this.verticalLabel = document.getElementById("vertical_label") as HTMLDivElement

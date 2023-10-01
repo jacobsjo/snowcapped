@@ -1,4 +1,5 @@
-dist
+dist-api
+dist-web
 node_modules
 public/vanilla_datapacks
 

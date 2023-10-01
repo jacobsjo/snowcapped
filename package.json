@@ -1,38 +1,48 @@
 {
-  "name": "minecraft-biome-builder",
-  "version": "0.1.0",
-  "description": "",
-  "private": true,
+  "name": "snowcapped",
+  "version": "1.0.1",
+  "description": "CLI/API for Snowcapped, a multinoise biome editor for Minecraft.",
+  "private": false,
   "scripts": {
     "build": "vite build",
     "createZips": "python scripts/createVanillaZips.py",
     "dev": "vite serve",
-    "preview": "vite preview"
+    "preview": "vite preview --outDir dist-web",
+    "buildApi": "vite build --config vite.config.api.ts"
   },
+  "bin": {
+    "snowcapped-cli": "bin/snowcapped-cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "dist-api/"
+  ],
   "keywords": [],
   "author": "Jochen Jacobs",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.4",
     "@types/d3": "^7.0.0",
     "@types/geojson": "^7946.0.8",
     "@types/leaflet": "^1.7.5",
     "@types/lodash": "^4.14.172",
     "@types/uniqid": "^5.3.1",
     "@types/wicg-file-system-access": "^2020.9.4",
-    "typescript": "^4.4.3",
-    "vite": "^4.4.9",
-    "vite-plugin-pwa": "^0.16.5"
-  },
-  "dependencies": {
     "buffer": "^6.0.3",
     "d3": "^7.1.1",
-    "deepslate": "^0.14.0-beta.1",
     "jszip": "^3.10.1",
     "leaflet": "^1.7.1",
-    "lodash": "^4.17.21",
     "mc-datapack-loader": "0.3.1",
     "sweetalert2": "^11.4.24",
     "tilelayer-canvas": "^1.1.3",
+    "typescript": "^4.4.3",
+    "vite": "^4.4.9",
+    "vite-plugin-dts": "^3.6.0",
+    "vite-plugin-pwa": "^0.16.5"
+  },
+  "dependencies": {
+    "commander": "^11.0.0",
+    "deepslate": "^0.14.0-beta.1",
     "uniqid": "^5.4.0"
   }
 }

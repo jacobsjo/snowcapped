@@ -1,6 +1,5 @@
 import { Climate } from "deepslate"
 import { VanillaBiomes } from "../Vanilla/VanillaBiomes"
-import { VanillaNoiseSettings } from "../Vanilla/VanillaNoiseSettings"
 import { VanillaSpline } from "../Vanilla/VanillaSplines"
 import { ABElement } from "./ABBiome"
 import { Biome } from "./Biome"
@@ -8,13 +7,9 @@ import { GridSpline } from "./GridSpline"
 import { GridElement, Mode } from "./GridElement"
 import { GridElementUnassigned } from "./GridElementUnassigned"
 import { DimensionMultiNoiseIndexesAccessor, Grid, LayoutMultiNoiseIndexesAccessor, SliceMultiNoiseIndexesAccessor } from "./Grid"
-import { DataFixer } from "./DataFixer"
 import { DATA_VERSION, DEFAULT_DATAPACK_FORMAT, MAX_DATAPACK_FORMAT, MIN_DATAPACK_FORMAT } from "../../SharedConstants"
-import { version } from "leaflet"
-import { max, sortedIndex, sortedIndexBy, takeWhile } from "lodash"
 import { VERSION_INFO } from "../Vanilla/VersionInfo"
-import { AnonymousDatapack, Datapack, DatapackList } from "mc-datapack-loader"
-import { LegacyConfigDatapack } from "./LegacyConfigDatapack"
+import { sortedIndex } from "lodash"
 
 export type MultiNoiseIndexes = { depth: number, weirdness: number, continentalness: number, erosion: number, humidity: number, temperature: number }
 export type PartialMultiNoiseIndexes = Partial<MultiNoiseIndexes>
@@ -58,10 +53,6 @@ export class BiomeBuilder {
     exportSplines: boolean = true;
     exportBiomeColors: boolean = true;
 
-    legacyConfigDatapack: LegacyConfigDatapack
-    vanillaDatapack: Datapack
-    datapacks: Datapack[]
-    compositeDatapack: AnonymousDatapack
 
     constructor() {
         this.gridElements = new Map<string, GridElement>();
@@ -74,17 +65,7 @@ export class BiomeBuilder {
 
         this.dimensionName = ""
 
-        this.legacyConfigDatapack = new LegacyConfigDatapack(this)
         this.datapackFormat = DEFAULT_DATAPACK_FORMAT
-        this.vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_datapack_1_19.zip`, DEFAULT_DATAPACK_FORMAT)
-        this.datapacks = [this.vanillaDatapack, this.legacyConfigDatapack]
-
-        const self = this
-        this.compositeDatapack = Datapack.compose(new class implements DatapackList{
-            async getDatapacks(): Promise<AnonymousDatapack[]> {
-                return self.datapacks
-            }
-        })
 
     }
 
@@ -142,8 +123,6 @@ export class BiomeBuilder {
             this.splines.factor = GridSpline.fromMinecraftJSON(VanillaSpline.factor);
             this.splines.jaggedness = GridSpline.fromMinecraftJSON(VanillaSpline.jaggedness);
         }
-
-        this.setDatapackFormat(json.datapackVersion)
     }
 
     toJSON() {
@@ -179,14 +158,6 @@ export class BiomeBuilder {
 
             version: DATA_VERSION
         }
-    }
-
-    public setDatapackFormat(format: number){
-        if (isNaN(format)){
-            return
-        }
-        this.datapackFormat = Math.max(Math.min(format, MAX_DATAPACK_FORMAT), MIN_DATAPACK_FORMAT)
-        this.datapacks.forEach(d => d.setPackVersion(this.datapackFormat))
     }
 
     public getSlice(name: string) {
@@ -259,8 +230,12 @@ export class BiomeBuilder {
     }
 
     public findIndex(array: number[], number: number): number {
-        return Math.min(Math.max(sortedIndex(array, number) - 1, 0), array.length - 2)
-//        return number <= array[0].min ? 0 : number > array[array.length - 1].max ? array.length - 1 : array.findIndex(e => e.min <= number && e.max > number)
+        for (var i = 1; i < array.length - 1; i++) {
+            if (number <= array[i]) {
+                return i - 1
+            }
+        }
+        return array.length - 2
     }
 
 
@@ -324,7 +299,7 @@ export class BiomeBuilder {
         const element = this.dimension.lookupRecursive(indexes, "Any", stopAtHidden)
         if (element instanceof Biome)
             return element
-        else 
+        else
             return undefined
     }
 
@@ -387,7 +362,7 @@ export class BiomeBuilder {
                 const midPoint = (this.gridCells.weirdness[id] + this.gridCells.weirdness[id + 1]) / 2
                 this.gridCells.weirdness.splice(id + 1, 0, midPoint)
             } else {
-                const midPoint = position == "start" ? this.gridCells.depth[id] : position == "end" ? this.gridCells.depth[id+1] : (this.gridCells.depth[id] + this.gridCells.depth[id + 1]) / 2
+                const midPoint = position == "start" ? this.gridCells.depth[id] : position == "end" ? this.gridCells.depth[id + 1] : (this.gridCells.depth[id] + this.gridCells.depth[id + 1]) / 2
                 this.gridCells.depth.splice(id + 1, 0, midPoint)
             }
         }
@@ -398,7 +373,7 @@ export class BiomeBuilder {
     }
 
     getNumHumidities() {
-        return this.gridCells.humidity.length - 1 
+        return this.gridCells.humidity.length - 1
     }
 
     getNumContinentalnesses() {

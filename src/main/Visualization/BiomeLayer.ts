@@ -1,7 +1,6 @@
 import { LayerGroup } from "leaflet";
 
 import * as L from "leaflet"
-import { last, range, takeWhile } from "lodash";
 import { VisualizationManger } from "../UI/VisualizationManager";
 import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, NoiseSettings, RandomState, WorldgenRegistries } from "deepslate";
 import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
@@ -10,6 +9,7 @@ import { timer } from "d3";
 import { getSurfaceDensityFunction, lerp2Climate } from "../util";
 import { AnonymousDatapack, Datapack, ResourceLocation } from "mc-datapack-loader";
 import MultiNoiseWorker from "../../multinoiseworker/worker?worker"
+import { Datapacks } from "../BuilderData/Datapacks";
 
 const WORKER_COUNT = 4
 
@@ -27,6 +27,7 @@ export class BiomeLayer extends L.GridLayer {
 
 	private workers: Worker[]
 	private builder: BiomeBuilder
+	private datapacks: Datapacks
 
 	private datapackLoader: Promise<void>
 	noiseSettings: any;
@@ -43,6 +44,7 @@ export class BiomeLayer extends L.GridLayer {
 
 	initialize(options: any) {
 		this.builder = UI.getInstance().builder
+		this.datapacks = UI.getInstance().datapacks
 
 		this.tileSize = options.tileSize
 		this.tileResolution = 1 / 2
@@ -52,7 +54,7 @@ export class BiomeLayer extends L.GridLayer {
 
 		this.createWorkers()
 
-		this.datapackLoader = this.loadDatapack( this.builder.compositeDatapack)
+		this.datapackLoader = this.loadDatapack( this.datapacks.compositeDatapack)
 
 	}
 
@@ -223,7 +225,7 @@ export class BiomeLayer extends L.GridLayer {
 			this.workers.forEach(w => w.terminate())
 			this.createWorkers()
 
-			this.datapackLoader = this.loadDatapack(this.builder.compositeDatapack)
+			this.datapackLoader = this.loadDatapack(this.datapacks.compositeDatapack)
 			await this.datapackLoader
 
 			this.workers.forEach(w => w.postMessage({

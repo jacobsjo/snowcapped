@@ -2,15 +2,15 @@ import * as d3 from "d3";
 import { Datapack, ResourceLocation } from "mc-datapack-loader"
 import { MAX_DATAPACK_FORMAT, MIN_DATAPACK_FORMAT } from "../../SharedConstants";
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
+import { Datapacks } from "../BuilderData/Datapacks";
 import { Exporter } from "../BuilderData/Exporter";
+import { ExportWriter } from "./ExportWriter";
 import { MenuManager } from "./MenuManager";
 import { UI } from "./UI"
 
 export class SettingsManager {
-    private builder: BiomeBuilder
 
-    constructor(builder: BiomeBuilder) {
-        this.builder = builder
+    constructor(private builder: BiomeBuilder, private datapacks: Datapacks) {
         this.refresh()
     }
 
@@ -22,7 +22,7 @@ export class SettingsManager {
 
         datapackVersionInput.onchange = (evt) => {
             this.builder.hasChanges = true
-            this.builder.setDatapackFormat(parseInt(datapackVersionInput.value))
+            this.datapacks.setDatapackFormat(parseInt(datapackVersionInput.value))
             UI.getInstance().refresh({noises: true})
         }
 
@@ -39,7 +39,7 @@ export class SettingsManager {
 
         const noiseSettingsNameSelect = d3.select("#noise_settings_name")
 
-        const noiseSettings = (await this.builder.compositeDatapack.getIds(ResourceLocation.WORLDGEN_NOISE_SETTINGS)).map(id => id.toString())
+        const noiseSettings = (await this.datapacks.compositeDatapack.getIds(ResourceLocation.WORLDGEN_NOISE_SETTINGS)).map(id => id.toString())
 
         var missingNoiseSetting = false
 
@@ -102,7 +102,7 @@ export class SettingsManager {
         
         const datapackList = d3.select("#datapack_list")
 
-        const datapackInfo = await Promise.all(this.builder.datapacks.map(async (d) => {
+        const datapackInfo = await Promise.all(this.datapacks.datapacks.map(async (d) => {
             var description = (await d.getMcmeta())?.pack?.description ?? ""
             if (typeof description !== "string"){
                 description = JSON.stringify(description)
@@ -134,18 +134,20 @@ export class SettingsManager {
 
         datapack_enter.filter(d=>d.canSave).append("div").classed("button", true).classed("button", true).on("click", async (evt, d) => {
             const exporter = new Exporter(UI.getInstance().builder)
-            exporter.insertIntoDatapack(d.datapack)
+            const exportWriter = new ExportWriter(UI.getInstance().builder, exporter)
+            exportWriter.insertIntoDatapack(d.datapack)
         }).attr("title", "Insert into this datapack") .append("img").attr("src", "images/insert.svg")
 
-        datapack_enter.filter(d=>d.datapack !== this.builder.vanillaDatapack && d.datapack !== this.builder.legacyConfigDatapack).append("div").classed("button", true).on("click", async (evt, d) => {
-            this.builder.datapacks.splice(this.builder.datapacks.indexOf(d.datapack), 1)
-            console.log(this.builder.datapacks)
+        datapack_enter.filter(d=>d.datapack !== this.datapacks.vanillaDatapack && d.datapack !== this.datapacks.legacyConfigDatapack).append("div").classed("button", true).on("click", async (evt, d) => {
+            this.datapacks.datapacks.splice(this.datapacks.datapacks.indexOf(d.datapack), 1)
+            console.log(this.datapacks.datapacks)
             UI.getInstance().refresh({noises: true})
         }).attr("title", "Remove datapack") .append("img").attr("src", "images/remove.svg")
 
-        datapack_enter.filter(d=>d.datapack === this.builder.legacyConfigDatapack).append("div").classed("button", true).on("click", async () => {
+        datapack_enter.filter(d=>d.datapack === this.datapacks.legacyConfigDatapack).append("div").classed("button", true).on("click", async () => {
             const exporter = new Exporter(UI.getInstance().builder)
-            const zip = await exporter.generateZip()
+            const exportWriter = new ExportWriter(UI.getInstance().builder, exporter)
+            const zip = await exportWriter.generateZip()
             const blob = await zip.generateAsync({type: "blob"})
 
             if ("showSaveFilePicker" in window){   // TODO move filename handling from MenuManger to somewhere else
@@ -221,7 +223,7 @@ export class SettingsManager {
                 })
             }
 
-            this.builder.datapacks.splice(this.builder.datapacks.length - 1, 0, datapack)
+            this.datapacks.datapacks.splice(this.datapacks.datapacks.length - 1, 0, datapack)
             UI.getInstance().refresh({noises: true})
     
         }
@@ -229,7 +231,7 @@ export class SettingsManager {
 
     private addZipDatapack(file: File){
         const datapack = Datapack.fromZipFile(file, this.builder.datapackFormat)
-        this.builder.datapacks.splice(this.builder.datapacks.length - 1, 0, datapack)
+        this.datapacks.datapacks.splice(this.datapacks.datapacks.length - 1, 0, datapack)
         UI.getInstance().refresh({noises: true})
     }
 

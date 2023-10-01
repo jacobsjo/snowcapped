@@ -45,6 +45,7 @@ export default defineConfig({
     })
   ],
   build: {
-    sourcemap: true
+    sourcemap: true,
+    outDir: "dist-web"
   },
 })

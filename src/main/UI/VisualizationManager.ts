@@ -1,15 +1,14 @@
 import { Climate, Identifier, NoiseSettings } from "deepslate";
 import * as L from "leaflet";
-import { clamp } from "lodash";
 import { ResourceLocation } from "mc-datapack-loader";
 import { BiomeBuilder, MultiNoiseIndexes } from "../BuilderData/BiomeBuilder";
+import { Datapacks } from "../BuilderData/Datapacks";
 import { GridElementUnassigned } from "../BuilderData/GridElementUnassigned";
 import { BiomeLayer } from "../Visualization/BiomeLayer";
 import { MenuManager } from "./MenuManager";
 import { Change, UI } from "./UI";
 
 export class VisualizationManger {
-  builder: BiomeBuilder
   private map: L.Map
   private biomeLayer: BiomeLayer
 
@@ -27,8 +26,10 @@ export class VisualizationManger {
   private heightSelectRange: HTMLInputElement
   private heightSelectLabel: HTMLElement
 
-  constructor(builder: BiomeBuilder) {
-    this.builder = builder
+  constructor(
+    private builder: BiomeBuilder,
+    private datapacks: Datapacks
+  ) {
 
 
     const panel = document.getElementById('visualization')!
@@ -241,7 +242,7 @@ export class VisualizationManger {
 
     if (!this.closeContainer.classList.contains("closed")) {
       if (change.map_display) {
-        const noise_settings_json = (await this.builder.compositeDatapack.get(ResourceLocation.WORLDGEN_NOISE_SETTINGS, Identifier.parse(this.builder.noiseSettingsName))) as any
+        const noise_settings_json = (await this.datapacks.compositeDatapack.get(ResourceLocation.WORLDGEN_NOISE_SETTINGS, Identifier.parse(this.builder.noiseSettingsName))) as any
         var noise_settings
         if (noise_settings_json !== undefined){
           noise_settings = NoiseSettings.fromJson(noise_settings_json.noise)
@@ -253,7 +254,7 @@ export class VisualizationManger {
         this.heightSelectRange.max = (noise_settings.minY + noise_settings.height + 1).toFixed(0)
 
         if (this.vis_y_level !== "surface"){
-          this.vis_y_level = clamp(this.vis_y_level, noise_settings.minY, noise_settings.minY + noise_settings.height)
+          this.vis_y_level = Math.min(Math.max(this.vis_y_level, noise_settings.minY), noise_settings.minY + noise_settings.height)
         }
 
         this.heightSelectRange.value = this.vis_y_level === "surface" ? this.heightSelectRange.max : this.vis_y_level.toFixed(0)

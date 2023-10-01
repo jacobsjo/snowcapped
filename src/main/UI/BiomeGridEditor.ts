@@ -5,8 +5,6 @@ import { MenuManager } from "./MenuManager";
 import { UI } from "./UI";
 import { BiomeGridRenderer } from "./Renderer/BiomeGridRenderer";
 import { Grid } from "../BuilderData/Grid";
-import { thresholdSturges } from "d3";
-import { max } from "lodash";
 
 function lerp(a: number, b: number, l: number) {
     return ((1 - l) * a + l * b)

@@ -1,9 +1,5 @@
-import { Climate } from "deepslate"
-import { imageOverlay } from "leaflet"
-import { has, min, size } from "lodash"
 import Swal from "sweetalert2"
 import { BiomeBuilder } from "../BuilderData/BiomeBuilder"
-import { SimpleSpline } from "../BuilderData/SimpleSpline"
 import { UI } from "./UI"
 
 

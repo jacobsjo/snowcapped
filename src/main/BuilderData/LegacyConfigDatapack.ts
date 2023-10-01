@@ -1,6 +1,5 @@
 import { Identifier } from "deepslate";
 import { Datapack, ResourceLocation, PackMcmeta, UNKOWN_PACK } from "mc-datapack-loader";
-import { MenuManager } from "../UI/MenuManager";
 import { BiomeBuilder } from "./BiomeBuilder";
 
 const DENSITY_FUNCTIONS = [
@@ -119,7 +118,7 @@ export class LegacyConfigDatapack implements Datapack {
     }
 
     async getFilename(): Promise<string> {
-        return MenuManager.fileName.replace(".snowcapped.json", "").replace(".json", "") + ".zip"
+        return this.builder.dimensionName.replace(':', "_") + ".zip"
     }
 
     async setPackVersion(_version: number): Promise<void> {

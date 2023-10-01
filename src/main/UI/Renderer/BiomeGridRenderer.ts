@@ -1,15 +1,12 @@
-import { PartialMultiNoiseIndexes } from "../../BuilderData/BiomeBuilder";
+import { BiomeBuilder, PartialMultiNoiseIndexes } from "../../BuilderData/BiomeBuilder";
 import { Grid } from "../../BuilderData/Grid";
 import { GridElement } from "../../BuilderData/GridElement";
-import { UI } from "../UI";
 import { ABElementRenderer } from "./ABElementRenderer";
 import { GridElementRenderer } from "./ElementRenderer"
 
 export class BiomeGridRenderer implements GridElementRenderer {
     private highlight_x: number = -1
     private highlight_y: number = -1
-
-    private grid: Grid
 
     private aImg : HTMLImageElement = document.getElementById("aModeImg") as HTMLImageElement
     private bImg : HTMLImageElement = document.getElementById("bModeImg") as HTMLImageElement
@@ -18,7 +15,10 @@ export class BiomeGridRenderer implements GridElementRenderer {
     private overlayCanvas : HTMLCanvasElement
     private canvasSize: [number, number] = undefined;// [500, 500]
 
-    constructor(grid: Grid) {
+    constructor(
+        private grid: Grid,
+        private biomeBuilder: BiomeBuilder
+    ) {
         this.grid = grid
         this.gridCanvas = document.createElement('canvas')
 
@@ -67,7 +67,7 @@ export class BiomeGridRenderer implements GridElementRenderer {
 
         if (this.grid.getType() === "dimension"){
             for (var x_idx = 0; x_idx < size[0]; x_idx++) {
-                ctx.drawImage(UI.getInstance().builder.modes[x_idx] === "A" ? this.aImg : this.bImg, xOffset + (x_idx + 0.25) * elementSize, yOffset + 0.25 * elementSize, 0.5 * elementSize, 0.5 * elementSize)
+                ctx.drawImage(this.biomeBuilder.modes[x_idx] === "A" ? this.aImg : this.bImg, xOffset + (x_idx + 0.25) * elementSize, yOffset + 0.25 * elementSize, 0.5 * elementSize, 0.5 * elementSize)
             }
         }
 

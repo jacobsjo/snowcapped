@@ -1,7 +1,4 @@
-import * as _ from 'lodash';
 import { NoiseSetting } from "../BuilderData/BiomeBuilder";
-
-
 
 export class VanillaNoiseSettings {
     private static defaultSetting: {
@@ -81,6 +78,6 @@ export class VanillaNoiseSettings {
         }
 
     public static default(){
-        return _.cloneDeep(this.defaultSetting)
+        return JSON.parse(JSON.stringify(this.defaultSetting))
     }
 }

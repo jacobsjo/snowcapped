@@ -1,12 +1,8 @@
-import _ from "lodash";
-import { GridElementRenderer } from "../UI/Renderer/ElementRenderer";
 import { Biome } from "./Biome";
 import { BiomeBuilder, MultiNoiseIndexes, PartialMultiNoiseIndexes } from "./BiomeBuilder";
 import { GridElement, Mode} from "./GridElement";
 import uniqid from 'uniqid';
 import { BiomeGridRenderer } from "../UI/Renderer/BiomeGridRenderer";
-import { json, thresholdFreedmanDiaconis } from "d3";
-import { Json } from "deepslate";
 
 export interface MultiNoiseIndexesAccessor{
     readonly type: "dimension" | "layout" | "slice"
@@ -278,7 +274,7 @@ export class Grid implements GridElement {
 
         const element = this.lookup(indexes, new_mode)
         if (element.getKey() === this.getKey()){
-            throw new Error("Lookup resulted in same element: " + JSON.stringify(indexes) + " mode: " + mode)
+            throw new Error(`Lookup resulted in same element ${element.getKey()}: ${JSON.stringify(indexes)} + mode: ${mode}`)
         }
         if (stopAtHidden && element.hidden){
             if (this.accessor.type === "slice")
@@ -301,7 +297,7 @@ export class Grid implements GridElement {
 
     getRenderer(): BiomeGridRenderer {
         if (this.renderer === undefined)
-            this.renderer = new BiomeGridRenderer(this)
+            this.renderer = new BiomeGridRenderer(this, this.builder)
 
         return this.renderer
     }
