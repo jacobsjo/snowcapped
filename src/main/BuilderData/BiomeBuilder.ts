@@ -123,6 +123,8 @@ export class BiomeBuilder {
             this.splines.factor = GridSpline.fromMinecraftJSON(VanillaSpline.factor);
             this.splines.jaggedness = GridSpline.fromMinecraftJSON(VanillaSpline.jaggedness);
         }
+
+        this.datapackFormat = json.datapackVersion
     }
 
     toJSON() {
