@@ -42,7 +42,7 @@ export class VisualizationManger {
 
     this.map = L.map('visualization_map')
     this.map.setView([0, 0], 15)
-    this.map.setMaxZoom(16)
+    this.map.setMaxZoom(18)
     this.map.setMinZoom(11)
 
     this.biomeLayer = new BiomeLayer(this, { tileSize: 256 });

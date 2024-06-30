@@ -153,7 +153,7 @@ export class Exporter {
 
 
         const dimension = {
-            type: "minecraft:overworld",
+            type: this.builder.dimensionTypeName,
             generator: {
                 biome_source: {
                     biomes: biomes,

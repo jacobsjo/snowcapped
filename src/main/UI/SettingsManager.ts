@@ -35,6 +35,13 @@ export class SettingsManager {
             UI.getInstance().refresh({noises: true})
         }
 
+        const dimensionTypeNameInput = document.getElementById("dimension_type_name") as HTMLInputElement;
+        dimensionTypeNameInput.value = this.builder.dimensionTypeName
+        dimensionTypeNameInput.onchange = (evt) => {
+            this.builder.hasChanges = true
+            this.builder.dimensionTypeName = dimensionTypeNameInput.value
+            UI.getInstance().refresh({noises: true})
+        }
 
 
         const noiseSettingsNameSelect = d3.select("#noise_settings_name")
