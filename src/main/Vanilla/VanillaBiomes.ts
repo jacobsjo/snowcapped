@@ -260,8 +260,11 @@ export class VanillaBiomes{
             name: "minecraft:cherry_grove",
             color: "#dc8add"
         },
-
-
+        {
+            key: "minecraft:pale_garden",
+            name: "minecraft:pale_garden",
+            color: "#909090"
+        },
         {key: "minecraft:soul_sand_valley", name: "minecraft:soul_sand_valley", r: 140, g: 132, b: 108},
         {key: "minecraft:nether_wastes", name: "minecraft:nether_wastes", r: 163, g: 62, b: 62},
         {key: "minecraft:crimson_forest", name: "minecraft:crimson_forest", r: 219, g: 60, b: 46},
