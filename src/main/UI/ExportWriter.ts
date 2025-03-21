@@ -32,10 +32,10 @@ export class ExportWriter {
 
         zip.file("pack.png", (await fetch("icons/icon_128.png")).blob() )
 
-        const [namespace, path] = this.builder.dimensionName.split(":", 2)
-        var folder = dataFolder.folder(namespace).folder("dimension")
+        const dimension = Identifier.parse(this.builder.dimensionName.toLowerCase())
+        var folder = dataFolder.folder(dimension.namespace).folder("dimension")
         
-        const folders = path.split("/")
+        const folders = dimension.path.split("/")
         const filename = folders[folders.length - 1]
 
         for (var i = 0 ; i < folders.length - 1 ; i++){
