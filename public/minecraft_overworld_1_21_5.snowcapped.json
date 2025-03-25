@@ -1,35 +1,177 @@
 {
   "dimensionName": "minecraft:overworld",
   "continentalnesses": [
-    -1,
+    -1.2,
+    -1.05,
+    -0.455,
+    -0.19,
+    -0.11,
+    0.03,
+    0.3,
+    0.8,
     1
   ],
   "erosions": [
     -1,
+    -0.78,
+    -0.375,
+    -0.2225,
+    0.05,
+    0.45,
+    0.55,
     1
   ],
   "weirdnesses": [
     -1,
+    -0.93333334,
+    -0.7666667,
+    -0.56666666,
+    -0.4,
+    -0.26666668,
+    -0.05,
+    0.05,
+    0.26666668,
+    0.4,
+    0.56666666,
+    0.7666667,
+    0.93333334,
     1
   ],
   "temperatures": [
     -1,
+    -0.45,
+    -0.15,
+    0.2,
+    0.55,
     1
   ],
   "humidities": [
     -1,
+    -0.35,
+    -0.1,
+    0.1,
+    0.3,
+    0.7,
     1
   ],
   "depths": [
-    -1,
-    1
+    0,
+    0,
+    0.2,
+    0.9,
+    1,
+    1,
+    1.1,
+    1.1
   ],
   "dimension": {
     "key": "dimension",
     "name": "Biomes",
     "array": [
       [
+        "slice_ktoj3nad",
+        "slice_ktojmnu2",
+        "slice_ktojsso9",
+        "slice_ktojmnu2",
+        "slice_ktoj3nad",
+        "slice_ktoip0qu",
+        "slice_ktoi8ht1",
+        "slice_ktoip0qu",
+        "slice_ktoj3nad",
+        "slice_ktojmnu2",
+        "slice_ktojsso9",
+        "slice_ktojmnu2",
+        "slice_ktoj3nad"
+      ],
+      [
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
         "unassigned"
+      ],
+      [
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig",
+        "layout_kvu3cyig"
+      ],
+      [
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned"
+      ],
+      [
+        "slice_ktoj3nad",
+        "slice_ktojmnu2",
+        "slice_ktojsso9",
+        "slice_ktojmnu2",
+        "slice_ktoj3nad",
+        "slice_ktoip0qu",
+        "slice_ktoi8ht1",
+        "slice_ktoip0qu",
+        "slice_ktoj3nad",
+        "slice_ktojmnu2",
+        "slice_ktojsso9",
+        "slice_ktojmnu2",
+        "slice_ktoj3nad"
+      ],
+      [
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned",
+        "unassigned"
+      ],
+      [
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4",
+        "layout_l3c9y1z4"
       ]
     ]
   },
@@ -48,9 +190,1602 @@
     "B",
     "B"
   ],
-  "layouts": [],
-  "slices": [],
-  "biomes": [],
+  "layouts": [
+    {
+      "key": "layout_ktoepeor",
+      "name": "Middle",
+      "array": [
+        [
+          "minecraft:snowy_tundra/minecraft:ice_spikes",
+          "minecraft:snowy_tundra",
+          "minecraft:snowy_tundra/minecraft:snowy_taiga",
+          "minecraft:snowy_taiga",
+          "minecraft:taiga",
+          "minecraft:taiga"
+        ],
+        [
+          "minecraft:plains",
+          "minecraft:plains",
+          "minecraft:forest",
+          "minecraft:taiga",
+          "minecraft:giant_spruce_taiga/minecraft:giant_tree_taiga",
+          "minecraft:giant_spruce_taiga/minecraft:giant_tree_taiga"
+        ],
+        [
+          "minecraft:flower_forest/minecraft:sunflower_plains",
+          "minecraft:plains",
+          "minecraft:forest",
+          "minecraft:birch_forest/minecraft:tall_birch_forest",
+          "minecraft:dark_forest",
+          "minecraft:dark_forest"
+        ],
+        [
+          "minecraft:savanna",
+          "minecraft:savanna",
+          "minecraft:forest/minecraft:plains",
+          "minecraft:jungle/minecraft:jungle_edge",
+          "minecraft:jungle/minecraft:bamboo_jungle",
+          "minecraft:jungle/minecraft:bamboo_jungle"
+        ],
+        [
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoj9oab",
+      "name": "Plateau",
+      "array": [
+        [
+          "minecraft:snowy_tundra/minecraft:ice_spikes",
+          "minecraft:snowy_tundra",
+          "minecraft:snowy_tundra",
+          "minecraft:snowy_taiga",
+          "minecraft:snowy_taiga",
+          "minecraft:snowy_taiga"
+        ],
+        [
+          "minecraft:meadow/minecraft:cherry_grove",
+          "minecraft:meadow",
+          "minecraft:forest/minecraft:meadow",
+          "minecraft:taiga/minecraft:meadow",
+          "minecraft:giant_spruce_taiga/minecraft:giant_tree_taiga",
+          "minecraft:giant_spruce_taiga/minecraft:giant_tree_taiga"
+        ],
+        [
+          "minecraft:meadow/minecraft:cherry_grove",
+          "minecraft:meadow/minecraft:cherry_grove",
+          "minecraft:meadow/minecraft:forest",
+          "minecraft:meadow/minecraft:birch_forest",
+          "minecraft:pale_garden",
+          "minecraft:pale_garden"
+        ],
+        [
+          "minecraft:savanna_plateau",
+          "minecraft:savanna_plateau",
+          "minecraft:forest",
+          "minecraft:forest",
+          "minecraft:jungle",
+          "minecraft:jungle"
+        ],
+        [
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoj0p0e",
+      "name": "Slopes",
+      "array": [
+        [
+          "minecraft:snowy_slopes",
+          "minecraft:snowy_slopes",
+          "minecraft:grove",
+          "minecraft:grove",
+          "minecraft:grove",
+          "minecraft:grove"
+        ],
+        [
+          "minecraft:snowy_slopes",
+          "minecraft:snowy_slopes",
+          "minecraft:grove",
+          "minecraft:grove",
+          "minecraft:grove",
+          "minecraft:grove"
+        ],
+        [
+          "minecraft:snowy_slopes",
+          "minecraft:snowy_slopes",
+          "minecraft:grove",
+          "minecraft:grove",
+          "minecraft:grove",
+          "minecraft:grove"
+        ],
+        [
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab"
+        ],
+        [
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktojr3tg",
+      "name": "Peaks",
+      "array": [
+        [
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks"
+        ],
+        [
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks"
+        ],
+        [
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks",
+          "minecraft:lofty_peaks/minecraft:snowcapped_peaks"
+        ],
+        [
+          "minecraft:stony_peaks",
+          "minecraft:stony_peaks",
+          "minecraft:stony_peaks",
+          "minecraft:stony_peaks",
+          "minecraft:stony_peaks",
+          "minecraft:stony_peaks"
+        ],
+        [
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoikw89",
+      "name": "Badlands",
+      "array": [
+        [
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau"
+        ],
+        [
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau"
+        ],
+        [
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau"
+        ],
+        [
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau"
+        ],
+        [
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands/minecraft:eroded_badlands",
+          "minecraft:badlands",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau",
+          "minecraft:wooded_badlands_plateau"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoepeot",
+      "name": "Shattered",
+      "array": [
+        [
+          "minecraft:gravelly_hills",
+          "minecraft:gravelly_hills",
+          "minecraft:extreme_hills",
+          "minecraft:wooded_mountains",
+          "minecraft:wooded_mountains",
+          "minecraft:wooded_mountains"
+        ],
+        [
+          "minecraft:gravelly_hills",
+          "minecraft:gravelly_hills",
+          "minecraft:extreme_hills",
+          "minecraft:wooded_mountains",
+          "minecraft:wooded_mountains",
+          "minecraft:wooded_mountains"
+        ],
+        [
+          "minecraft:extreme_hills",
+          "minecraft:extreme_hills",
+          "minecraft:extreme_hills",
+          "minecraft:wooded_mountains",
+          "minecraft:wooded_mountains",
+          "minecraft:wooded_mountains"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoij44p",
+      "name": "River",
+      "array": [
+        [
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river"
+        ],
+        [
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river"
+        ],
+        [
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river"
+        ],
+        [
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river"
+        ],
+        [
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river",
+          "minecraft:river"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoint2n",
+      "name": "Deep Ocean",
+      "array": [
+        [
+          "minecraft:deep_frozen_ocean",
+          "minecraft:deep_frozen_ocean",
+          "minecraft:deep_frozen_ocean",
+          "minecraft:deep_frozen_ocean",
+          "minecraft:deep_frozen_ocean",
+          "minecraft:deep_frozen_ocean"
+        ],
+        [
+          "minecraft:deep_cold_ocean",
+          "minecraft:deep_cold_ocean",
+          "minecraft:deep_cold_ocean",
+          "minecraft:deep_cold_ocean",
+          "minecraft:deep_cold_ocean",
+          "minecraft:deep_cold_ocean"
+        ],
+        [
+          "minecraft:deep_ocean",
+          "minecraft:deep_ocean",
+          "minecraft:deep_ocean",
+          "minecraft:deep_ocean",
+          "minecraft:deep_ocean",
+          "minecraft:deep_ocean"
+        ],
+        [
+          "minecraft:deep_lukewarm_ocean",
+          "minecraft:deep_lukewarm_ocean",
+          "minecraft:deep_lukewarm_ocean",
+          "minecraft:deep_lukewarm_ocean",
+          "minecraft:deep_lukewarm_ocean",
+          "minecraft:deep_lukewarm_ocean"
+        ],
+        [
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoin4kk",
+      "name": "Ocean",
+      "array": [
+        [
+          "minecraft:frozen_ocean",
+          "minecraft:frozen_ocean",
+          "minecraft:frozen_ocean",
+          "minecraft:frozen_ocean",
+          "minecraft:frozen_ocean",
+          "minecraft:frozen_ocean"
+        ],
+        [
+          "minecraft:cold_ocean",
+          "minecraft:cold_ocean",
+          "minecraft:cold_ocean",
+          "minecraft:cold_ocean",
+          "minecraft:cold_ocean",
+          "minecraft:cold_ocean"
+        ],
+        [
+          "minecraft:ocean",
+          "minecraft:ocean",
+          "minecraft:ocean",
+          "minecraft:ocean",
+          "minecraft:ocean",
+          "minecraft:ocean"
+        ],
+        [
+          "minecraft:lukewarm_ocean",
+          "minecraft:lukewarm_ocean",
+          "minecraft:lukewarm_ocean",
+          "minecraft:lukewarm_ocean",
+          "minecraft:lukewarm_ocean",
+          "minecraft:lukewarm_ocean"
+        ],
+        [
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean",
+          "minecraft:warm_ocean"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoepeos",
+      "name": "Beach",
+      "array": [
+        [
+          "minecraft:snowy_beach",
+          "minecraft:snowy_beach",
+          "minecraft:snowy_beach",
+          "minecraft:snowy_beach",
+          "minecraft:snowy_beach",
+          "minecraft:snowy_beach"
+        ],
+        [
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach"
+        ],
+        [
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach"
+        ],
+        [
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach",
+          "minecraft:beach"
+        ],
+        [
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert",
+          "minecraft:desert"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoj2qez",
+      "name": "Windswept Savanna or Middle",
+      "array": [
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor/minecraft:shattered_savanna",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ]
+      ]
+    },
+    {
+      "key": "layout_liiyphg6",
+      "name": "Windswept Savanna or Shattered",
+      "array": [
+        [
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot"
+        ],
+        [
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot",
+          "layout_ktoepeot"
+        ],
+        [
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot",
+          "layout_ktoepeot"
+        ],
+        [
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot",
+          "layout_ktoepeot"
+        ],
+        [
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot/minecraft:shattered_savanna",
+          "layout_ktoepeot",
+          "layout_ktoepeot"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoik08p",
+      "name": "Swamp or River",
+      "array": [
+        [
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river",
+          "minecraft:frozen_river"
+        ],
+        [
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt",
+          "layout_ktoiz1xt"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoiz1xt",
+      "name": "Swamp or Middle",
+      "array": [
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp"
+        ],
+        [
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp",
+          "minecraft:swamp"
+        ],
+        [
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp"
+        ],
+        [
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp",
+          "minecraft:mangrove_swamp"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoikj2n",
+      "name": "Middle or Badlands",
+      "array": [
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktoj0a9e",
+      "name": "Middle or Badlands or Slopes",
+      "array": [
+        [
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89",
+          "layout_ktoikw89"
+        ]
+      ]
+    },
+    {
+      "key": "layout_ktojcwxi",
+      "name": "Slopes or Plateau",
+      "array": [
+        [
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e",
+          "layout_ktoj0p0e"
+        ],
+        [
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab"
+        ],
+        [
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab"
+        ],
+        [
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab"
+        ],
+        [
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab"
+        ]
+      ]
+    },
+    {
+      "key": "layout_kvu3ce1q",
+      "name": "Lush Caves",
+      "array": [
+        [
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "minecraft:lush_caves"
+        ],
+        [
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "minecraft:lush_caves"
+        ],
+        [
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "minecraft:lush_caves"
+        ],
+        [
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "minecraft:lush_caves"
+        ],
+        [
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "minecraft:lush_caves"
+        ]
+      ]
+    }
+  ],
+  "slices": [
+    {
+      "key": "slice_ktoi8ht1",
+      "name": "Valley",
+      "array": [
+        [
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields"
+        ],
+        [
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n"
+        ],
+        [
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk"
+        ],
+        [
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p"
+        ],
+        [
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoik08p"
+        ],
+        [
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoik08p"
+        ],
+        [
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoik08p"
+        ],
+        [
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoij44p",
+          "layout_ktoik08p"
+        ]
+      ]
+    },
+    {
+      "key": "slice_ktoip0qu",
+      "name": "Low Slice",
+      "array": [
+        [
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields"
+        ],
+        [
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n"
+        ],
+        [
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk"
+        ],
+        [
+          "minecraft:stone_shore",
+          "minecraft:stone_shore",
+          "minecraft:stone_shore",
+          "layout_ktoepeos",
+          "layout_ktoepeos",
+          "layout_ktoepeos/layout_ktoj2qez",
+          "layout_ktoepeos"
+        ],
+        [
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoj2qez",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoj0a9e",
+          "layout_ktoj0a9e",
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoj0a9e",
+          "layout_ktoj0a9e",
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoj0a9e",
+          "layout_ktoj0a9e",
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoiz1xt"
+        ]
+      ]
+    },
+    {
+      "key": "slice_ktoj3nad",
+      "name": "Mid Slice",
+      "array": [
+        [
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields"
+        ],
+        [
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n"
+        ],
+        [
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk"
+        ],
+        [
+          "minecraft:stone_shore",
+          "minecraft:stone_shore",
+          "minecraft:stone_shore",
+          "layout_ktoepeor",
+          "layout_ktoepeos/layout_ktoepeor",
+          "layout_ktoepeos/layout_ktoj2qez",
+          "layout_ktoepeos/layout_ktoepeor"
+        ],
+        [
+          "layout_ktoj0p0e",
+          "layout_ktoj0a9e",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoj2qez",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoj0p0e",
+          "layout_ktoj0a9e",
+          "layout_ktoikj2n",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoj0p0e",
+          "layout_ktojcwxi",
+          "layout_ktoj9oab",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoiz1xt"
+        ],
+        [
+          "layout_ktoj0p0e",
+          "layout_ktojcwxi",
+          "layout_ktoj9oab",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoiz1xt"
+        ]
+      ]
+    },
+    {
+      "key": "slice_ktojmnu2",
+      "name": "High Slice",
+      "array": [
+        [
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields"
+        ],
+        [
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n"
+        ],
+        [
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk"
+        ],
+        [
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoj2qez",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktoj0p0e",
+          "layout_ktoj0a9e",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoj2qez",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktoj0p0e",
+          "layout_ktoj9oab",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktoj0p0e",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktoj0p0e",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoepeor"
+        ]
+      ]
+    },
+    {
+      "key": "slice_ktojsso9",
+      "name": "Peaks",
+      "array": [
+        [
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields",
+          "minecraft:mushroom_fields"
+        ],
+        [
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n",
+          "layout_ktoint2n"
+        ],
+        [
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk",
+          "layout_ktoin4kk"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktoj0a9e",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_liiyphg6",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktoj0a9e",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_ktoepeor",
+          "layout_liiyphg6",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktojr3tg",
+          "layout_ktoj9oab",
+          "layout_ktoikj2n",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktojr3tg",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoepeor"
+        ],
+        [
+          "layout_ktojr3tg",
+          "layout_ktojr3tg",
+          "layout_ktoj9oab",
+          "layout_ktoj9oab",
+          "layout_ktoepeor",
+          "layout_ktoepeot",
+          "layout_ktoepeor"
+        ]
+      ]
+    },
+    {
+      "key": "layout_kvu3cyig",
+      "name": "Caves",
+      "array": [
+        [
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q"
+        ],
+        [
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q"
+        ],
+        [
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q"
+        ],
+        [
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q"
+        ],
+        [
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q"
+        ],
+        [
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q"
+        ],
+        [
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q",
+          "layout_kvu3ce1q"
+        ],
+        [
+          "minecraft:dripstone_caves",
+          "minecraft:dripstone_caves",
+          "minecraft:dripstone_caves",
+          "minecraft:dripstone_caves",
+          "minecraft:dripstone_caves",
+          "minecraft:dripstone_caves",
+          "minecraft:dripstone_caves"
+        ]
+      ]
+    },
+    {
+      "key": "layout_l3c9y1z4",
+      "name": "Deep Dark",
+      "array": [
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ],
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ],
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ],
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ],
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ],
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ],
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ],
+        [
+          "minecraft:deep_dark",
+          "minecraft:deep_dark",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned",
+          "unassigned"
+        ]
+      ]
+    }
+  ],
+  "biomes": [
+    {
+      "key": "minecraft:mushroom_fields",
+      "name": "minecraft:mushroom_fields"
+    },
+    {
+      "key": "minecraft:deep_frozen_ocean",
+      "name": "minecraft:deep_frozen_ocean"
+    },
+    {
+      "key": "minecraft:deep_cold_ocean",
+      "name": "minecraft:deep_cold_ocean"
+    },
+    {
+      "key": "minecraft:deep_ocean",
+      "name": "minecraft:deep_ocean"
+    },
+    {
+      "key": "minecraft:deep_lukewarm_ocean",
+      "name": "minecraft:deep_lukewarm_ocean"
+    },
+    {
+      "key": "minecraft:frozen_ocean",
+      "name": "minecraft:frozen_ocean"
+    },
+    {
+      "key": "minecraft:cold_ocean",
+      "name": "minecraft:cold_ocean"
+    },
+    {
+      "key": "minecraft:ocean",
+      "name": "minecraft:ocean"
+    },
+    {
+      "key": "minecraft:warm_ocean",
+      "name": "minecraft:warm_ocean"
+    },
+    {
+      "key": "minecraft:lukewarm_ocean",
+      "name": "minecraft:lukewarm_ocean"
+    },
+    {
+      "key": "minecraft:frozen_river",
+      "name": "minecraft:frozen_river"
+    },
+    {
+      "key": "minecraft:river",
+      "name": "minecraft:river"
+    },
+    {
+      "key": "minecraft:swamp",
+      "name": "minecraft:swamp"
+    },
+    {
+      "key": "minecraft:snowy_tundra",
+      "name": "minecraft:snowy_plains"
+    },
+    {
+      "key": "minecraft:ice_spikes",
+      "name": "minecraft:ice_spikes"
+    },
+    {
+      "key": "minecraft:snowy_taiga",
+      "name": "minecraft:snowy_taiga"
+    },
+    {
+      "key": "minecraft:plains",
+      "name": "minecraft:plains"
+    },
+    {
+      "key": "minecraft:forest",
+      "name": "minecraft:forest"
+    },
+    {
+      "key": "minecraft:taiga",
+      "name": "minecraft:taiga"
+    },
+    {
+      "key": "minecraft:giant_spruce_taiga",
+      "name": "minecraft:old_growth_spruce_taiga"
+    },
+    {
+      "key": "minecraft:giant_tree_taiga",
+      "name": "minecraft:old_growth_pine_taiga"
+    },
+    {
+      "key": "minecraft:sunflower_plains",
+      "name": "minecraft:sunflower_plains"
+    },
+    {
+      "key": "minecraft:flower_forest",
+      "name": "minecraft:flower_forest"
+    },
+    {
+      "key": "minecraft:birch_forest",
+      "name": "minecraft:birch_forest"
+    },
+    {
+      "key": "minecraft:tall_birch_forest",
+      "name": "minecraft:old_growth_birch_forest"
+    },
+    {
+      "key": "minecraft:dark_forest",
+      "name": "minecraft:dark_forest"
+    },
+    {
+      "key": "minecraft:savanna",
+      "name": "minecraft:savanna"
+    },
+    {
+      "key": "minecraft:jungle",
+      "name": "minecraft:jungle"
+    },
+    {
+      "key": "minecraft:eroded_badlands",
+      "name": "minecraft:eroded_badlands"
+    },
+    {
+      "key": "minecraft:badlands",
+      "name": "minecraft:badlands"
+    },
+    {
+      "key": "minecraft:wooded_badlands_plateau",
+      "name": "minecraft:wooded_badlands"
+    },
+    {
+      "key": "minecraft:stone_shore",
+      "name": "minecraft:stony_shore"
+    },
+    {
+      "key": "minecraft:snowy_beach",
+      "name": "minecraft:snowy_beach"
+    },
+    {
+      "key": "minecraft:beach",
+      "name": "minecraft:beach"
+    },
+    {
+      "key": "minecraft:desert",
+      "name": "minecraft:desert"
+    },
+    {
+      "key": "minecraft:shattered_savanna",
+      "name": "minecraft:windswept_savanna"
+    },
+    {
+      "key": "minecraft:jungle_edge",
+      "name": "minecraft:sparse_jungle"
+    },
+    {
+      "key": "minecraft:snowy_slopes",
+      "name": "minecraft:snowy_slopes"
+    },
+    {
+      "key": "minecraft:grove",
+      "name": "minecraft:grove"
+    },
+    {
+      "key": "minecraft:savanna_plateau",
+      "name": "minecraft:savanna_plateau"
+    },
+    {
+      "key": "minecraft:gravelly_hills",
+      "name": "minecraft:windswept_gravelly_hills"
+    },
+    {
+      "key": "minecraft:extreme_hills",
+      "name": "minecraft:windswept_hills"
+    },
+    {
+      "key": "minecraft:wooded_mountains",
+      "name": "minecraft:windswept_forest"
+    },
+    {
+      "key": "minecraft:meadow",
+      "name": "minecraft:meadow"
+    },
+    {
+      "key": "minecraft:lofty_peaks",
+      "name": "minecraft:jagged_peaks"
+    },
+    {
+      "key": "minecraft:snowcapped_peaks",
+      "name": "minecraft:frozen_peaks"
+    },
+    {
+      "key": "minecraft:stony_peaks",
+      "name": "minecraft:stony_peaks"
+    },
+    {
+      "key": "minecraft:bamboo_jungle",
+      "name": "minecraft:bamboo_jungle"
+    },
+    {
+      "key": "minecraft:lush_caves",
+      "name": "minecraft:lush_caves"
+    },
+    {
+      "key": "minecraft:dripstone_caves",
+      "name": "minecraft:dripstone_caves"
+    },
+    {
+      "key": "minecraft:mangrove_swamp",
+      "name": "minecraft:mangrove_swamp"
+    },
+    {
+      "key": "minecraft:deep_dark",
+      "name": "minecraft:deep_dark"
+    },
+    {
+      "key": "minecraft:cherry_grove",
+      "name": "minecraft:cherry_grove"
+    },
+    {
+      "key": "minecraft:pale_garden",
+      "name": "minecraft:pale_garden"
+    }
+  ],
   "targetVersion": "1_19",
   "exportSplines": false,
   "exportBiomeColors": false,
