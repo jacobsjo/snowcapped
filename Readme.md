@@ -3,7 +3,6 @@
 
 ## Use online at https://snowcapped.jacobsjo.eu
 
-----------
 Snowcapped is a Minecraft dimension layout editor for Minecraft. It is based on the vanilla overworld biome builder.
 
 You define the biomes in each cell of the 5 dimensional grid in an iterative way.
