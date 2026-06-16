@@ -20,11 +20,13 @@ export class ExportWriter {
         const zip = new JSZip()
         const dataFolder = zip.folder("data")
 
-        const mcMeta: PackMcmeta = {
+        const mcMeta/*: PackMcmeta*/ = {
             pack: {
-                description: "The data modified using Snowcapped (1.19 / 1.20)",
+                description: "The data modified using Snowcapped",
                 pack_format: this.builder.datapackFormat,
-                supported_formats: [MIN_DATAPACK_FORMAT, MAX_DATAPACK_FORMAT]
+                supported_formats: [MIN_DATAPACK_FORMAT, MAX_DATAPACK_FORMAT],
+                min_format: MIN_DATAPACK_FORMAT,
+                max_format: MAX_DATAPACK_FORMAT
             }
         }
 

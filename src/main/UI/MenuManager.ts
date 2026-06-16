@@ -10,6 +10,7 @@ export class MenuManager {
     private static loadVanilla120Button: HTMLElement
     private static loadVanilla1214Button: HTMLElement
     private static loadVanilla1215Button: HTMLElement
+    private static loadVanilla262Button: HTMLElement
     private static loadEmptyButton: HTMLElement
     private static openButton: HTMLElement
     private static saveButton: HTMLElement
@@ -66,6 +67,7 @@ export class MenuManager {
         this.loadVanilla120Button = document.getElementById('loadVanilla120Button')
         this.loadVanilla1214Button = document.getElementById('loadVanilla1214Button')
         this.loadVanilla1215Button = document.getElementById('loadVanilla1215Button')
+        this.loadVanilla262Button = document.getElementById('loadVanilla262Button')
         this.loadEmptyButton = document.getElementById('loadEmptyButton')
         this.openButton = document.getElementById('openButton')
         this.saveButton = document.getElementById('saveButton')
@@ -89,6 +91,10 @@ export class MenuManager {
 
         this.loadVanilla1215Button.onclick = (evt: Event) => {
             this.loadVanilla('minecraft_overworld_1_21_5.snowcapped.json')
+        }
+
+        this.loadVanilla262Button.onclick = (evt: Event) => {
+            this.loadVanilla('minecraft_overworld_26_2.snowcapped.json')
         }
 
         this.loadEmptyButton.onclick = async (evt: Event) => {
